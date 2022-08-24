@@ -20,11 +20,6 @@ return require('packer').startup(function(use)
     'nvim-treesitter/nvim-treesitter',
     run = ':TSUpdate'
   }
-  use 'jose-elias-alvarez/null-ls.nvim'
-  use 'MunifTanjim/prettier.nvim'
-
-  use 'williamboman/mason.nvim'
-  use 'williamboman/mason-lspconfig.nvim'
 
   use 'windwp/nvim-autopairs'
   use 'windwp/nvim-ts-autotag'
@@ -34,15 +29,19 @@ return require('packer').startup(function(use)
   use 'nvim-telescope/telescope.nvim'
   use 'nvim-telescope/telescope-file-browser.nvim'
 
-  use { 'akinsho/bufferline.nvim', tag = "v2.*" }
 
+  use { 'akinsho/bufferline.nvim', tag = "v2.*" }
   use 'norcalli/nvim-colorizer.lua'
 
+  use 'TimUntersberger/neogit'
   use 'lewis6991/gitsigns.nvim'
+  use 'dinhhuy258/git.nvim'
 
   use 'preservim/nerdcommenter'
   use 'tpope/vim-surround'
 
-  use 'dinhhuy258/git.nvim'
   use 'tpope/vim-obsession'
+
+  --format
+  use 'sbdchd/neoformat'
 end)

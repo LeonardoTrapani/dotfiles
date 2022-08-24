@@ -89,6 +89,16 @@ _G.packer_plugins = {
     path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/cmp-nvim-lsp",
     url = "https://github.com/hrsh7th/cmp-nvim-lsp"
   },
+  ["diffview.nvim"] = {
+    loaded = true,
+    path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/diffview.nvim",
+    url = "https://github.com/sindrets/diffview.nvim"
+  },
+  ["git.nvim"] = {
+    loaded = true,
+    path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/git.nvim",
+    url = "https://github.com/dinhhuy258/git.nvim"
+  },
   ["gitsigns.nvim"] = {
     loaded = true,
     path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/gitsigns.nvim",
@@ -109,25 +119,15 @@ _G.packer_plugins = {
     path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/lualine.nvim",
     url = "https://github.com/nvim-lualine/lualine.nvim"
   },
-  ["mason-lspconfig.nvim"] = {
+  neoformat = {
     loaded = true,
-    path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/mason-lspconfig.nvim",
-    url = "https://github.com/williamboman/mason-lspconfig.nvim"
-  },
-  ["mason.nvim"] = {
-    loaded = true,
-    path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/mason.nvim",
-    url = "https://github.com/williamboman/mason.nvim"
+    path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/neoformat",
+    url = "https://github.com/sbdchd/neoformat"
   },
   nerdcommenter = {
     loaded = true,
     path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/nerdcommenter",
     url = "https://github.com/preservim/nerdcommenter"
-  },
-  ["null-ls.nvim"] = {
-    loaded = true,
-    path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/null-ls.nvim",
-    url = "https://github.com/jose-elias-alvarez/null-ls.nvim"
   },
   ["nvim-autopairs"] = {
     loaded = true,
@@ -179,11 +179,6 @@ _G.packer_plugins = {
     path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/plenary.nvim",
     url = "https://github.com/nvim-lua/plenary.nvim"
   },
-  ["prettier.nvim"] = {
-    loaded = true,
-    path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/prettier.nvim",
-    url = "https://github.com/MunifTanjim/prettier.nvim"
-  },
   ["telescope-file-browser.nvim"] = {
     loaded = true,
     path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/telescope-file-browser.nvim",
@@ -193,6 +188,16 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/telescope.nvim",
     url = "https://github.com/nvim-telescope/telescope.nvim"
+  },
+  ["vim-obsession"] = {
+    loaded = true,
+    path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/vim-obsession",
+    url = "https://github.com/tpope/vim-obsession"
+  },
+  ["vim-surround"] = {
+    loaded = true,
+    path = "/Users/leonardotrapani/.local/share/nvim/site/pack/packer/start/vim-surround",
+    url = "https://github.com/tpope/vim-surround"
   }
 }
 

@@ -15,7 +15,7 @@ saga.init_lsp_saga {
   },
 }
 
-local opts = { noremap = true, silent = true }
+local opts = { silent = true }
 
 nnoremap('<C-j>', '<cmd>Lspsaga diagnostic_jump_next<CR>', opts)
 nnoremap('<leader>r', '<cmd>Lspsaga rename<CR>', opts)
@@ -24,3 +24,4 @@ nnoremap('<leader>fr', '<cmd>Lspsaga lsp_finder<CR>', opts)
 nnoremap('<leader>d', '<cmd>Lspsaga preview_definition<CR>', opts)
 nnoremap('<leader>.', '<cmd>Lspsaga code_action<CR>', opts)
 nnoremap('<leader>s', '<cmd>Lspsaga signature_help<CR>', opts)
+nnoremap('<leader>p', '<cmd>Lspsaga show_line_diagnostics', opts)

@@ -17,7 +17,6 @@ vnoremap('<C-x>', 'd')
 -- disable annoying keys
 nnoremap('<Enter>', '<Nop>')
 nnoremap('<S-Enter>', '<Nop>')
-nnoremap('J', '<Nop>')
 vnoremap('J', '<Nop>')
 vnoremap('<Enter>', '<Nop>')
 -- increment / decrement
@@ -46,3 +45,9 @@ nnoremap("<leader>q", "<cmd>q<CR>")
 nnoremap("<leader>w", "<cmd>w<CR>")
 --go to previos file
 nnoremap("<leader>p", "<C-^>")
+
+--move up and down
+nnoremap("J", "<cmd>m .+1<CR>==")
+nnoremap("K", "<cmd>m .-2<CR>==")
+vnoremap("J", ":m '>+1<CR>gv=gv")
+vnoremap("K", ":m '<-2<CR>gv=gv")
