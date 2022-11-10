@@ -1,9 +1,5 @@
 local nnoremap = require("trapani.keymap").nnoremap
-local inoremap = require("trapani.keymap").inoremap
 local vnoremap = require("trapani.keymap").vnoremap
-
-inoremap("jk", "<ESC>")
-
 -- not yank with x, d and c
 nnoremap("x", '"_x')
 nnoremap("d", '"_d')
@@ -15,10 +11,11 @@ vnoremap("c", '"_c')
 vnoremap('<C-x>', 'd')
 
 -- disable annoying keys
-nnoremap('<Enter>', '<Nop>')
 nnoremap('<S-Enter>', '<Nop>')
 vnoremap('J', '<Nop>')
 vnoremap('<Enter>', '<Nop>')
+vnoremap('q', '<Nop>')
+nnoremap('q', '<Nop>')
 -- increment / decrement
 nnoremap("+", "<C-a>")
 nnoremap("-", "<C-x>")
@@ -26,8 +23,8 @@ nnoremap("-", "<C-x>")
 -- slect all
 nnoremap("<C-a>", "gg<S-v>G")
 -- split vertical and horizontal
-nnoremap("<leader>sv", ":split<Return><C-w>W", { silent = true }) --split vertical
-nnoremap("<leader>ss", ":vsplit<Return><C-w>W", { silent = true }) --split
+nnoremap("<leader>v", ":split<Return><C-w>W", { silent = true }) --split vertical
+nnoremap("<leader>s", ":vsplit<Return><C-w>W", { silent = true }) --split
 -- move window
 nnoremap("<leader><Enter>", "<C-w>w") -- next terminal
 nnoremap("<leader>k", "<C-w>k")
@@ -37,8 +34,8 @@ nnoremap("<leader>h", "<C-w>h")
 --resize window
 nnoremap("<leader>+", "10<C-w>>") --bigger horizontally
 nnoremap("<leader>-", "10<C-w><") --smaller horizontally
-nnoremap("<leader>v+", "10<C-w>+") --bigger vertically
-nnoremap("<leader>v-", "10<C-w>-") --smaller vertically
+nnoremap("<leader>*", "5<C-w>+") --bigger vertically
+nnoremap("<leader>_", "5<C-w>-") --smaller vertically
 --close buffer
 nnoremap("<leader>q", "<cmd>q<CR>")
 --save
@@ -51,3 +48,6 @@ nnoremap("J", "<cmd>m .+1<CR>==")
 nnoremap("K", "<cmd>m .-2<CR>==")
 vnoremap("J", ":m '>+1<CR>gv=gv")
 vnoremap("K", ":m '<-2<CR>gv=gv")
+
+--neogit
+nnoremap("<leader>ng", "<cmd>Neogit<CR>")

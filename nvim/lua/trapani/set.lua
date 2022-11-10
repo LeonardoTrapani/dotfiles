@@ -58,4 +58,9 @@ vim.opt.clipboard:append { 'unnamedplus' }
 vim.opt.path:append { '**' }
 vim.opt.wildignore:append { '*/node_modules/*' }
 
+vim.opt_local.signcolumn = 'yes'
+
 vim.g.mapleader = " "
+
+vim.opt.cmdheight = 1
+

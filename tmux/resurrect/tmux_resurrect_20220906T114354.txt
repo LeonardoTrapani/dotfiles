@@ -1,0 +1,10 @@
+pane	0	1	1	:*	0	[No Name] - NVIM	:/Users/leonardotrapani/homework-manager	1	nvim	:nvim
+pane	0	2	0	:-	0	yarn start ~/h/mobile	:/Users/leonardotrapani/homework-manager/mobile	1	node	:node /opt/homebrew/Cellar/yarn/1.22.19/libexec/bin/yarn.js start
+pane	0	3	0	:	0	yarn server ~/homework-manager	:/Users/leonardotrapani/homework-manager	1	node	:(fish)
+node /opt/homebrew/Cellar/yarn/1.22.19/libexec/bin/yarn.js server
+pane	1	2	1	:*	0	~	:/Users/leonardotrapani	1	fish	:
+window	0	1	:vscode	1	:*	bf3e,115x35,0,0,1	off
+window	0	2	:node	0	:-	bf3f,115x35,0,0,2	:
+window	0	3	:node	0	:	bf41,115x35,0,0,4	:
+window	1	2	:fish	1	:*	bf40,115x35,0,0,3	:
+state	0	1

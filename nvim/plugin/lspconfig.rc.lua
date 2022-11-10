@@ -4,12 +4,12 @@ local status, nvim_lsp = pcall(require, 'lspconfig')
 if (not status) then return end
 
 local function config(_config)
-  return vim.tbl_deep_extend("force", {
-    capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities()),
-    on_attach = function()
-      nnoremap("<leader>h", function() vim.lsp.buf.hover() end)
-    end,
-  }, _config or {})
+	return vim.tbl_deep_extend("force", {
+		capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities()),
+		on_attach = function()
+			nnoremap("<leader>d", function() vim.lsp.buf.definition() end)
+		end,
+	}, _config or {})
 end
 
 --
@@ -28,6 +28,8 @@ nvim_lsp.tailwindcss.setup(config())
 nvim_lsp.eslint.setup(config())
 --dart
 nvim_lsp.dartls.setup(config())
+--fish
+nvim_lsp.bashls.setup(config())
 --rust
 nvim_lsp.rust_analyzer.setup(config({
   cmd = { "rustup", "run", "nightly", "rust-analyzer" },
@@ -66,3 +68,6 @@ require("lspconfig").sumneko_lua.setup(config({
     },
   },
 }))
+--c 
+require("lspconfig").sourcekit.setup(config({}))
+require("lspconfig").ccls.setup(config({}))
