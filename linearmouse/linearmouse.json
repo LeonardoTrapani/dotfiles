@@ -1,0 +1,33 @@
+{
+  "$schema" : "https:\/\/schema.linearmouse.app\/0.7.6",
+  "schemes" : [
+    {
+      "buttons" : {
+        "universalBackForward" : true
+      },
+      "if" : {
+        "device" : {
+          "productName" : "USB Receiver",
+          "productID" : "0xc547",
+          "category" : "mouse",
+          "vendorID" : "0x46d"
+        }
+      },
+      "pointer" : {
+        "acceleration" : 0,
+        "speed" : 0.1
+      },
+      "scrolling" : {
+        "reverse" : {
+          "vertical" : true
+        },
+        "distance" : {
+          "vertical" : "auto"
+        },
+        "scale" : {
+          "vertical" : 1
+        }
+      }
+    }
+  ]
+}
