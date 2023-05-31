@@ -2,7 +2,7 @@
 1. Clone the repo
 2. Link the files to the proper folders
 ```ln -s ~/.dotfiles/nvim/ ~/.config
-ln -s ~/.dotfiles/fish/ ~/.config
+ln -s ~/.dotfiles/.zshrc ~/.zshrc
 ln -s ~/.dotfiles/linearmouse/ ~/.config
 ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 ln -s ~/.dotfiles/.warp/ ~/.warp
