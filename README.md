@@ -3,12 +3,14 @@
 2. Link the files to the proper folders
 ```
 ln -s ~/.dotfiles/nvim/ ~/.config
-ln -s ~/.dotfiles/.zshrc ~/.zshrc
 ln -s ~/.dotfiles/linearmouse/ ~/.config
 ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 ln -s ~/.dotfiles/.warp/ ~/.warp
 ln -s ~/.dotfiles/.tmux.conf ~/.tmux.conf
 ln -s ~/.dotfiles/github-copilot/ ~/.config/
+ln -s ~/.dotfiles/zsh/.zshrc ~/.zshrc
+ln -s ~/.dotfiles/zsh/.zshenv ~/.zshenv
+ln -s ~/.dotfiles/zsh/.zprofile ~/.zprofile
 ```
 
 3. Install Homebrew
