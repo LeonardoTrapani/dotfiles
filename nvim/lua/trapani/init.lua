@@ -1,2 +1,2 @@
-require("trapani.remap");
-require("trapani.set");
+require("trapani.remap")
+require("trapani.set")

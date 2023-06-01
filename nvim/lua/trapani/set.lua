@@ -47,18 +47,18 @@ vim.opt.breakindent = true
 vim.opt.ai = true
 vim.opt.si = true
 
-vim.opt.path:append { '**' }
+vim.opt.path:append({ "**" })
 
 -- underurl
 vim.cmd([[let &t_Cs = "\e[4:3m"]])
 vim.cmd([[let &t_Ce = "\e[4:0m"]])
 
 --clipboard with system
-vim.opt.clipboard:append { 'unnamedplus' }
-vim.opt.path:append { '**' }
-vim.opt.wildignore:append { '*/node_modules/*' }
+vim.opt.clipboard:append({ "unnamedplus" })
+vim.opt.path:append({ "**" })
+vim.opt.wildignore:append({ "*/node_modules/*" })
 
-vim.opt_local.signcolumn = 'yes'
+vim.opt_local.signcolumn = "yes"
 
 vim.g.mapleader = " "
 
