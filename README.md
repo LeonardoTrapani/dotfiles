@@ -1,16 +1,8 @@
 # dotfiles
 1. Clone the repo
-2. Link the files to the proper folders
+2. Run this script to link the files to the proper place
 ```
-ln -s ~/.dotfiles/nvim/ ~/.config
-ln -s ~/.dotfiles/linearmouse/ ~/.config
-ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
-ln -s ~/.dotfiles/.warp/ ~/.warp
-ln -s ~/.dotfiles/.tmux.conf ~/.tmux.conf
-ln -s ~/.dotfiles/github-copilot/ ~/.config/
-ln -s ~/.dotfiles/zsh/.zshrc ~/.zshrc
-ln -s ~/.dotfiles/zsh/.zshenv ~/.zshenv
-ln -s ~/.dotfiles/zsh/.zprofile ~/.zprofile
+bash setup.sh
 ```
 
 3. Install Homebrew
