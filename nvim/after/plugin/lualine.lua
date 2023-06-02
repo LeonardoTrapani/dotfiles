@@ -25,5 +25,4 @@ lualine.setup({
 	},
 	tabline = {},
 	extensions = {},
-	disabled_filetypes = { "packer", "NVimTree" },
 })
