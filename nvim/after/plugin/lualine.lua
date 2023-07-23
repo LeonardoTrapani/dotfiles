@@ -25,4 +25,5 @@ lualine.setup({
 	},
 	tabline = {},
 	extensions = {},
+	silent = true,
 })

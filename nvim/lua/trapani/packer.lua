@@ -1,4 +1,4 @@
--- This file can be loaded by calling `lua require('plugins')` from your init.vim
+-- This file can be loaded by calling `lua require('plugins')` from your init.vimpacker
 
 -- Only required if you have packer configured as `opt`
 vim.cmd([[packadd packer.nvim]])
@@ -18,11 +18,11 @@ return require("packer").startup(function(use)
 		"navarasu/onedark.nvim",
 		as = "onedark",
 		config = function()
-			require("onedark").setup()
-			require("onedark").load()
-			vim.cmd("colorscheme ")
+			require("onedark").setup({ silent = true })
+			require("onedark").load({ silent = true })
+			vim.cmd("colorscheme ", { silent = true })
 		end,
-	})
+	}, { silent = true })
 
 	use("nvim-treesitter/nvim-treesitter", { run = ":TSUpdate", build = ":TSUpdate" })
 	use("nvim-treesitter/playground")
