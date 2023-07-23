@@ -25,6 +25,7 @@ return require("packer").startup(function(use)
 	}, { silent = true })
 
 	use("nvim-treesitter/nvim-treesitter", { run = ":TSUpdate", build = ":TSUpdate" })
+
 	use("nvim-treesitter/playground")
 	use("theprimeagen/harpoon")
 	use("tpope/vim-fugitive")
@@ -64,4 +65,13 @@ return require("packer").startup(function(use)
 	use("nvim-tree/nvim-web-devicons")
 
 	use("tpope/vim-commentary")
+
+	use({
+		"jackMort/ChatGPT.nvim",
+		requires = {
+			"MunifTanjim/nui.nvim",
+			"nvim-lua/plenary.nvim",
+			"nvim-telescope/telescope.nvim",
+		},
+	})
 end)
