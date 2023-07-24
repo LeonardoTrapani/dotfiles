@@ -23,15 +23,4 @@ git clone --depth 1 https://github.com/wbthomason/packer.nvim\
 ~/.local/share/nvim/site/pack/packer/start/packer.nvim
 ```
 
-5. Setup OpenaiApiKey
-   Go to the root dir (~/)
-   run:
-   ```
-   touch openaiapikey.txt
-   ```
-   Edit it with your openaikey
-   Encrypt the file and delete it:
-   ```
-   gpg -e -r [youremail] openaiapikey.txt
-   rm openaiapikey.txt
-   ```
+5. Crete a file ~/.openaiapikey.txt containing the openai api key
