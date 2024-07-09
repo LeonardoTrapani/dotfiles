@@ -63,3 +63,16 @@ vim.opt_local.signcolumn = "yes"
 vim.g.mapleader = " "
 
 vim.opt.cmdheight = 1
+--
+-- Disable automatic closing brackets
+function disable_auto_close_brackets()
+	vim.api.nvim_set_keymap("i", "(", "(", { noremap = true })
+	vim.api.nvim_set_keymap("i", "[", "[", { noremap = true })
+	vim.api.nvim_set_keymap("i", "{", "{", { noremap = true })
+	vim.api.nvim_set_keymap("i", '"', '"', { noremap = true })
+	vim.api.nvim_set_keymap("i", "'", "'", { noremap = true })
+	-- Add more characters if needed
+end
+
+-- Call the function to disable auto closing brackets
+disable_auto_close_brackets()

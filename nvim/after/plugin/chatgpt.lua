@@ -16,6 +16,7 @@ if file then
 
 	chatgpt.setup({
 		api_key_cmd = "echo " .. apiKey,
+		silent = true,
 		yank_register = "+",
 		edit_with_instructions = {
 			diff = false,
@@ -29,7 +30,7 @@ if file then
 			},
 		},
 		chat = {
-			welcome_message = "Hello Leo, I'm here to make you look like a better programmer.",
+			welcome_message = "",
 			loading_text = "Loading...",
 			question_sign = "⚪️",
 			answer_sign = "ﮧ",
