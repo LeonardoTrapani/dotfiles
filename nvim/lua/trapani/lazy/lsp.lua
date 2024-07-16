@@ -91,7 +91,7 @@ return {
 				["<C-Space>"] = cmp.mapping.complete(),
 				["<C-k>"] = cmp.mapping.select_prev_item(cmp_select),
 				["<C-j>"] = cmp.mapping.select_next_item(cmp_select),
-				["<C-CR>"] = cmp.mapping.confirm({ select = true }),
+				["<C-y>"] = cmp.mapping.confirm({ select = true }),
 				["<Tab>"] = nil,
 				["<S-Tab>"] = nil,
 			}),
