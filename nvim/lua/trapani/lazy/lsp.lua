@@ -76,6 +76,19 @@ return {
 						},
 					})
 				end,
+				["pyright"] = function()
+					local lspconfig = require("lspconfig")
+					lspconfig.pyright.setup({
+						capabilities = capabilities,
+						settings = {
+							python = {
+								analysis = {
+									typeCheckingMode = "off",
+								},
+							},
+						},
+					})
+				end,
 			},
 		})
 
@@ -92,8 +105,6 @@ return {
 				["<C-k>"] = cmp.mapping.select_prev_item(cmp_select),
 				["<C-j>"] = cmp.mapping.select_next_item(cmp_select),
 				["<C-y>"] = cmp.mapping.confirm({ select = true }),
-				["<Tab>"] = nil,
-				["<S-Tab>"] = nil,
 			}),
 			sources = cmp.config.sources({
 				{ name = "nvim_lsp" },
