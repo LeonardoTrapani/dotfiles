@@ -9,18 +9,13 @@ bash setup.sh
 
 3. Install Homebrew
 
-```
+```zsh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew bundle --file ~/.dotfiles/Brewfile
 ```
 
-4. Install other software
-
-Packer (nvim package manager)
-
-```
-git clone --depth 1 https://github.com/wbthomason/packer.nvim\
-~/.local/share/nvim/site/pack/packer/start/packer.nvim
-```
-
-5. Crete a file ~/.openaiapikey.txt containing the openai api key
+4. Load Env Variables creating a file ~/.zshenv
+   ```zsh
+   export ANTHROPIC_API_KEY=yourkey
+   export OTHER_KEYS_HERE=yourkey
+   ```

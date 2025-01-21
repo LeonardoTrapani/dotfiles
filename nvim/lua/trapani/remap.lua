@@ -36,10 +36,14 @@ vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
 vim.keymap.set("n", "<leader>k", "<cmd>lnext<CR>zz")
 vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
 
+-- These mapping control the size of splits (height and width)
+vim.keymap.set("n", "<C-s>", "<C-w><") -- make smaller horizontally
+vim.keymap.set("n", "<C-b>", "<C-w>>") -- make bigger horizontally
+vim.keymap.set("n", "∫", "<C-w>+") -- make bigger vertically (Option + b)
+vim.keymap.set("n", "ß", "<C-w>-") -- make smaller vertically (Option + s)
+
 vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]]) -- replace the word you are on
 
 vim.keymap.set("n", "<leader><leader>", function()
 	vim.cmd("so")
-
-	vim.keymap.set("n", "<C-s>", ":Startify<cr>")
 end)

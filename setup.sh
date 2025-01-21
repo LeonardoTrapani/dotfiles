@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-cd "$(dirname "${BASH_SOURCE}")";
+cd "$(dirname "${BASH_SOURCE}")"
 
-git pull origin main;
+git pull origin main
 
 function doIt() {
   ln -sf ~/.dotfiles/nvim/ ~/.config
@@ -11,17 +11,17 @@ function doIt() {
   ln -sf ~/.dotfiles/.warp/ ~/.warp
   ln -sf ~/.dotfiles/.tmux.conf ~/.tmux.conf
   ln -sf ~/.dotfiles/zsh/.zshrc ~/.zshrc
-  ln -sf ~/.dotfiles/zsh/.zshenv ~/.zshenv
   ln -sf ~/.dotfiles/zsh/.zprofile ~/.zprofile
+  ln -sf ~/.dotfiles/config-images/ ~/.config
 }
 
 if [ "$1" == "--force" -o "$1" == "-f" ]; then
-	doIt;
+  doIt
 else
-	read -p "This may overwrite existing files in your home directory. Are you sure? (y/n) " -n 1;
-	echo "";
-	if [[ $REPLY =~ ^[Yy]$ ]]; then
-		doIt;
-	fi;
-fi;
-unset doIt;
+  read -p "This may overwrite existing files in your home directory. Are you sure? (y/n) " -n 1
+  echo ""
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    doIt
+  fi
+fi
+unset doIt

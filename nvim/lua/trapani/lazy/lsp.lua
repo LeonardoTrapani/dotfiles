@@ -2,8 +2,13 @@ return {
 	"VonHeikemen/lsp-zero.nvim",
 	dependencies = {
 		-- LSP Support
-		{ "neovim/nvim-lspconfig" }, -- Required
-		{ "williamboman/mason.nvim" }, -- Optional
+		{ "neovim/nvim-lspconfig" },
+		{
+			"williamboman/mason.nvim",
+			build = function()
+				pcall(vim.cmd, "MasonUpdate")
+			end,
+		},
 		{ "williamboman/mason-lspconfig.nvim" }, -- Optional
 
 		-- Autocompletion
@@ -11,6 +16,7 @@ return {
 		{ "hrsh7th/cmp-nvim-lsp" }, -- Required
 		{ "hrsh7th/cmp-buffer" }, -- Optional
 		{ "hrsh7th/cmp-path" }, -- Optional
+		{ "hrsh7th/cmp-cmdline" }, -- Optional
 		{ "saadparwaiz1/cmp_luasnip" }, -- Optional
 		{ "hrsh7th/cmp-nvim-lua" }, -- Optional
 
@@ -39,6 +45,10 @@ return {
 			ensure_installed = {
 				"lua_ls",
 				"rust_analyzer",
+				"eslint",
+				"html",
+				"jsonls",
+				"tailwindcss",
 			},
 			handlers = {
 				function(server_name) -- default handler (optional)
@@ -124,6 +134,29 @@ return {
 				header = "",
 				prefix = "",
 			},
+		})
+
+		-- `/` cmdline setup.
+		cmp.setup.cmdline("/", {
+			mapping = cmp.mapping.preset.cmdline(),
+			sources = {
+				{ name = "buffer" },
+			},
+		})
+
+		-- `:` cmdline setup
+		cmp.setup.cmdline(":", {
+			mapping = cmp.mapping.preset.cmdline(),
+			sources = cmp.config.sources({
+				{ name = "path" },
+			}, {
+				{
+					name = "cmdline",
+					option = {
+						ignore_cmds = { "Man", "!" },
+					},
+				},
+			}),
 		})
 	end,
 }

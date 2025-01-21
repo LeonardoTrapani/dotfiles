@@ -75,4 +75,6 @@ function disable_auto_close_brackets()
 end
 
 -- Call the function to disable auto closing brackets
-disable_auto_close_brackets()
+-- disable_auto_close_brackets()
+
+vim.opt.laststatus = 3 -- views can only be fully collapsed with the global statusline

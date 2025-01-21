@@ -6,7 +6,7 @@
 #
 # This file defines your launch configuration.
 # More on how to do so here:
-# https://docs.warp.dev/features/session-management/launch-configurations
+# https://docs.warp.dev/features/sessions/launch-configurations
 #
 # All launch configurations are stored under ~/.warp/launch_configurations.
 # Edit them anytime!
@@ -22,14 +22,14 @@
 #            - exec: code .
 
 ---
-name: Full datapizza
+name: Datapizza/Full
 windows:
   - tabs:
       - layout:
-          cwd: /Users/leonardotrapani/techfolio-frontend
+          cwd: /Users/leonardotrapani/dev/datapizza/techfolio-frontend
       - layout:
-          cwd: /Users/leonardotrapani/techfolio-backend
+          cwd: /Users/leonardotrapani/dev/datapizza/techfolio-backend
       - layout:
-          cwd: /Users/leonardotrapani/techfolio-frontend
+          cwd: /Users/leonardotrapani/dev/datapizza/crm
       - layout:
-          cwd: /Users/leonardotrapani/techfolio-backend
+          cwd: /Users/leonardotrapani/dev/datapizza/datapizza-root
