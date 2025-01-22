@@ -8,10 +8,18 @@ return {
 			end,
 			desc = "Dismiss All Notifications",
 		},
+		{
+			"<C-n>",
+			function()
+				require("telescope").extensions.notify.notify()
+			end,
+			desc = "Open Notifications in Telescope",
+		},
 	},
 	opts = {
-		stages = "static",
-		timeout = 5000,
+		render = "minimal",
+		stages = "slide",
+		timeout = 2000,
 		max_height = function()
 			return math.floor(vim.o.lines * 0.75)
 		end,
