@@ -14,6 +14,12 @@ bash setup.sh
 brew bundle --file ~/.dotfiles/Brewfile
 ```
 
+4. Install Terminal
+
+```
+brew install --cask ghostty
+```
+
 4. Load Env Variables creating a file ~/.zshenv
    ```zsh
    export ANTHROPIC_API_KEY=yourkey

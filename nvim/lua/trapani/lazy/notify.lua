@@ -9,7 +9,7 @@ return {
 			desc = "Dismiss All Notifications",
 		},
 		{
-			"<C-n>",
+			"<leader>n",
 			function()
 				require("telescope").extensions.notify.notify()
 			end,

@@ -8,10 +8,9 @@ end
 
 return {
 	"navarasu/onedark.nvim",
-	as = "onedark",
+	name = "onedark",
 	config = function()
-		require("onedark").setup()
-		require("onedark").load()
-		ColorMyPencils("onedark")
+		vim.cmd("colorscheme onedark")
+		-- ColorMyPencils("onedark")
 	end,
 }
