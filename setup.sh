@@ -13,6 +13,7 @@ function doIt() {
   ln -sf ~/.dotfiles/zsh/.zshrc ~/.zshrc
   ln -sf ~/.dotfiles/zsh/.zshenv ~/.zshenv
   ln -sf ~/.dotfiles/zsh/.zprofile ~/.zprofile
+  ln -sf ~/.dotfiles/zsh/.pk10.zsh ~/.pk10.zsh
   ln -sf ~/.dotfiles/config-images/ ~/.config
 }
 

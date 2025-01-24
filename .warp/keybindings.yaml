@@ -1,3 +1,2 @@
 ---
-"terminal:ask_ai_assistant": ctrl-shift-space
-"workspace:toggle_ai_assistant": ctrl-i
+"workspace:toggle_ai_assistant": none
