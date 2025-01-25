@@ -12,7 +12,6 @@ function doIt() {
   ln -sf ~/.dotfiles/zsh/.zshenv ~/.zshenv
   ln -sf ~/.dotfiles/zsh/.zshrc ~/.zshrc
   ln -sf ~/.dotfiles/zsh/.zprofile ~/.zprofile
-  ln -sf ~/.dotfiles/zsh/powerlevel10k ~/.config
   ln -sf ~/.dotfiles/zsh/.p10k.zsh ~/.p10k.zsh
   ln -sf ~/.dotfiles/ghostty/ ~/.config
 }

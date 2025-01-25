@@ -1,4 +1,6 @@
-theme = "OneHalfDark"
+theme = "rose-pine"
 font-size = 22
-window-width = 20000
-window-height = 20000
+window-width = 110
+window-height = 30
+background-opacity = 0.90
+background-blur-radius = 20

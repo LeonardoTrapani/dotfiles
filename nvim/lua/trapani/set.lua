@@ -78,3 +78,6 @@ end
 -- disable_auto_close_brackets()
 
 vim.opt.laststatus = 3 -- views can only be fully collapsed with the global statusline
+
+-- Set fillchars to avoid tilde on the end of the buffer
+vim.opt.fillchars = { eob = " " }
