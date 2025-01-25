@@ -8,7 +8,7 @@ function doIt() {
   ln -sf ~/.dotfiles/nvim/ ~/.config
   ln -sf ~/.dotfiles/linearmouse/ ~/.config
   ln -sf ~/.dotfiles/.gitconfig ~/.gitconfig
-  ln -sf ~/.dotfiles/.tmux.conf ~/.tmux.conf
+  ln -sf ~/.dotfiles/tmux ~/.config
   ln -sf ~/.dotfiles/zsh/.zshenv ~/.zshenv
   ln -sf ~/.dotfiles/zsh/.zshrc ~/.zshrc
   ln -sf ~/.dotfiles/zsh/.zprofile ~/.zprofile

@@ -2,3 +2,4 @@
 packer_compiled.lua
 Brewfile.lock.json
 .zshenv
+tmux/plugins/

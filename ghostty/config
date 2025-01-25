@@ -1,6 +1,7 @@
-theme = "rose-pine"
+theme = "catppuccin-mocha"
 font-size = 22
 window-width = 110
 window-height = 30
 background-opacity = 0.90
-background-blur-radius = 20
+background-blur-radius = 80
+mouse-hide-while-typing = true

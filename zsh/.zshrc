@@ -5,6 +5,8 @@ alias g="git"
 alias npm="pnpm"
 alias ls='ls --color'
 
+unset MAILCHECK
+
 # pnpm
 export PNPM_HOME="/Users/leonardotrapani/Library/pnpm"
 case ":$PATH:" in

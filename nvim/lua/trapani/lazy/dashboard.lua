@@ -3,7 +3,7 @@ return {
 	event = "VimEnter",
 	config = function()
 		require("dashboard").setup({
-			theme = 'doom',
+			theme = "doom",
 			config = {
 				header = {
 					"",
@@ -73,7 +73,6 @@ return {
 						action = "qa",
 					},
 				},
-				footer = { "🚀 Leo Trapani's Neovim" },
 			},
 		})
 	end,
