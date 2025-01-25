@@ -21,7 +21,8 @@ brew install --cask ghostty
 ```
 
 4. Load Env Variables creating a file ~/.zshenv
-   ```zsh
-   export ANTHROPIC_API_KEY=yourkey
-   export OTHER_KEYS_HERE=yourkey
-   ```
+
+```zsh
+export ANTHROPIC_API_KEY=yourkey
+export OTHER_KEYS_HERE=yourkey
+```

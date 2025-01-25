@@ -5,13 +5,12 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# aliases
 alias vim="nvim"
+alias v="nvim"
 alias g="git"
 alias npm="pnpm"
-
-source ~/.dotfiles/zsh/zsh-z/zsh-z.plugin.zsh
-
-eval "$(fzf --zsh)"
+alias ls='ls --color'
 
 # pnpm
 export PNPM_HOME="/Users/leonardotrapani/Library/pnpm"
@@ -19,12 +18,13 @@ case ":$PATH:" in
 *":$PNPM_HOME:"*) ;;
 *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
-# pnpm end
 
+# Homebrew
 export PATH="/opt/homebrew/bin:$PATH"
 export PATH="/opt/homebrew/opt/python@3.11/libexec/bin:$PATH"
-source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
-source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
+
+source ~/.config/powerlevel10k/powerlevel10k.zsh-theme
+eval "$(fzf --zsh)"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

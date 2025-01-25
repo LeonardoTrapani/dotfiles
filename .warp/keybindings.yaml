@@ -1,2 +1,3 @@
 ---
-"workspace:toggle_ai_assistant": none
+"workspace:toggle_ai_assistant": ctrl-alt-n
+"input:clear_screen": ctrl-l

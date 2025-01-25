@@ -8,13 +8,13 @@ function doIt() {
   ln -sf ~/.dotfiles/nvim/ ~/.config
   ln -sf ~/.dotfiles/linearmouse/ ~/.config
   ln -sf ~/.dotfiles/.gitconfig ~/.gitconfig
-  ln -sf ~/.dotfiles/.warp/ ~/.warp
   ln -sf ~/.dotfiles/.tmux.conf ~/.tmux.conf
-  ln -sf ~/.dotfiles/zsh/.zshrc ~/.zshrc
   ln -sf ~/.dotfiles/zsh/.zshenv ~/.zshenv
+  ln -sf ~/.dotfiles/zsh/.zshrc ~/.zshrc
   ln -sf ~/.dotfiles/zsh/.zprofile ~/.zprofile
-  ln -sf ~/.dotfiles/zsh/.pk10.zsh ~/.pk10.zsh
-  ln -sf ~/.dotfiles/config-images/ ~/.config
+  ln -sf ~/.dotfiles/zsh/powerlevel10k ~/.config
+  ln -sf ~/.dotfiles/zsh/.p10k.zsh ~/.p10k.zsh
+  ln -sf ~/.dotfiles/ghostty/ ~/.config
 }
 
 if [ "$1" == "--force" -o "$1" == "-f" ]; then
