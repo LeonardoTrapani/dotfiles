@@ -2,7 +2,6 @@
 alias vim="nvim"
 alias v="nvim"
 alias g="git"
-alias gc = "git commit -m"
 alias npm="pnpm"
 alias ls='ls --color'
 alias tls='tmuxp load'
@@ -22,12 +21,15 @@ export PATH="/opt/homebrew/opt/python@3.11/libexec/bin:$PATH"
 
 eval "$(fzf --zsh)"
 
+eval "$(starship init zsh)"
+export STARSHIP_CONFIG=~/.config/starship/starship.toml
+
 export TMUXP_CONFIGDIR=$HOME/.config/tmux/layouts/
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.dotfiles/zsh/.p10k.zsh ]] || source ~/.dotfiles/zsh/.p10k.zsh
+# [[ ! -f ~/.dotfiles/zsh/.p10k.zsh ]] || source ~/.dotfiles/zsh/.p10k.zsh
 
-source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
+# source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
