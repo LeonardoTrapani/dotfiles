@@ -2,8 +2,10 @@
 alias vim="nvim"
 alias v="nvim"
 alias g="git"
+alias gc = "git commit -m"
 alias npm="pnpm"
 alias ls='ls --color'
+alias tls='tmuxp load'
 
 unset MAILCHECK
 
@@ -19,6 +21,8 @@ export PATH="/opt/homebrew/bin:$PATH"
 export PATH="/opt/homebrew/opt/python@3.11/libexec/bin:$PATH"
 
 eval "$(fzf --zsh)"
+
+export TMUXP_CONFIGDIR=$HOME/.config/tmux/layouts/
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.dotfiles/zsh/.p10k.zsh ]] || source ~/.dotfiles/zsh/.p10k.zsh

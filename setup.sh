@@ -14,6 +14,7 @@ function doIt() {
   ln -sf ~/.dotfiles/zsh/.zprofile ~/.zprofile
   ln -sf ~/.dotfiles/zsh/.p10k.zsh ~/.p10k.zsh
   ln -sf ~/.dotfiles/ghostty/ ~/.config
+  ln -sf ~/.dotfiles/.tmuxp/ ~/.config
 }
 
 if [ "$1" == "--force" -o "$1" == "-f" ]; then

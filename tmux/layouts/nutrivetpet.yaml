@@ -1,0 +1,15 @@
+session_name: nutrivetpet
+start_directory: ~/dev/nutrivetpet
+windows:
+  - window_name: editor
+    focus: true
+    panes:
+      - vim
+  - wondow_name: shell
+    panes:
+      -
+  - window_name: server
+    panes:
+      - shell_command:
+          - cd techfolio-frontend
+          - pnpm dev
