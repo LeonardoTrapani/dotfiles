@@ -1,21 +1,21 @@
-session_name: datapizza
-start_directory: ~/dev/datapizza
+session_name: datapizza-frontend
+start_directory: ~/dev/datapizza/techfolio-frontend
 windows:
   - window_name: editor
     focus: true
     panes:
       - vim
-  - wondow_name: shell
-    panes:
-      -
   - window_name: server
     layout: main-vertical
+    main_pane_width: 70%
     panes:
       - shell_command:
-          - cd techfolio-frontend
-          - pnpm dev
+          -
         focus: true
       - shell_command:
+          - pnpm dev
+      - shell_command:
+          - cd ..
           - cd techfolio-backend
           - python3 -m venv env
           - source env/bin/activate
