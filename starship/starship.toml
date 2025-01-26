@@ -17,8 +17,8 @@ success_symbol = '[➜](bold green)'
 format =  '[$symbol$branch(:$remote_branch)]($style)'
 
 [aws]
-format = '[$symbol(profile: "$profile" )(\(region: $region\) )]($style)'
-disabled = false
+format = '[$symbol(profile: "$profile" )]($style)'
+disabled = true
 style = 'bold blue'
 symbol = " "
 
