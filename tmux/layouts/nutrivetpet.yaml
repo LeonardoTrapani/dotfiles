@@ -5,11 +5,12 @@ windows:
     focus: true
     panes:
       - vim
-  - wondow_name: shell
-    panes:
-      -
   - window_name: server
+    layout: main-horizontal
     panes:
       - shell_command:
-          - cd techfolio-frontend
-          - pnpm dev
+          -
+        focus: true
+      - pnpm dev
+      - pnpm studio
+      - pnpm stripe:listen

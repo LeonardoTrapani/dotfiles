@@ -14,7 +14,7 @@ success_symbol = '[➜](bold green)'
 '~/tests/starship-custom' = 'work-project'
 
 [git_branch]
-format =  '[$symbol$branch(:$remote_branch)]($style)'
+format =  '[$symbol$branch(:$remote_branch)]($style) '
 
 [aws]
 format = '[$symbol(profile: "$profile" )]($style)'

@@ -19,9 +19,6 @@ esac
 export PATH="/opt/homebrew/bin:$PATH"
 export PATH="/opt/homebrew/opt/python@3.11/libexec/bin:$PATH"
 
-eval "$(fzf --zsh)"
-
-eval "$(starship init zsh)"
 export STARSHIP_CONFIG=~/.config/starship/starship.toml
 
 export TMUXP_CONFIGDIR=$HOME/.config/tmux/layouts/
@@ -29,9 +26,13 @@ export TMUXP_CONFIGDIR=$HOME/.config/tmux/layouts/
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 # [[ ! -f ~/.dotfiles/zsh/.p10k.zsh ]] || source ~/.dotfiles/zsh/.p10k.zsh
 
+
+
 # source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
+#
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $(brew --prefix)/share/zsh-you-should-use/you-should-use.plugin.zsh
 
 if type brew &>/dev/null; then
   FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
@@ -64,3 +65,6 @@ zstyle ':completion:*' menu select
 bindkey "^[[A" history-search-backward
 bindkey "^[[B" history-search-forward
 
+eval "$(fzf --zsh)"
+eval "$(zoxide init zsh)"
+eval "$(starship init zsh)"
