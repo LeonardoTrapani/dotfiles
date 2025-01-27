@@ -5,6 +5,7 @@ alias g="git"
 alias npm="pnpm"
 alias ls='ls --color'
 alias tls='tmuxp load'
+alias cd='z'
 
 unset MAILCHECK
 
@@ -53,8 +54,6 @@ setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt hist_ignore_dups
 setopt hist_find_no_dups
-
-. $HOMEBREW_PREFIX/etc/profile.d/z.sh
 
 # Completion styling
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-j}'
