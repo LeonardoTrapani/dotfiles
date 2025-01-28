@@ -6,6 +6,14 @@ return {
 	opts = {
 		-- add any opts here
 	},
+	config = function()
+		vim.keymap.set(
+			"n",
+			"<leader>ac",
+			"<cmd>AvanteClear<CR>",
+			{ noremap = true, silent = true, desc = "Clear Avante" }
+		)
+	end,
 	-- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
 	build = "make",
 	-- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
