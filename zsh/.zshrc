@@ -1,5 +1,6 @@
 # aliases
 alias v="nvim"
+alias vim="nvim"
 alias g="git"
 alias npm="pnpm"
 alias ls='ls --color'
@@ -66,3 +67,6 @@ bindkey "^[[B" history-search-forward
 eval "$(fzf --zsh)"
 eval "$(zoxide init zsh)"
 eval "$(starship init zsh)"
+
+# Created by `pipx` on 2025-02-03 14:45:25
+export PATH="$PATH:/Users/leonardotrapani/.local/bin"

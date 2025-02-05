@@ -4,7 +4,7 @@ windows:
   - window_name: editor
     focus: true
     panes:
-      - vim
+      - nvim
   - window_name: server
     layout: main-horizontal
     panes:
@@ -14,3 +14,8 @@ windows:
       - pnpm dev
       - pnpm studio
       - pnpm stripe:listen
+  - window_name: R
+    panes:
+      - shell_command:
+          - cd ~/dev/morenutri
+          - nvim

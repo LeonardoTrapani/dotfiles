@@ -7,7 +7,7 @@ windows:
       - shell_command:
           - python3 -m venv env
           - source env/bin/activate
-          - vim
+          - nvim
   - window_name: server
     layout: main-vertical
     main_pane_width: 70%

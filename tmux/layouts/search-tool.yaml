@@ -1,0 +1,16 @@
+session_name: search-tool
+start_directory: ~/dev/datapizza/search-tool
+windows:
+  - window_name: editor
+    focus: true
+    panes:
+      - nvim
+  - window_name: server
+    layout: main-vertical
+    main_pane_width: 70%
+    panes:
+      - shell_command:
+          -
+        focus: true
+      - shell_command:
+          - pnpm dev

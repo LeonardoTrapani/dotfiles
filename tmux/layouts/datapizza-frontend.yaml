@@ -4,7 +4,7 @@ windows:
   - window_name: editor
     focus: true
     panes:
-      - vim
+      - nvim
   - window_name: server
     layout: main-vertical
     main_pane_width: 70%

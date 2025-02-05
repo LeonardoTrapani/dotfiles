@@ -3,7 +3,7 @@ start_directory: ~/.dotfiles
 windows:
   - window_name: editor
     panes:
-      - vim
+      - nvim
   - window_name: shell
     panes:
       -

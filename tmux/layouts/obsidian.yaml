@@ -3,4 +3,4 @@ start_directory: ~/Library/Mobile Documents/iCloud~md~obsidian/Documents
 windows:
   - window_name: obsidian
     panes:
-      - vim
+      - nvim
