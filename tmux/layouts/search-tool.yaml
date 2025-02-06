@@ -5,6 +5,12 @@ windows:
     focus: true
     panes:
       - nvim
+  - window_name: backend
+    panes:
+      - shell_command:
+          - cd ..
+          - cd search-tool-backend
+          - nvim
   - window_name: server
     layout: main-vertical
     main_pane_width: 70%

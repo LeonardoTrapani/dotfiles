@@ -5,18 +5,28 @@ return {
 		require("dashboard").setup({
 			theme = "doom",
 			config = {
-				header = {
-					"",
-					"",
-					"██╗   ██╗██╗███╗   ███╗",
-					"██║   ██║██║████╗ ████║",
-					"██║   ██║██║██╔████╔██║",
-					"╚██╗ ██╔╝██║██║╚██╔╝██║",
-					" ╚████╔╝ ██║██║ ╚═╝ ██║",
-					"  ╚═══╝  ╚═╝╚═╝     ╚═╝",
-					"",
-					"",
-				},
+				header = (function()
+					local cwd = vim.fn.getcwd()
+					local dir_name = vim.fn.fnamemodify(cwd, ":t")
+					local width = 50 -- Total width of the box
+					local padding_width = width - 2 -- Internal width (excluding borders)
+					local dir_len = #dir_name
+					local left_padding = math.floor((padding_width - dir_len) / 2)
+					local right_padding = padding_width - dir_len - left_padding
+					local horizontal_line = string.rep("─", padding_width)
+
+					return {
+						"",
+						"",
+						"╭" .. horizontal_line .. "╮",
+						"│" .. string.rep(" ", padding_width) .. "│",
+						"│" .. string.rep(" ", left_padding) .. dir_name .. string.rep(" ", right_padding) .. "│",
+						"│" .. string.rep(" ", padding_width) .. "│",
+						"╰" .. horizontal_line .. "╯",
+						"",
+						"",
+					}
+				end)(),
 				center = {
 					{
 						icon = "  ",
