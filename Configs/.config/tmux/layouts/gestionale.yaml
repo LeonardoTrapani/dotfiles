@@ -1,0 +1,29 @@
+session_name: gestionale
+start_directory: ~/dev/datapizza
+windows:
+  - window_name: gestionale
+    focus: true
+    panes:
+      - shell_command:
+          - cd crm
+          - nvim
+  - window_name: backend
+    panes:
+      - shell_command:
+          - cd techfolio-backend
+          - source env/bin/activate
+          - vim
+  - window_name: cmd
+    panes:
+      - shell_command:
+          -
+  - window_name: server
+    layout: main-vertical
+    panes:
+      - shell_command:
+          - cd crm
+          - pnpm dev
+      - shell_command:
+          - cd techfolio-backend
+          - source env/bin/activate
+          - python3 manage.py runserver

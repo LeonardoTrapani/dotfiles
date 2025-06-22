@@ -1,0 +1,44 @@
+session_name: datapizza
+start_directory: ~/dev/datapizza
+windows:
+  - window_name: frontend
+    focus: true
+    panes:
+      - shell_command:
+          - cd techfolio-frontend
+          - nvim
+  - window_name: backend
+    panes:
+      - shell_command:
+          - cd techfolio-backend
+          - source env/bin/activate
+          - vim
+  - window_name: server
+    layout: main-vertical
+    main_pane_width: 70%
+    panes:
+      - shell_command:
+          -
+        focus: true
+      - shell_command:
+          - cd techfolio-frontend
+          - pnpm dev
+      - shell_command:
+          - cd techfolio-backend
+          - source env/bin/activate
+          - python3 manage.py runserver
+  - window_name: companies
+    panes:
+      - shell_command:
+          - cd companies
+          - nvim
+  - window_name: crm
+    panes:
+      - shell_command:
+          - cd crm
+          - nvim
+  - window_name: root
+    panes:
+      - shell_command:
+          - cd datapizza-root
+          - nvim

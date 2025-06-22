@@ -9,10 +9,40 @@
 
 #  Aliases 
 # Add aliases here
+alias v='nvim'
+alias vim='nvim'
+alias g="git"
+alias npm="pnpm"
+alias ls="ls --color"
+alias tls="tmuxp load"
+alias cd="z"
+
+unset MAILCHECK
+
+
+#  Variables 
+# Add environment variables here
+
+# -----------------------------
+# PNPM
+# -----------------------------
+export PNPM_HOME="$HOME/.local/share/pnpm"
+export PATH="$PNPM_HOME:$PATH"
+
+
+# -----------------------------
+# Tmuxp
+# -----------------------------
+export TMUXP_CONFIGDIR="$HOME/.config/tmux/layouts"
+
+# -----------------------------
+# Tools (fzf, zoxide)
+# -----------------------------
+eval "$(zoxide init zsh)"
 
 #  This is your file 
 # Add your configurations here
-# export EDITOR=nvim
-export EDITOR=code
+export EDITOR=nvim
+# export EDITOR=code
 
 # unset -f command_not_found_handler # Uncomment to prevent searching for commands not found in package manager

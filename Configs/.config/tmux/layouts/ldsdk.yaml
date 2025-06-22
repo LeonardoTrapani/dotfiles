@@ -1,0 +1,22 @@
+session_name: ldask
+start_directory: ~/dev/datapizza/ldsdk
+windows:
+  - window_name: ldask
+    focus: true
+    panes:
+      - shell_command:
+          - nvim
+  - window_name: cmd
+    panes:
+      - shell_command:
+          -
+  - window_name: server
+    layout: main-vertical
+    panes:
+      - shell_command:
+          - pnpm dev
+      - shell_command:
+          - cd ..
+          - cd techfolio-backend
+          - source env/bin/activate
+          - python3 manage.py runserver

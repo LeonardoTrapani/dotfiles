@@ -1,0 +1,26 @@
+[user]
+	name = LeonardoTrapani
+	email = leonard.trapani@gmail.com
+[alias]
+  st = status
+  br = branch
+  ps = "!git push"
+  pl = "!git pull origin"
+  c = commit
+  a = "!git add ."
+  hist = "log --pretty=format:\"%Cgreen%h %Creset%cd %Cblue[%cn] %Creset%s%C(yellow)%d%C(reset)\" --graph --date=relative --decorate --all"
+  llog = "log --graph --name-status --pretty=format:\"%C(red)%h %C(reset)(%cd) %C(green)%an %Creset%s %C(yellow)%d%Creset\" --date=relative"
+  df = "!git hist | peco | awk '{print $2}' | xargs -I {} git diff {}^ {}"
+  open = "!hub browse"
+  d = diff
+  rv = "!git revert --no-commit"
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[init]
+	defaultBranch = main
+[core]
+	ignorecase = false
+  editor = nvim

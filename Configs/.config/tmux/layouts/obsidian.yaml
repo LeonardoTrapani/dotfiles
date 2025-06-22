@@ -1,0 +1,6 @@
+session_name: obsidian
+start_directory: ~/Library/Mobile Documents/iCloud~md~obsidian/Documents
+windows:
+  - window_name: obsidian
+    panes:
+      - nvim

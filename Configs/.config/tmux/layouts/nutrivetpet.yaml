@@ -1,0 +1,21 @@
+session_name: nutrivetpet
+start_directory: ~/dev/nutrivetpet
+windows:
+  - window_name: editor
+    focus: true
+    panes:
+      - nvim
+  - window_name: server
+    layout: main-horizontal
+    panes:
+      - shell_command:
+          -
+        focus: true
+      - pnpm dev
+      - pnpm studio
+      - pnpm stripe:listen
+  - window_name: R
+    panes:
+      - shell_command:
+          - cd ~/dev/morenutri
+          - nvim

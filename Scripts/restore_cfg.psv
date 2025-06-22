@@ -78,6 +78,15 @@ P|${HOME}|.p10k.zsh|zsh zsh-theme-powerlevel10k
 P|${HOME}/.config/starship|starship.toml|starship
 S|${HOME}|.zshenv|zsh
 
+ Git Config 
+S|${HOME}|.gitconfig|git
+
+ Tmux 
+S|${HOME}/.config|tmux|tmux tmux-package-manager
+
+ Neovim 
+P|${HOME}/.config|nvim|nvim
+
  Vim 
 P|${HOME}/.config/vim|vimrc|vim
 S|${HOME}/.config/vim/colors|wallbash.vim|vim

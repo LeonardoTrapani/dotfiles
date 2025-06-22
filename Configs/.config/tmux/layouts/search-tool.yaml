@@ -1,0 +1,28 @@
+session_name: search-tool
+start_directory: ~/dev/datapizza/search-tool
+windows:
+  - window_name: frontend-editor
+    focus: true
+    panes:
+      - nvim
+  - window_name: backend-editor
+    panes:
+      - shell_command:
+          - cd ..
+          - cd search-tool-backend
+          - cd search-tool-microservice
+          - nvim
+  - window_name: server
+    layout: main-vertical
+    main_pane_width: 70%
+    panes:
+      - shell_command:
+          -
+        focus: true
+      - shell_command:
+          - pnpm dev
+      - shell_command:
+          - cd ..
+          - cd search-tool-backend
+          - cd search-tool-microservice
+          - docker-compose up --build
