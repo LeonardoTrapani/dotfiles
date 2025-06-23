@@ -6,9 +6,10 @@ windows:
       - nvim
   - window_name: config
     panes:
-      - cd ..
-      - cd .config
-      - nvim
+      - shell_command:
+        - cd ..
+        - cd .config
+        - nvim
   - window_name: shell
     panes:
       -
