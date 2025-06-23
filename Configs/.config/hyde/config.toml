@@ -34,7 +34,7 @@ scale = 10 # Scaling for glyph picker.
 
 # rofilaunch.sh configuration.
 [rofi.launch]
-scale = 5             # Scaling for launch.
+scale = 7             # Scaling for launch.
 drun_args = []        # Additional arguments for drun mode.
 run_args = []         # Additional arguments for run mode.
 window_args = []      # Additional arguments for window mode.
