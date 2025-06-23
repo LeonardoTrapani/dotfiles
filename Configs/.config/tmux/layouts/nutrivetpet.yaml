@@ -14,8 +14,3 @@ windows:
       - pnpm dev
       - pnpm studio
       - pnpm stripe:listen
-  - window_name: R
-    panes:
-      - shell_command:
-          - cd ~/dev/morenutri
-          - nvim

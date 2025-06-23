@@ -1,8 +1,13 @@
 session_name: dotfiles
-start_directory: ~/.dotfiles
+start_directory: ~/dotfiles
 windows:
   - window_name: editor
     panes:
+      - nvim
+  - window_name: config
+    panes:
+      - cd ..
+      - cd .config
       - nvim
   - window_name: shell
     panes:

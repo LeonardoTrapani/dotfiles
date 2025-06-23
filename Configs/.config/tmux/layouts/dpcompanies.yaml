@@ -1,5 +1,5 @@
-session_name: datapizza-frontend
-start_directory: ~/dev/datapizza/techfolio-frontend
+session_name: dpcompanies
+start_directory: ~/dev/company-platform
 windows:
   - window_name: editor
     focus: true

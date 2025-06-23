@@ -1,10 +1,10 @@
-session_name: datapizza-root
-start_directory: ~/dev/datapizza/datapizza-root
+session_name: dpfe
+start_directory: ~/dev/techfolio-frontend
 windows:
   - window_name: editor
     focus: true
     panes:
-      - v
+      - nvim
   - window_name: server
     layout: main-vertical
     main_pane_width: 70%
@@ -17,6 +17,4 @@ windows:
       - shell_command:
           - cd ..
           - cd techfolio-backend
-          - python3 -m venv env
-          - source env/bin/activate
-          - python3 manage.py runserver
+          - ./manage.sh runserver

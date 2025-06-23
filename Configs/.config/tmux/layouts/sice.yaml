@@ -1,7 +1,7 @@
-session_name: ldask
-start_directory: ~/dev/datapizza/ldsdk
+session_name: slice
+start_directory: ~/dev/slice
 windows:
-  - window_name: ldask
+  - window_name: slice
     focus: true
     panes:
       - shell_command:
@@ -14,9 +14,9 @@ windows:
     layout: main-vertical
     panes:
       - shell_command:
+          - google-chrome-stable
           - pnpm dev
       - shell_command:
           - cd ..
           - cd techfolio-backend
-          - source env/bin/activate
-          - python3 manage.py runserver
+          - ./manage.sh runserver
