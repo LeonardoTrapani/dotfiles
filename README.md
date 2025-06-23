@@ -16,3 +16,7 @@ It is based on HyDE (<a href="HyDE.md"><kbd> <br> HyDE <br> </kbd></a>)
 - Zsh
 - Way more...
 
+
+# Roadmap
+- [ ] Customize code to not have HyDE
+- [ ] Neovim and tmux theme configuration changes on theme change

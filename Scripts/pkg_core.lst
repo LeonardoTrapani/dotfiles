@@ -1,3 +1,11 @@
+
+# --------------------------------------------------- // Apps
+neovim                                               # vim based text editor
+nvim
+tmux
+tmuxp
+tmux-plugin-manager
+
 # --------------------------------------------------- // System
 pipewire                                               # audio/video server
 pipewire-alsa                                          # pipewire alsa client
@@ -73,6 +81,7 @@ vim                                                    # terminal text editor
 code                                                   # ide text editor
 nwg-displays                                           # monitor management utility
 fzf                                                    # Command-line fuzzy finder
+zoxide                                                 # Better version of cd
 
 # --------------------------------------------------- // Shell
 eza|zsh                                                # file lister for zsh
@@ -83,6 +92,11 @@ eza|fish                                               # file lister for fish
 starship|fish                                          # customizable shell prompt
 duf|fish                                               # prettier version of df for fish
 fastfetch                                              # system information fetch tool
+
+oh-my-zsh-git|zsh                                      # Optional plugin manager for zsh
+pokemon-colorscripts-git|zsh                           # display pokemon sprites (optional)
+pokego-bin|zsh                                         # display pokemon sprites in terminal (written GO)
+
 
 # --------------------------------------------------- // HyDE
 hypridle                                               # idle daemon

@@ -5,25 +5,21 @@
 # gestures                                             # gui for libinput-gestures
 wttrbar                                                # for weather
 python-requests|wttrbar                                # script dependency
-ddcui                                                  # GUI to control brightness for external monitors
+# ddcui                                                  # GUI to control brightness for external monitors
 # hyprgui-bin                                          # GUI for hyprland configuration // might mess your userprefs but convenient // Just disappeared
 # power-profiles-daemon                                # for managing power profiles from waybar
-
-# --------------------------------------------------- // Shell
-zoxide                                                 # Better version of cd
-
 
 
 # --------------------------------------------------- // Misc
 xdg-desktop-portal-gtk                                 # xdg desktop portal using gtk
-wf-recorder                                          # Screen recorder for wlroots-based compositors such as sway
+wf-recorder                                            # Screen recorder for wlroots-based compositors such as sway
 # emote                                                # emoji picker gtk3
 # wl-screenrec                                         # High performance hardware accelerated wlroots screen recorder // NO support for NVIDIA
 
 # --------------------------------------------------- // Gaming
-steam                                                  # gaming platform
-gamemode                                               # daemon and library for game optimizations
-mangohud                                               # system performance overlay
+# steam                                                  # gaming platform
+# gamemode                                               # daemon and library for game optimizations
+# mangohud                                               # system performance overlay
 # gamescope                                            # micro-compositor for gaming
 # lutris                                               # Lutris is an open source gaming platform for Linux
 
@@ -31,18 +27,6 @@ mangohud                                               # system performance over
 cava                                                   # audio visualizer
 spotify                                                # proprietary music streaming service
 spicetify-cli                                          # cli to customize spotify client
-
-# --------------------------------------------------- // Apps
-neovim                                               # vim based text editor
-nvim
-tmux
-tmuxp
-tmux-plugin-manager
-
-# --------------------------------------------------- // Shell
-oh-my-zsh-git|zsh                                      # Optional plugin manager for zsh
-pokemon-colorscripts-git|zsh                           # display pokemon sprites (optional)
-pokego-bin|zsh                                         # display pokemon sprites in terminal (written GO)
 # zsh-theme-powerlevel10k-git|zsh                        # Powerlevel10k is a theme for Zsh. It emphasizes speed, flexibility and out-of-the-box experience.
 
 
@@ -59,4 +43,4 @@ pokego-bin|zsh                                         # display pokemon sprites
 #swaylock-effects-git                                   # swaylock with effects // very minimal lockscreen
 
 # --------------------------------------------------- // OSD
-swayosd-git                                             #A GTK based on screen display for keyboard shortcuts like caps-lock and volume
+# swayosd-git                                             #A GTK based on screen display for keyboard shortcuts like caps-lock and volume
