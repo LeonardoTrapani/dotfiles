@@ -85,7 +85,7 @@ S|${HOME}|.gitconfig|git
 S|${HOME}/.config|tmux|tmux tmux tmux-plugin-manager
 
  Neovim 
-P|${HOME}/.config|nvim|nvim
+S|${HOME}/.config|nvim|nvim
 
  Vim 
 P|${HOME}/.config/vim|vimrc|vim
