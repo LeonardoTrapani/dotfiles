@@ -1,5 +1,5 @@
 function ColorMyPencils(color)
-	color = color or "theme"
+	color = color or "catppuccin"
 	vim.cmd.colorscheme(color)
 
 	vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
@@ -7,11 +7,12 @@ function ColorMyPencils(color)
 end
 
 return {
-	"catpuccin/nvim",
-	name = "theme",
+	"catppuccin/nvim",
+	name = "catppuccin",
 	config = function()
-		require("theme").setup({
+		require("catppuccin").setup({
 			tranparent_backgroun = true,
 		})
+    ColorMyPencils()
 	end,
 }

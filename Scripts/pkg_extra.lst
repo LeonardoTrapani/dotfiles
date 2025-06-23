@@ -36,6 +36,7 @@ spicetify-cli                                          # cli to customize spotif
 neovim                                               # vim based text editor
 nvim
 tmux
+tmuxp
 tmux-plugin-manager
 
 # --------------------------------------------------- // Shell

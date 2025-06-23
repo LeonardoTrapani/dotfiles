@@ -73,7 +73,7 @@ P|${HOME}/.config/kitty|kitty.conf|kitty
 
  Shell 
 P|${HOME}/.config|fish|fish
-P|${HOME}|.zshrc .user.zsh|zsh  
+S|${HOME}|.zshrc .user.zsh|zsh  
 P|${HOME}|.p10k.zsh|zsh zsh-theme-powerlevel10k
 P|${HOME}/.config/starship|starship.toml|starship
 S|${HOME}|.zshenv|zsh
@@ -82,7 +82,7 @@ S|${HOME}|.zshenv|zsh
 S|${HOME}|.gitconfig|git
 
  Tmux 
-S|${HOME}/.config|tmux|tmux tmux-package-manager
+S|${HOME}/.config|tmux|tmux tmux tmux-plugin-manager
 
  Neovim 
 P|${HOME}/.config|nvim|nvim

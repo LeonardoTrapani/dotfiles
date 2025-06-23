@@ -6,7 +6,7 @@ return {
 
 		lualine.setup({
 			options = {
-				theme = "theme",
+				theme = "catppuccin",
 				icons_enabled = true,
 				section_separators = "",
 				component_separators = "",

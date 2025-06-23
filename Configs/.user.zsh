@@ -51,5 +51,5 @@ plugins=(
     "git"                     # (default)
     "zsh-autosuggestions"     # (default)
     "zsh-syntax-highlighting" # (default)
-    "zsh-completions"         # (default)
+    # "zsh-completions"         # (default)
 )
