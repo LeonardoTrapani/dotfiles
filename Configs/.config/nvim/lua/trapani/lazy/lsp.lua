@@ -142,7 +142,11 @@ return {
 			ruff = { manual_install = true },
 
 			-- Web development and JavaScript ecosystem
-			biome = true,
+			biome = {
+				server_capabilities = {
+					documentFormattingProvider = false,
+				},
+			},
 			astro = true,
 			-- TypeScript and JavaScript
 			vtsls = {
