@@ -38,13 +38,13 @@ return {
 		end, { desc = "Debug Neoformat settings" })
 
 		-- Enable async formatting on save with a small delay
-		vim.api.nvim_create_autocmd("BufWritePre", {
-			pattern = "*",
-			callback = function()
-				vim.defer_fn(function()
-					vim.cmd("Neoformat")
-				end, 100) -- 100ms delay
-			end,
-		})
+		-- vim.api.nvim_create_autocmd("BufWritePre", {
+		-- 	pattern = "*",
+		-- 	callback = function()
+		-- 		vim.defer_fn(function()
+		-- 			vim.cmd("Neoformat")
+		-- 		end, 100) -- 100ms delay
+		-- 	end,
+		-- })
 	end,
 }
