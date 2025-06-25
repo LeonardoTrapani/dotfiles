@@ -16,12 +16,17 @@ windows:
     panes:
       - shell_command:
           -
-  - window_name: server
-    layout: main-vertical
+  - window_name: frontend
     panes:
       - shell_command:
           - cd crm
           - pnpm dev
+  - window_name: server
+    layout: main-vertical
+    panes:
       - shell_command:
-          - cd techfolio-backend
-          - ./manage.sh runserver
+        - cd techfolio-backend
+        - ./manage.sh runserver
+      - shell_command:
+        - cd search-tool-microservice
+        - docker-compose up --build
