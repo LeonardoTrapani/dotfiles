@@ -20,3 +20,6 @@ It is based on HyDE (<a href="HyDE.md"><kbd> <br> HyDE <br> </kbd></a>)
 # Roadmap
 - [ ] Customize code to not have HyDE
 - [ ] Neovim and tmux theme configuration changes on theme change
+
+# Installation
+Run install.sh
