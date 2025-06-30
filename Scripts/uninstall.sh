@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #|---/ /+-------------------------------+---/ /|#
-#|--/ /-| Script to remove HyDE configs |--/ /-|#
+#|--/ /-| Script to remove Trapani's Configs |--/ /-|#
 #|-/ /--| Prasanth Rangan               |-/ /--|#
 #|/ /---+-------------------------------+/ /---|#
 
@@ -17,13 +17,13 @@ cat <<"EOF"
 -------------------------------------------------
 
 
-.: WARNING :: This will remove all config files related to HyDE :.
+.: WARNING :: This will remove all config files related to Trapani's Configs :.
 
-please type "DONT HYDE" to continue...
+please type "DONT TRAPANI" to continue...
 EOF
 
 read -r PROMPT_INPUT
-[ "${PROMPT_INPUT}" == "DONT HYDE" ] || exit 0
+[ "${PROMPT_INPUT}" == "DONT TRAPANI" ] || exit 0
 
 cat <<"EOF"
 
@@ -78,7 +78,7 @@ cat <<"NOTE"
 .: Manual action required to complete uninstallation :.
 -------------------------------------------------------
 
-Remove HyDE related backups/icons/fonts/themes manually from these paths
+Remove Trapani's Configs related backups/icons/fonts/themes manually from these paths
 $HOME/.config/cfg_backups               # remove all previous backups
 $HOME/.local/share/fonts                # remove fonts from here
 $HOME/.local/share/icons                # remove fonts from here

@@ -2,7 +2,7 @@
 # shellcheck disable=SC2154
 # shellcheck disable=SC1091
 #|---/ /+--------------------------------+---/ /|#
-#|--/ /-| Script to restore hyde configs |--/ /-|#
+#|--/ /-| Script to restore Trapani's configs |--/ /-|#
 #|-/ /--| Prasanth Rangan                |-/ /--|#
 #|/ /---+--------------------------------+/ /---|#
 
