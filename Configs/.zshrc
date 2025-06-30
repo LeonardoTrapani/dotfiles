@@ -36,6 +36,13 @@ export PATH="$PNPM_HOME:$PATH"
 export TMUXP_CONFIGDIR="$HOME/.config/tmux/layouts"
 
 # -----------------------------
+# Private Environment Variables
+# -----------------------------
+# Load private environment variables (API keys, secrets)
+ENV_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/environment"
+[ -f "$ENV_DIR/private.env" ] && source "$ENV_DIR/private.env"
+
+# -----------------------------
 # Tools (fzf, zoxide)
 # -----------------------------
 eval "$(zoxide init zsh)"

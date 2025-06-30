@@ -26,7 +26,7 @@ windows:
     panes:
       - shell_command:
         - cd techfolio-backend
-        - ./manage.sh runserver
+        - docker-compose up
       - shell_command:
         - cd search-tool-microservice
-        - docker-compose up --build
+        - docker-compose up

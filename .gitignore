@@ -7,3 +7,11 @@ Scripts/pkg_user.lst
 Scripts/pkg_black.lst
 Scripts/pkg_user.lst
 Stow/tmux/.config/tmux/plugins/*
+
+# Private environment files with sensitive data
+private.env
+
+# Local environment overrides
+.envrc
+.env.local
+.env.*.local

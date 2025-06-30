@@ -40,13 +40,15 @@ fi
 #------------------#
 flg_Stow=0
 flg_Install=0
+flg_Env=0
 flg_DryRun=0
 flg_Default=0
 
-while getopts sidnh: RunStep; do
+while getopts siednh RunStep; do
     case $RunStep in
     s) flg_Stow=1 ;;
     i) flg_Install=1 ;;
+    e) flg_Env=1 ;;
     d)
         flg_Default=1
         export use_default="--noconfirm"
@@ -57,6 +59,7 @@ while getopts sidnh: RunStep; do
 Usage: $0 [options]
             s : [s]tow dotfiles only
             i : run [i]nstallation scripts only
+            e : setup [e]nvironment variables (API keys)
             d : run with [d]efaults (no prompts)
             n : dry ru[n] - test without executing
             h : show this [h]elp
@@ -66,10 +69,11 @@ NOTE:
         use -d for automated setup with defaults
 
 EXAMPLES:
-        setup.sh       # Interactive mode
-        setup.sh -d    # Run everything with defaults
-        setup.sh -s    # Only stow dotfiles
-        setup.sh -n    # Test run without executing
+        trapani.sh       # Interactive mode
+        trapani.sh -d    # Run everything with defaults
+        trapani.sh -s    # Only stow dotfiles
+        trapani.sh -e    # Only setup environment variables
+        trapani.sh -n    # Test run without executing
 
 EOF
         exit 0
@@ -95,18 +99,21 @@ elif [ $OPTIND -eq 1 ] && [ "${flg_Default}" -eq 0 ]; then
     print_log -g "What would you like to do?"
     print_log -sec "1" " Stow dotfiles"
     print_log -sec "2" " Run installation scripts"
-    print_log -sec "3" " Do everything (recommended)"
+    print_log -sec "3" " Setup environment variables (API keys)"
+    print_log -sec "4" " Do everything (recommended)"
     print_log -sec "q" " Quit"
     echo ""
     
-    prompt_timer 30 "Enter option number [default: 3 - everything]"
+    prompt_timer 30 "Enter option number [default: 4 - everything]"
     
     case "${PROMPT_INPUT}" in
     1) flg_Stow=1 ;;
     2) flg_Install=1 ;;
-    3) 
+    3) flg_Env=1 ;;
+    4) 
         flg_Stow=1
         flg_Install=1
+        flg_Env=1
         ;;
     q)
         print_log -sec "setup" -crit "Quit" "Exiting..."
@@ -116,12 +123,14 @@ elif [ $OPTIND -eq 1 ] && [ "${flg_Default}" -eq 0 ]; then
         print_log -sec "setup" -warn "Defaulting to everything"
         flg_Stow=1
         flg_Install=1
+        flg_Env=1
         ;;
     esac
 elif [ "${flg_Default}" -eq 1 ] && [ $OPTIND -eq 2 ]; then
     # Default mode - do everything
     flg_Stow=1
     flg_Install=1
+    flg_Env=1
 fi
 
 
@@ -174,6 +183,55 @@ EOF
         done
         
         print_log -g "✅ Stow complete: " -y "$stow_success" -g "/" -y "$stow_total" -g " packages processed"
+    fi
+fi
+
+#-----------------------------------------#
+# Setup environment variables if requested #
+#-----------------------------------------#
+if [ ${flg_Env} -eq 1 ]; then
+    cat <<"EOF"
+
+ _____            
+| ____|_ ____   __
+|  _| | '_ \ \ / /
+| |___| | | \ V / 
+|_____|_| |_|\_/  
+
+EOF
+
+    print_log -g "🔧 Setting up private environment variables..."
+    ENV_SCRIPT="$HOME/dotfiles/Scripts/manage_env.sh"
+    
+    if [ ! -f "$ENV_SCRIPT" ]; then
+        print_log -sec "env" -err "Environment management script not found at $ENV_SCRIPT"
+        exit 1
+    fi
+
+    if [ "${flg_DryRun}" -eq 1 ]; then
+        print_log -n "[test-run] " -b "would run :: " "$ENV_SCRIPT setup"
+    else
+        chmod +x "$ENV_SCRIPT"
+        print_log -g "🔑 Launching environment variable setup..."
+        
+        if [ "${flg_Default}" -eq 1 ]; then
+            # In default mode, just initialize quietly without prompting
+            "$ENV_SCRIPT" init true
+            if [ $? -eq 0 ]; then
+                print_log -g "✅ Created private environment file"
+            else
+                print_log -g "✅ Private environment file already exists"
+            fi
+            print_log -sec "env" -warn "Default mode: use './Scripts/manage_env.sh edit' to add your API keys"
+        else
+            # Interactive mode - let manage_env.sh handle everything
+            "$ENV_SCRIPT" setup
+        fi
+        
+        if [ $? -ne 0 ]; then
+            print_log -sec "env" -err "Environment setup failed"
+            exit 1
+        fi
     fi
 fi
 
@@ -234,6 +292,7 @@ else
     actions_performed=()
     [ ${flg_Stow} -eq 1 ] && actions_performed+=("Dotfiles stowing") 
     [ ${flg_Install} -eq 1 ] && actions_performed+=("Installation scripts")
+    [ ${flg_Env} -eq 1 ] && actions_performed+=("Environment setup")
     
     if [ ${#actions_performed[@]} -gt 0 ]; then
         print_log -b "Completed actions: " -y "${actions_performed[*]}"

@@ -29,6 +29,12 @@ This repository contains my personal dotfiles and system configuration, providin
 - **File Management** - Dolphin with enhanced thumbnails
 - **Media Controls** - Playerctl for system-wide media management
 
+### 🔐 **Environment Management**
+- **Secure API Key Storage** - Private environment variables management
+- **Template System** - Pre-configured templates for common services
+- **Automatic Loading** - Environment variables loaded on shell startup
+- **Git Security** - Sensitive files automatically excluded from commits
+
 ### 🌈 **Theming System**
 - **Dynamic Theming** - Wallpaper-based color generation with Wallbash
 - **Multiple Themes** - Catppuccin, Rose Pine, Tokyo Night, and more
@@ -45,8 +51,7 @@ This repository contains my personal dotfiles and system configuration, providin
 ├── 🔧 Scripts/           # Installation and management scripts
 │   ├── install.sh        # Main installation script with interactive prompts
 │   ├── *.lst            # Package lists (core, extra, fonts, themes)
-│   ├── restore_*.sh     # Configuration restoration scripts
-│   └── themepatcher.sh  # Theme management system
+│   └── restore_*.sh     # Configuration restoration scripts
 ├── 📦 Stow/             # Dotfiles managed by GNU Stow
 │   ├── nvim/            # Neovim configuration (LazyVim-based)
 │   ├── tmux/            # Tmux configuration with plugins
@@ -61,7 +66,7 @@ This repository contains my personal dotfiles and system configuration, providin
 ├── 🎨 Source/           # Assets and themes
 │   ├── arcs/            # Compressed theme packages
 │   └── assets/          # Images, icons, and media
-└── 📋 setup.sh          # Interactive setup script
+└── 📋 trapani.sh        # Interactive setup script
 ```
 
 ---
@@ -83,35 +88,47 @@ cd ~/dotfiles
 
 2. **Run the interactive setup:**
 ```bash
-./setup.sh
+./trapani.sh
 ```
 
 **Choose your installation method:**
 - `1` - Stow dotfiles only  
 - `2` - Run installation scripts only
-- `3` - **Complete setup (recommended)**
+- `3` - Setup environment variables (API keys)
+- `4` - **Complete setup (recommended)**
 
 ### Alternative Installation Methods
 
 **Automated (no prompts):**
 ```bash
-./setup.sh -d
+./trapani.sh -d
 ```
 
 **Selective installation:**
 ```bash
-./setup.sh -s     # Only Stow dotfiles
-./setup.sh -i     # Only installation scripts
+./trapani.sh -s     # Only Stow dotfiles
+./trapani.sh -i     # Only installation scripts
+./trapani.sh -e     # Only environment variables setup
 ```
 
 **Test run (dry run):**
 ```bash
-./setup.sh -n
+./trapani.sh -n
 ```
 
 ---
 
 ## 🛠️ Management
+
+### **Environment Variables**
+```bash
+# Setup private environment (API keys, secrets)
+./Scripts/manage_env.sh init         # Initialize environment management
+./Scripts/manage_env.sh edit         # Edit your API keys
+./Scripts/manage_env.sh show         # Show current environment status
+./Scripts/manage_env.sh validate     # Validate configuration
+./Scripts/manage_env.sh backup       # Backup environment files
+```
 
 ### **Package Management**
 - `Scripts/pkg_core.lst` - Essential system packages
@@ -163,6 +180,18 @@ All configuration files are organized and well-documented:
 
 ## 🔧 Advanced Usage
 
+### **Environment Variables (API Keys)**
+```bash
+# Quick setup for API keys
+./trapani.sh -e                        # Setup environment management
+./Scripts/manage_env.sh edit          # Add your API keys
+
+# Example: Adding Anthropic API key
+export ANTHROPIC_API_KEY="your_actual_key_here"
+export OPENAI_API_KEY="your_openai_key_here"
+export GITHUB_TOKEN="your_github_token_here"
+```
+
 ### **Custom Package Installation**
 ```bash
 # Add your packages to a custom list
@@ -200,7 +229,19 @@ stow -t ~ myapp
 less ~/.cache/hyde/logs/$(ls -t ~/.cache/hyde/logs/ | head -1)
 
 # Retry with verbose output
-./setup.sh -n  # Dry run first
+./trapani.sh -n  # Dry run first
+```
+
+**Environment variables not loading:**
+```bash
+# Check if private environment file exists
+ls ~/.config/environment/private.env
+
+# Validate configuration
+./Scripts/manage_env.sh validate
+
+# Restart shell to reload environment
+exec $SHELL
 ```
 ---
 
