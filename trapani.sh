@@ -40,40 +40,58 @@ fi
 #------------------#
 flg_Stow=0
 flg_Install=0
+flg_Restore=0
+flg_Services=0
+flg_Themes=0
 flg_Env=0
 flg_DryRun=0
 flg_Default=0
+flg_NoNvidia=0
+flg_NoThemes=0
 
-while getopts siednh RunStep; do
+while getopts sprvtedmnxh RunStep; do
     case $RunStep in
     s) flg_Stow=1 ;;
-    i) flg_Install=1 ;;
+    p) flg_Install=1 ;;
+    r) flg_Restore=1 ;;
+    v) flg_Services=1 ;;
+    t) flg_Themes=1 ;;
     e) flg_Env=1 ;;
     d)
         flg_Default=1
         export use_default="--noconfirm"
         ;;
-    n) flg_DryRun=1 ;;
+    m) flg_NoThemes=1 ;;
+    n) flg_NoNvidia=1 ;;
+    x) flg_DryRun=1 ;;
     h)
         cat <<EOF
 Usage: $0 [options]
             s : [s]tow dotfiles only
-            i : run [i]nstallation scripts only
+            p : install [p]ackages only
+            r : [r]estore config files only
+            v : enable system ser[v]ices only
+            t : install [t]hemes only
             e : setup [e]nvironment variables (API keys)
             d : run with [d]efaults (no prompts)
-            n : dry ru[n] - test without executing
+            m : no the[m]e reinstallations
+            n : ignore/[n]o nvidia actions
+            x : dry run - test without e[x]ecuting
             h : show this [h]elp
 
 NOTE: 
         running without args will prompt for what to run
         use -d for automated setup with defaults
+        combine flags for multiple actions (e.g., -pr for packages + restore)
 
 EXAMPLES:
         trapani.sh       # Interactive mode
         trapani.sh -d    # Run everything with defaults
         trapani.sh -s    # Only stow dotfiles
+        trapani.sh -pr   # Install packages and restore configs
         trapani.sh -e    # Only setup environment variables
-        trapani.sh -n    # Test run without executing
+        trapani.sh -sprvt # Do everything (stow + packages + restore + services + themes)
+        trapani.sh -x     # Dry run - test without executing
 
 EOF
         exit 0
@@ -98,22 +116,68 @@ elif [ $OPTIND -eq 1 ] && [ "${flg_Default}" -eq 0 ]; then
     echo ""
     print_log -g "What would you like to do?"
     print_log -sec "1" " Stow dotfiles"
-    print_log -sec "2" " Run installation scripts"
-    print_log -sec "3" " Setup environment variables (API keys)"
-    print_log -sec "4" " Do everything (recommended)"
+    print_log -sec "2" " Install packages"
+    print_log -sec "3" " Restore config files"
+    print_log -sec "4" " Enable system services"
+    print_log -sec "5" " Install themes"
+    print_log -sec "6" " Setup environment variables (API keys)"
+    print_log -sec "7" " Do everything (recommended)"
+    print_log -sec "8" " Custom selection (choose multiple)"
     print_log -sec "q" " Quit"
     echo ""
     
-    prompt_timer 30 "Enter option number [default: 4 - everything]"
+    prompt_timer 30 "Enter option number [default: 7 - everything]"
     
     case "${PROMPT_INPUT}" in
     1) flg_Stow=1 ;;
     2) flg_Install=1 ;;
-    3) flg_Env=1 ;;
-    4) 
+    3) flg_Restore=1 ;;
+    4) flg_Services=1 ;;
+    5) flg_Themes=1 ;;
+    6) flg_Env=1 ;;
+    7) 
         flg_Stow=1
         flg_Install=1
+        flg_Restore=1
+        flg_Services=1
+        flg_Themes=1
         flg_Env=1
+        ;;
+    8)
+        # Custom selection mode
+        print_log -g "Select actions to perform (y/n):"
+        
+        print_log -n "Stow dotfiles? [y/N]: "
+        read -r answer
+        [[ "$answer" == [Yy] ]] && flg_Stow=1
+        
+        print_log -n "Install packages? [y/N]: "
+        read -r answer
+        [[ "$answer" == [Yy] ]] && flg_Install=1
+        
+        print_log -n "Restore config files? [y/N]: "
+        read -r answer
+        [[ "$answer" == [Yy] ]] && flg_Restore=1
+        
+        print_log -n "Enable system services? [y/N]: "
+        read -r answer
+        [[ "$answer" == [Yy] ]] && flg_Services=1
+        
+        print_log -n "Install themes? [y/N]: "
+        read -r answer
+        [[ "$answer" == [Yy] ]] && flg_Themes=1
+        
+        print_log -n "Setup environment variables? [y/N]: "
+        read -r answer
+        [[ "$answer" == [Yy] ]] && flg_Env=1
+        
+        print_log -n "Skip nvidia actions? [y/N]: "
+        read -r answer
+        [[ "$answer" == [Yy] ]] && flg_NoNvidia=1
+        
+        print_log -n "Skip theme reinstallations? [y/N]: "
+        read -r answer
+        [[ "$answer" == [Yy] ]] && flg_NoThemes=1
         ;;
     q)
         print_log -sec "setup" -crit "Quit" "Exiting..."
@@ -123,6 +187,9 @@ elif [ $OPTIND -eq 1 ] && [ "${flg_Default}" -eq 0 ]; then
         print_log -sec "setup" -warn "Defaulting to everything"
         flg_Stow=1
         flg_Install=1
+        flg_Restore=1
+        flg_Services=1
+        flg_Themes=1
         flg_Env=1
         ;;
     esac
@@ -130,6 +197,9 @@ elif [ "${flg_Default}" -eq 1 ] && [ $OPTIND -eq 2 ]; then
     # Default mode - do everything
     flg_Stow=1
     flg_Install=1
+    flg_Restore=1
+    flg_Services=1
+    flg_Themes=1
     flg_Env=1
 fi
 
@@ -238,7 +308,7 @@ fi
 #-------------------------------#
 # Run installation scripts if requested #
 #-------------------------------#
-if [ ${flg_Install} -eq 1 ]; then
+if [ ${flg_Install} -eq 1 ] || [ ${flg_Restore} -eq 1 ] || [ ${flg_Services} -eq 1 ] || [ ${flg_Themes} -eq 1 ]; then
     cat <<"EOF"
 
  ___           _        _ _ 
@@ -263,12 +333,42 @@ EOF
         chmod +x "$INSTALL_SCRIPT"
         print_log -g "🚀 Launching " -y "Trapani's Configs" -g " installation..."
         
-        # Pass through any additional arguments
-        if [ -n "${use_default}" ]; then
-            "$INSTALL_SCRIPT" -d
-        else
-            "$INSTALL_SCRIPT"
+        # Build install.sh arguments based on selected options
+        install_args=""
+        
+        [ ${flg_Install} -eq 1 ] && install_args="${install_args}i"
+        [ ${flg_Restore} -eq 1 ] && install_args="${install_args}r"
+        [ ${flg_Services} -eq 1 ] && install_args="${install_args}s"
+        [ ${flg_NoNvidia} -eq 1 ] && install_args="${install_args}n"
+        
+        # Handle themes logic carefully:
+        # - If themes are selected, ensure restore is included (themes need restore process)
+        # - If restore is selected but themes are NOT selected, skip themes
+        if [ ${flg_Themes} -eq 1 ]; then
+            # Themes selected: ensure restore is included (themes need restore process)
+            if [[ "$install_args" != *"r"* ]]; then
+                install_args="${install_args}r"
+            fi
+        elif [ ${flg_Restore} -eq 1 ] && [ ${flg_Themes} -eq 0 ]; then
+            # Restore selected but themes NOT selected: skip themes
+            install_args="${install_args}m"
         fi
+        
+        # Apply explicit no-themes flag if set
+        [ ${flg_NoThemes} -eq 1 ] && install_args="${install_args}m"
+        
+        if [ -n "${use_default}" ]; then
+            install_args="${install_args}d"
+        fi
+        
+        # If no specific install actions selected, default to full install
+        if [ -z "$install_args" ] || [ "$install_args" = "d" ]; then
+            install_args="irs${install_args}"
+        fi
+        
+        print_log -g "📦 Running with flags: " -y "-${install_args}"
+        
+        "$INSTALL_SCRIPT" "-${install_args}"
         
         if [ $? -eq 0 ]; then
             print_log -g "✅ Installation scripts executed successfully"
@@ -291,7 +391,10 @@ else
     # Show what was done
     actions_performed=()
     [ ${flg_Stow} -eq 1 ] && actions_performed+=("Dotfiles stowing") 
-    [ ${flg_Install} -eq 1 ] && actions_performed+=("Installation scripts")
+    [ ${flg_Install} -eq 1 ] && actions_performed+=("Package installation")
+    [ ${flg_Restore} -eq 1 ] && actions_performed+=("Config restoration")
+    [ ${flg_Services} -eq 1 ] && actions_performed+=("System services")
+    [ ${flg_Themes} -eq 1 ] && actions_performed+=("Theme installation")
     [ ${flg_Env} -eq 1 ] && actions_performed+=("Environment setup")
     
     if [ ${#actions_performed[@]} -gt 0 ]; then
@@ -304,7 +407,7 @@ fi
 print_log -b "Log: " -y "View logs at ${cacheDir}/logs/${SETUP_LOG}"
 
 # Ask for reboot if installation scripts were run
-if [ ${flg_Install} -eq 1 ] && [ "${flg_DryRun}" -ne 1 ]; then
+if [ \( ${flg_Install} -eq 1 \) -o \( ${flg_Restore} -eq 1 \) -o \( ${flg_Services} -eq 1 \) -o \( ${flg_Themes} -eq 1 \) ] && [ "${flg_DryRun}" -ne 1 ]; then
     echo ""
     print_log -stat "Trapani's Configs" "It is not recommended to use newly installed or upgraded Trapani's Configs without rebooting the system. Do you want to reboot the system? (y/N)"
     read -r answer

@@ -1,0 +1,50 @@
+session_name: dp
+start_directory: ~/dev/
+windows:
+  - window_name: crm
+    panes:
+      - shell_command:
+          - cd crm
+          - nvim
+  - window_name: frontend
+    panes:
+      - shell_command:
+          - cd techfolio-frontend
+          - nvim
+  - window_name: backend
+    panes:
+      - shell_command:
+          - cd techfolio-backend
+          - nvim
+  - window_name: companies
+    panes:
+      - shell_command:
+          - cd company-platform
+          - nvim
+  - window_name: root
+    panes:
+      - shell_command:
+          - cd datapizza-root
+          - nvim
+  - window_name: server
+    layout: tiled
+    focus: true
+    panes:
+      - shell_command:
+          - cd techfolio-backend
+          - docker-compose up --build --watch
+      - shell_command:
+          - cd crm
+          - pnpm dev
+      - shell_command:
+          - cd techfolio-frontend
+          - pnpm dev
+      - shell_command:
+          - cd company-platform
+          - pnpm dev
+      - shell_command:
+          - cd search-tool-microservice
+          - docker-compose up --build --watch
+      - shell_command:
+          - cd datapizza-root
+          - pnpm dev

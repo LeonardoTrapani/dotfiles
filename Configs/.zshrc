@@ -15,6 +15,7 @@ alias g="git"
 alias npm="pnpm"
 alias ls="ls --color"
 alias tls="tmuxp load"
+alias gai="aicommits"
 alias cd="z"
 
 unset MAILCHECK

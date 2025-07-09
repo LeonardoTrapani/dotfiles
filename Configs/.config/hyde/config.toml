@@ -71,7 +71,7 @@ dock = true   # Dock status for battery notifications.
 # Thresholds for battery notifications.
 [battery.notify.threshold]
 full = 95     # Full battery threshold.
-critical = 10 # Critical battery threshold.
+critical = 2 # Critical battery threshold.
 low = 20      # Low battery threshold.
 unplug = 100  # Unplug battery threshold.
 
@@ -79,7 +79,7 @@ unplug = 100  # Unplug battery threshold.
 [battery.notify.execute]
 unplug = ""                    # Command to execute when unplugged.
 low = ""                       # Command to execute when battery is low.
-critical = "systemctl suspend" # Command to execute when battery is critical.
+critical = "hyprlock" # Command to execute when battery is critical.
 charging = ""                  # Command to execute when charging.
 discharging = ""               # Command to execute when discharging.
 

@@ -31,6 +31,7 @@ This repository contains my personal dotfiles and system configuration, providin
 
 ### 🔐 **Environment Management**
 - **Secure API Key Storage** - Private environment variables management
+- **AWS Credentials Integration** - Automatic AWS credentials file generation from environment variables
 - **Template System** - Pre-configured templates for common services
 - **Automatic Loading** - Environment variables loaded on shell startup
 - **Git Security** - Sensitive files automatically excluded from commits
@@ -128,7 +129,16 @@ cd ~/dotfiles
 ./Scripts/manage_env.sh show         # Show current environment status
 ./Scripts/manage_env.sh validate     # Validate configuration
 ./Scripts/manage_env.sh backup       # Backup environment files
+./Scripts/manage_env.sh aws-creds    # Generate AWS credentials from environment variables
 ```
+
+#### **AWS Credentials Management**
+The environment manager now supports automatic AWS credentials file generation:
+
+- **Environment Variables**: Set `AWS_ACCESS_KEY_ID_DEV`, `AWS_SECRET_ACCESS_KEY_DEV`, `AWS_ACCESS_KEY_ID_PROD`, `AWS_SECRET_ACCESS_KEY_PROD`
+- **Profile Generation**: Automatically creates `~/.aws/credentials` with `leonardo-datapizza-dev` and `leonardo-trapani-prod` profiles
+- **Secure Storage**: Uses environment variables instead of hardcoded credentials
+- **Interactive Setup**: Prompts during setup to generate credentials file
 
 ### **Package Management**
 - `Scripts/pkg_core.lst` - Essential system packages
@@ -190,6 +200,22 @@ All configuration files are organized and well-documented:
 export ANTHROPIC_API_KEY="your_actual_key_here"
 export OPENAI_API_KEY="your_openai_key_here"
 export GITHUB_TOKEN="your_github_token_here"
+
+# AWS Profile-specific credentials
+export AWS_ACCESS_KEY_ID_DEV="your_dev_access_key"
+export AWS_SECRET_ACCESS_KEY_DEV="your_dev_secret_key"
+export AWS_ACCESS_KEY_ID_PROD="your_prod_access_key"
+export AWS_SECRET_ACCESS_KEY_PROD="your_prod_secret_key"
+```
+
+#### **AWS Credentials Integration**
+```bash
+# Generate AWS credentials file from environment variables
+./Scripts/manage_env.sh aws-creds
+
+# Use with AWS CLI
+aws --profile leonardo-datapizza-dev s3 ls
+aws --profile leonardo-trapani-prod ec2 describe-instances
 ```
 
 ### **Custom Package Installation**
@@ -250,6 +276,8 @@ exec $SHELL
 - [x] Complete HyDE customization and branding
 - [x] Interactive setup system with options
 - [x] Improved documentation and README
+- [ ] Move most of the files into the Stow directory and symlinked
+- [ ] Make a cli package or command that I can use so I don't run ./trapani.sh (maybe installable from yay)
 - [ ] Neovim and Tmux theme integration with system theme changes
 
 ---
