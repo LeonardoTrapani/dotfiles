@@ -25,5 +25,5 @@ vim.opt.rtp:prepend(lazypath)
 -- Initialize lazy.nvim with configuration
 require("lazy").setup({
 	spec = "trapani.lazy", -- Load plugins from trapani.lazy module
-	change_detection = { notify = false }, -- Disable change detection notifications
+	change_detection = { notify = true }, -- Disable change detection notifications
 })

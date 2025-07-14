@@ -31,7 +31,6 @@ vim.opt.showcmd = true
 -- File handling
 vim.opt.swapfile = false  -- Don't create swap files
 vim.opt.backup = false  -- Don't create backup files
-vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"  -- Set undo directory
 vim.opt.undofile = true  -- Enable persistent undo
 
 -- Search settings
@@ -48,7 +47,7 @@ vim.opt.scrolloff = 8  -- Keep 8 lines above/below cursor when scrolling
 vim.opt.cmdheight = 1
 
 -- Timing settings
-vim.o.updatetime = 250  -- Faster completion
+vim.o.updatetime = 150  -- Faster completion
 vim.o.timeout = true  -- Enable timeout
 vim.o.timeoutlen = 300  -- Time to wait for a mapped sequence to complete
 
@@ -66,7 +65,7 @@ vim.cmd([[let &t_Cs = "\e[4:3m"]])  -- Start underline
 vim.cmd([[let &t_Ce = "\e[4:0m"]])  -- End underline
 
 -- Clipboard integration
-vim.opt.clipboard:append({ "unnamedplus" })  -- Use system clipboard
+-- vim.opt.clipboard:append({ "unnamedplus" })  -- Use system clipboard
 
 -- Path and ignore settings
 vim.opt.path:append({ "**" })  -- Search in subdirectories
@@ -96,6 +95,3 @@ end
 
 -- Status line settings
 vim.opt.laststatus = 3  -- Global status line
-
--- Buffer appearance
-vim.opt.fillchars = { eob = " " }  -- Remove tilde characters at end of buffer

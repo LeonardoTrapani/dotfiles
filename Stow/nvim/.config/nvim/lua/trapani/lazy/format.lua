@@ -3,11 +3,11 @@ return {
 	config = function()
 		-- Configure formatter priority - put prettier/prettierd before biome
 		-- This ensures prettier is used when available, especially when config files are present
-		vim.g.neoformat_enabled_javascript = { "prettierd", "prettier", "biome" }
-		vim.g.neoformat_enabled_typescript = { "prettierd", "prettier", "biome" }
-		vim.g.neoformat_enabled_javascriptreact = { "prettierd", "prettier", "biome" }
-		vim.g.neoformat_enabled_typescriptreact = { "prettierd", "prettier", "biome" }
-		vim.g.neoformat_enabled_json = { "prettierd", "prettier", "biome" }
+		vim.g.neoformat_enabled_javascript = { "prettierd", "prettier" }
+		vim.g.neoformat_enabled_typescript = { "prettierd", "prettier" }
+		vim.g.neoformat_enabled_javascriptreact = { "prettierd", "prettier" }
+		vim.g.neoformat_enabled_typescriptreact = { "prettierd", "prettier" }
+		vim.g.neoformat_enabled_json = { "prettierd", "prettier" }
 		vim.g.neoformat_enabled_css = { "prettierd", "prettier" }
 		vim.g.neoformat_enabled_scss = { "prettierd", "prettier" }
 		vim.g.neoformat_enabled_html = { "prettierd", "prettier" }

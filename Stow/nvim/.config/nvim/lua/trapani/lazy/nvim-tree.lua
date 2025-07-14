@@ -13,6 +13,11 @@ return {
 				ignore = false,
 				timeout = 500,
 			},
+      --put it on the right side
+      view = {
+        width = 60,
+        side = 'right',
+      }
 		})
 
 		vim.keymap.set("n", "<leader>u", ":NvimTreeFindFileToggle<CR>", { silent = true })

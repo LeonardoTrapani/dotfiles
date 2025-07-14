@@ -27,10 +27,6 @@ vim.keymap.set("n", "<leader>Y", [["+Y]]) -- Yank line to system clipboard
 -- Delete without overwriting register
 vim.keymap.set({ "n", "v" }, "<leader>d", [["_d]])
 
--- Disable recording macros (Q) and quit (q) in normal mode
-vim.keymap.set("n", "Q", "<nop>")
-vim.keymap.set("n", "q", "<nop>")
-
 -- Tmux integration
 vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>") -- Open tmux sessionizer
 
@@ -47,8 +43,8 @@ vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz") -- Previous location list i
 -- Window resizing controls
 vim.keymap.set("n", "<C-s>", "<C-w><") -- Decrease window width
 vim.keymap.set("n", "<C-b>", "<C-w>>") -- Increase window width
-vim.keymap.set("n", "∫", "<C-w>+") -- Increase window height (Option + b)
-vim.keymap.set("n", "ß", "<C-w>-") -- Decrease window height (Option + s)
+vim.keymap.set("n", "<C-w>=", "<C-w>+") -- Increase window height
+vim.keymap.set("n", "ß", "<C-w>-") -- Decrease window height
 
 -- Word replacement
 vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]]) -- Replace word under cursor

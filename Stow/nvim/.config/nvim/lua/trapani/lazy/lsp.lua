@@ -52,41 +52,8 @@ return {
 	},
 
 	config = function()
-		-- Helper function to extend configuration with default values
-		local extend = function(name, key, values)
-			local mod = require(string.format("lspconfig.configs.%s", name))
-			local default = mod.default_config
-			local keys = vim.split(key, ".", { plain = true })
-
-			-- Navigate through nested configuration
-			while #keys > 0 do
-				local item = table.remove(keys, 1)
-				default = default[item]
-			end
-
-			-- Handle both list and table configurations
-			if vim.islist(default) then
-				for _, value in ipairs(default) do
-					table.insert(values, value)
-				end
-			else
-				for item, value in pairs(default) do
-					if not vim.tbl_contains(values, item) then
-						values[item] = value
-					end
-				end
-			end
-			return values
-		end
-
 		-- Setup completion capabilities
 		local cmp = require("cmp")
-		local capabilities = nil
-		if pcall(require, "cmp_nvim_lsp") then
-			capabilities = require("cmp_nvim_lsp").default_capabilities()
-		end
-
-		local lspconfig = require("lspconfig")
 
 		-- Language Server Configurations
 		-- Each entry can be either a boolean (true for default config) or a table with custom settings
@@ -95,233 +62,55 @@ return {
 			bashls = true,
 
 			-- Go language
-			gopls = {
-				manual_install = true,
-				settings = {
-					gopls = {
-						hints = {
-							assignVariableTypes = true,
-							compositeLiteralFields = true,
-							compositeLiteralTypes = true,
-							constantValues = true,
-							functionTypeParameters = true,
-							parameterNames = true,
-							rangeVariableTypes = true,
-						},
-					},
-				},
-			},
-
-			-- Graphics and shaders
-			glsl_analyzer = true,
+			gopls = {},
 
 			-- Lua language
 			lua_ls = {},
 
-			-- Systems programming
-			rust_analyzer = true,
-
 			-- Web development
 			svelte = true,
-			templ = true,
-			taplo = true,
-
-			-- PHP
-			intelephense = {
-				settings = {
-					intelephense = {
-						format = {
-							braces = "k&r",
-						},
-					},
-				},
-			},
 
 			-- Python
-			pyright = {
-				settings = {
-					python = {
-						analysis = {
-							-- Enable Django support
-							autoSearchPaths = true,
-							useLibraryCodeForTypes = true,
-							diagnosticMode = "workspace",
-							-- Add Django to known third party modules
-							stubPath = vim.fn.stdpath("data") .. "/lazy/python-type-stubs",
-							typeCheckingMode = "basic",
-							-- Django-specific settings
-							autoImportCompletions = true,
-							-- Include Django in analysis
-							extraPaths = {},
-						},
-					},
-				},
-				-- Auto-detect Django project and configure settings
-				before_init = function(_, config)
-					local util = require("lspconfig.util")
+			pyright = {},
 
-					-- Auto-detect Django project and configure settings
-					local manage_py = util.root_pattern("manage.py")(config.root_dir or vim.fn.getcwd())
-					if manage_py then
-						-- This is a Django project, enable Django-specific settings
-						config.settings.python.analysis.autoImportCompletions = true
-						config.settings.python.analysis.diagnosticMode = "workspace"
-					end
-				end,
-			},
-			ruff = { manual_install = true },
-
-			-- Web development and JavaScript ecosystem
-			biome = {
-				server_capabilities = {
-					documentFormattingProvider = false,
-				},
-			},
-			astro = true,
 			-- ESLint for JavaScript/TypeScript linting
-			eslint = {
-				settings = {
-					codeAction = {
-						disableRuleComment = {
-							enable = true,
-							location = "separateLine",
-						},
-						showDocumentation = {
-							enable = true,
-						},
-					},
-					codeActionOnSave = {
-						enable = false,
-						mode = "all",
-					},
-					experimental = {
-						useFlatConfig = false,
-					},
-					format = false,
-					nodePath = "",
-					onIgnoredFiles = "off",
-					packageManager = "npm",
-					problems = {
-						shortenToSingleLine = false,
-					},
-					quiet = false,
-					rulesCustomizations = {},
-					run = "onType",
-					useESLintClass = false,
-					validate = "on",
-					workingDirectory = {
-						mode = "location",
-					},
-				},
-			},
+			eslint = {},
+
 			-- TypeScript and JavaScript
-			vtsls = {
-				server_capabilities = {
-					documentFormattingProvider = false,
-				},
-			},
-			jsonls = {
-				server_capabilities = {
-					documentFormattingProvider = false,
-				},
-				settings = {
-					json = {
-						schemas = require("schemastore").json.schemas(),
-						validate = { enable = true },
-					},
-				},
-			},
+			vtsls = {},
+			jsonls = {},
 
 			-- YAML
-			yamlls = {
-				settings = {
-					yaml = {
-						schemaStore = {
-							enable = false,
-							url = "",
-						},
-					},
-				},
-			},
-
-			-- Other languages
-			ols = {},
-			racket_langserver = { manual_install = true },
-			roc_ls = { manual_install = true },
-			gleam = { manual_install = true },
-
-			-- Elixir
-			lexical = {
-				cmd = { "/home/tjdevries/.local/share/nvim/mason/bin/lexical", "server" },
-				root_dir = require("lspconfig.util").root_pattern({ "mix.exs" }),
-				server_capabilities = {
-					completionProvider = vim.NIL,
-					definitionProvider = true,
-				},
-			},
+			yamlls = {},
 
 			-- C/C++
-			clangd = {
-				init_options = { clangdFileStatus = true },
-				filetypes = { "c" },
-			},
+			clangd = {},
 
 			-- Tailwind CSS
-			tailwindcss = {
-				init_options = {
-					userLanguages = {
-						elixir = "phoenix-heex",
-						eruby = "erb",
-						heex = "phoenix-heex",
-					},
-				},
-				filetypes = extend("tailwindcss", "filetypes", { "ocaml.mlx" }),
-				settings = {
-					tailwindCSS = {
-						experimental = {
-							classRegex = {
-								[[class: "([^"]*)]],
-								[[className="([^"]*)]],
-							},
-						},
-						includeLanguages = extend("tailwindcss", "settings.tailwindCSS.includeLanguages", {
-							["ocaml.mlx"] = "html",
-						}),
-					},
-				},
-			},
+			tailwindcss = {},
 		}
 
 		-- Initialize Fidget for LSP progress
 		require("fidget").setup({})
-
-		-- Filter servers that need to be installed via Mason
-		local servers_to_install = vim.tbl_filter(function(key)
-			local t = servers[key]
-			if type(t) == "table" then
-				return not t.manual_install
-			else
-				return t
-			end
-		end, vim.tbl_keys(servers))
 
 		-- Setup Mason for LSP server management
 		require("mason").setup()
 
 		-- Setup mason-lspconfig to bridge Mason and lspconfig
 		require("mason-lspconfig").setup({
-			ensure_installed = servers_to_install,
+      -- all server, not just the ones that need to be installed via Mason
+			ensure_installed = vim.tbl_keys(servers),
 			automatic_installation = true,
 		})
 
 		-- Define base tools to ensure are installed (non-LSP tools)
-		local ensure_installed = {
+		local ensure_tools_installed = {
 			"stylua",
 			"prettierd",
 		}
 
 		-- Setup mason-tool-installer for non-LSP tools
-		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
+		require("mason-tool-installer").setup({ ensure_installed = ensure_tools_installed })
 
 		-- Configure completion behavior
 		local cmp_select = { behavior = cmp.SelectBehavior.Select }
@@ -348,50 +137,12 @@ return {
 			}),
 		})
 
-		-- Setup each language server
-		-- First, set up all servers (Mason will handle the ones it manages)
-		for name, config in pairs(servers) do
-			if config == true then
-				config = {}
-			end
-
-			-- Skip manual install servers for now
-			if type(config) == "table" and config.manual_install then
-				goto continue
-			end
-
-			config = vim.tbl_deep_extend("force", {}, {
-				capabilities = capabilities,
-			}, config)
-
-			lspconfig[name].setup(config)
-			::continue::
-		end
-
-		-- Setup manually installed servers (those with manual_install = true)
-		for name, config in pairs(servers) do
-			if type(config) == "table" and config.manual_install then
-				config = vim.tbl_deep_extend("force", {}, {
-					capabilities = capabilities,
-				}, config)
-				-- Remove manual_install flag before passing to lspconfig
-				config.manual_install = nil
-				lspconfig[name].setup(config)
-			end
-		end
-
-		-- Configure which filetypes should have semantic tokens disabled
-		local disable_semantic_tokens = {
-			-- lua = true,
-		}
-
 		-- Configure diagnostic display
 		vim.diagnostic.config({
 			float = {
 				focusable = false,
 				style = "minimal",
 				border = "rounded",
-				source = "always",
 				header = "",
 				prefix = "",
 			},
@@ -423,7 +174,6 @@ return {
 		vim.api.nvim_create_autocmd("LspAttach", {
 			callback = function(args)
 				local opts = { buffer = 0 }
-				local bufnr = args.buf
 				local client = assert(vim.lsp.get_client_by_id(args.data.client_id), "must have valid client")
 
 				local settings = servers[client.name]
@@ -448,14 +198,6 @@ return {
 				vim.keymap.set("n", "<leader>vd", builtin.diagnostics, opts)
 				vim.keymap.set("n", "<Tab>", vim.diagnostic.goto_next, opts)
 				vim.keymap.set("n", "<S-Tab>", vim.diagnostic.goto_prev, opts)
-
-				-- Handle semantic tokens
-				local filetype = vim.bo[bufnr].filetype
-				if disable_semantic_tokens[filetype] then
-					client.server_capabilities.semanticTokensProvider = nil
-				end
-
-				-- Override server capabilities if specified
 				if settings.server_capabilities then
 					for k, v in pairs(settings.server_capabilities) do
 						if v == vim.NIL then
