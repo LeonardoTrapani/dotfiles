@@ -17,6 +17,13 @@ fi
 
 #  Aliases 
 # Override aliases here or in '~/.zshrc' (already set in .zshenv)
+alias v='nvim'
+alias vim='nvim'
+alias g="git"
+alias npm="pnpm"
+alias ls="ls --color"
+alias tls="tmuxp load"
+alias gai="aicommits"
 
 # # Helpful aliases
 alias c='clear'                                                        # clear terminal

@@ -29,6 +29,7 @@ USAGE
 # Set the variables
 confDir="${XDG_CONFIG_HOME:-$HOME/.config}"
 iconDir="${XDG_DATA_HOME:-$HOME/.local/share}/icons"
+dotfilesDir="${XDG_CONFIG_HOME:-$HOME}/dotfiles"
 image_dirs=()
 hyde_distro_logo=${iconDir}/Wallbash-Icon/distro/$LOGO
 
@@ -37,16 +38,14 @@ case $1 in
 logo) # eats around 13 ms
   random() {
     (
-      image_dirs+=("${confDir}/fastfetch/logo")
-      image_dirs+=("${iconDir}/Wallbash-Icon/fastfetch/")
       if [ -n "${HYDE_THEME}" ] && [ -d "${confDir}/hyde/themes/${HYDE_THEME}/logo" ]; then
         image_dirs+=("${confDir}/hyde/themes/${HYDE_THEME}/logo")
       fi
       # [ -d "$HYDE_CACHE_HOME" ] && image_dirs+=("$HYDE_CACHE_HOME")
-      [ -f "$hyde_distro_logo" ] && echo "${hyde_distro_logo}"
+      # [ -f "$hyde_distro_logo" ] && echo "${hyde_distro_logo}"
       image_dirs+=("$HYDE_CACHE_HOME/wall.quad")
       image_dirs+=("$HYDE_CACHE_HOME/wall.sqre")
-      [ -f "$HOME/.face.icon" ] && image_dirs+=("$HOME/.face.icon")
+      [ -f "${dotfilesDir}" ] && image_dirs+=("${dotfilesDir}/Source/assets/face.png")
       # also .bash_logout may be matched with this find
       find -L "${image_dirs[@]}" -maxdepth 1 -type f \( -name "wall.quad" -o -name "wall.sqre" -o -name "*.icon" -o -name "*logo*" -o -name "*.png" \) ! -path "*/wall.set*" ! -path "*/wallpapers/*.png" 2>/dev/null
     ) | shuf -n 1
@@ -62,7 +61,6 @@ options:
   --os      Display the distro logo
   --local   Display a logo inside the fastfetch logo directory
   --wall    Display a logo inside the wallbash fastfetch directory
-  --theme   Display a logo inside the hyde theme directory
   --rand    Display a random logo
   *         Display a random logo
   *help*    Display this help message
@@ -88,7 +86,7 @@ HELP
         image_dirs+=("$HYDE_CACHE_HOME/wall.sqre")
         ;;
       --prof)
-        [ -f "$HOME/.face.icon" ] && image_dirs+=("$HOME/.face.icon")
+        [ -f "${dotfilesDir}/Source/assets/face.png" ] && image_dirs+=("${dotfilesDir}/Source/assets/face.png")
         ;;
       --os)
         [ -f "$hyde_distro_logo" ] && image_dirs+=("$hyde_distro_logo")
@@ -98,11 +96,6 @@ HELP
         ;;
       --wall)
         image_dirs+=("${iconDir}/Wallbash-Icon/fastfetch/")
-        ;;
-      --theme)
-        if [ -n "${HYDE_THEME}" ] && [ -d "${confDir}/hyde/themes/${HYDE_THEME}/logo" ]; then
-          image_dirs+=("${confDir}/hyde/themes/${HYDE_THEME}/logo")
-        fi
         ;;
       esac
     done

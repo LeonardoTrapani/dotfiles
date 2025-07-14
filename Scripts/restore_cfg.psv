@@ -62,8 +62,8 @@ P|${HOME}/.config/VSCodium/User|settings.json|vscodium
 S|${HOME}/.aws|config|hyprland
 
  Bar 
-P|${HOME}/.config/waybar|user-style.css config.jsonc theme.css style.css|waybar
-I|${HOME}/.config/waybar|modules styles layouts menus|waybar
+S|${HOME}/.config/waybar|user-style.css config.jsonc theme.css style.css|waybar
+S|${HOME}/.config/waybar|modules styles layouts menus|waybar
 S|${HOME}/.local/share|waybar|waybar
 
  Terminal 

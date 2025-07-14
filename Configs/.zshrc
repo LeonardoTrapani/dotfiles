@@ -7,19 +7,7 @@
 #  Plugins 
 # oh-my-zsh plugins are loaded  in ~/.user.zsh file, see the file for more information
 
-#  Aliases 
-# Add aliases here
-alias v='nvim'
-alias vim='nvim'
-alias g="git"
-alias npm="pnpm"
-alias ls="ls --color"
-alias tls="tmuxp load"
-alias gai="aicommits"
-alias cd="z"
-
 unset MAILCHECK
-
 
 #  Variables 
 # Add environment variables here

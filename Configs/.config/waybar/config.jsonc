@@ -1,66 +1,66 @@
 {
+  // sourced from header module //
   "layer": "top",
   "output": ["*"],
   "position": "top",
   "mode": "dock",
+  "height": 10,
   "exclusive": true,
   "passthrough": false,
   "reload_style_on_change": true,
   "include": [
-    "$XDG_CONFIG_HOME/waybar/modules/*json*", // This can be used on waybar-git
-    "$XDG_DATA_HOME/waybar/modules/*json*" // This can be used on waybar-git
-    // "$XDG_CONFIG_HOME/waybar/includes/includes.json" // This will be deprecated if waybar 0.12.0 is released on debian
+    "$XDG_CONFIG_HOME/waybar/modules/*json*",
+    "$XDG_CONFIG_HOME/waybar/includes/includes.json"
   ],
-  // ? Groups per side
-  "modules-left": ["group/leaf-inverse"],
-  "modules-center": ["group/pill#1", "group/pill-in#center", "group/pill#2"],
-  "modules-right": ["group/leaf"],
-  //  ? Declaring the groups
-  "group/pill#2": {
+  // positions generated based on config.ctl //
+  "modules-left": ["group/pill#left1", "group/pill#left2"],
+  "group/pill#left1": {
     "orientation": "inherit",
-    "modules": ["custom/hyprsunset", "idle_inhibitor"]
+    "modules": ["hyprland/workspaces"]
   },
-  "group/pill#1": {
-    "orientation": "inherit",
-    "modules": ["custom/weather"]
-  },
-  "group/leaf-inverse": {
-    "orientation": "inherit",
-    "modules": ["hyprland/workspaces", "wlr/taskbar"]
-  },
-  "group/pill-in#center": {
+  "group/pill#left2": {
     "orientation": "inherit",
     "modules": [
-      "keyboard-state",
-      "clock",
+      "custom/spotify",
       "custom/updates",
-      "custom/keybindhint",
-      "custom/gamemode"
+      "custom/cava",
+      "idle_inhibitor",
+      "custom/hyde-menu",
+      "custom/hyprsunset"
     ]
   },
-  "group/leaf": {
+  "modules-center": ["group/pill#center1"],
+  "group/pill#center1": {
+    "orientation": "inherit",
+    "modules": ["clock"]
+  },
+  "modules-right": [
+    "group/pill#right1",
+    "group/pill#right2",
+    "group/pill#right3"
+  ],
+  "group/pill#right1": {
     "orientation": "inherit",
     "modules": [
       "privacy",
       "backlight",
-      "tray",
-      "network#bandwidthUpBytes",
-      "network#bandwidthDownBytes",
-      "custom/bluetooth",
-      "pulseaudio",
-      "pulseaudio#microphone",
-      "battery",
-      "power-profiles-daemon",
       "custom/gpuinfo",
       "custom/cpuinfo",
-      "custom/sensorsinfo",
-      "custom/swaync",
-      "custom/dunst",
-      "custom/hyde-menu"
+      "custom/sensorsinfo"
     ]
   },
-  "group/pill-in#clipboard": {
+  "group/pill#right2": {
     "orientation": "inherit",
-    "modules": ["custom/clipboard"]
+    "modules": ["tray", "custom/swaync", "custom/dunst"]
+  },
+  "group/pill#right3": {
+    "orientation": "inherit",
+    "modules": [
+      "battery",
+      "backlight",
+      "pulseaudio",
+      "pulseaudio#microphone",
+      "custom/power"
+    ]
   }
 }
