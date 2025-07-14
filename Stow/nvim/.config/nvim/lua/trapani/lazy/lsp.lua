@@ -138,7 +138,37 @@ return {
 			},
 
 			-- Python
-			pyright = true,
+			pyright = {
+				settings = {
+					python = {
+						analysis = {
+							-- Enable Django support
+							autoSearchPaths = true,
+							useLibraryCodeForTypes = true,
+							diagnosticMode = "workspace",
+							-- Add Django to known third party modules
+							stubPath = vim.fn.stdpath("data") .. "/lazy/python-type-stubs",
+							typeCheckingMode = "basic",
+							-- Django-specific settings
+							autoImportCompletions = true,
+							-- Include Django in analysis
+							extraPaths = {},
+						},
+					},
+				},
+				-- Auto-detect Django project and configure settings
+				before_init = function(_, config)
+					local util = require("lspconfig.util")
+
+					-- Auto-detect Django project and configure settings
+					local manage_py = util.root_pattern("manage.py")(config.root_dir or vim.fn.getcwd())
+					if manage_py then
+						-- This is a Django project, enable Django-specific settings
+						config.settings.python.analysis.autoImportCompletions = true
+						config.settings.python.analysis.diagnosticMode = "workspace"
+					end
+				end,
+			},
 			ruff = { manual_install = true },
 
 			-- Web development and JavaScript ecosystem
@@ -148,6 +178,42 @@ return {
 				},
 			},
 			astro = true,
+			-- ESLint for JavaScript/TypeScript linting
+			eslint = {
+				settings = {
+					codeAction = {
+						disableRuleComment = {
+							enable = true,
+							location = "separateLine",
+						},
+						showDocumentation = {
+							enable = true,
+						},
+					},
+					codeActionOnSave = {
+						enable = false,
+						mode = "all",
+					},
+					experimental = {
+						useFlatConfig = false,
+					},
+					format = false,
+					nodePath = "",
+					onIgnoredFiles = "off",
+					packageManager = "npm",
+					problems = {
+						shortenToSingleLine = false,
+					},
+					quiet = false,
+					rulesCustomizations = {},
+					run = "onType",
+					useESLintClass = false,
+					validate = "on",
+					workingDirectory = {
+						mode = "location",
+					},
+				},
+			},
 			-- TypeScript and JavaScript
 			vtsls = {
 				server_capabilities = {
@@ -242,14 +308,19 @@ return {
 		-- Setup Mason for LSP server management
 		require("mason").setup()
 
-		-- Define base tools to ensure are installed
+		-- Setup mason-lspconfig to bridge Mason and lspconfig
+		require("mason-lspconfig").setup({
+			ensure_installed = servers_to_install,
+			automatic_installation = true,
+		})
+
+		-- Define base tools to ensure are installed (non-LSP tools)
 		local ensure_installed = {
 			"stylua",
-			"lua_ls",
+			"prettierd",
 		}
 
-		-- Add all auto-installable servers to the ensure_installed list
-		vim.list_extend(ensure_installed, servers_to_install)
+		-- Setup mason-tool-installer for non-LSP tools
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
 		-- Configure completion behavior
@@ -271,21 +342,42 @@ return {
 			sources = cmp.config.sources({
 				{ name = "nvim_lsp" },
 				{ name = "luasnip" },
+				{ name = "supermaven" },
 			}, {
 				{ name = "buffer" },
 			}),
 		})
 
 		-- Setup each language server
+		-- First, set up all servers (Mason will handle the ones it manages)
 		for name, config in pairs(servers) do
 			if config == true then
 				config = {}
 			end
+
+			-- Skip manual install servers for now
+			if type(config) == "table" and config.manual_install then
+				goto continue
+			end
+
 			config = vim.tbl_deep_extend("force", {}, {
 				capabilities = capabilities,
 			}, config)
 
 			lspconfig[name].setup(config)
+			::continue::
+		end
+
+		-- Setup manually installed servers (those with manual_install = true)
+		for name, config in pairs(servers) do
+			if type(config) == "table" and config.manual_install then
+				config = vim.tbl_deep_extend("force", {}, {
+					capabilities = capabilities,
+				}, config)
+				-- Remove manual_install flag before passing to lspconfig
+				config.manual_install = nil
+				lspconfig[name].setup(config)
+			end
 		end
 
 		-- Configure which filetypes should have semantic tokens disabled

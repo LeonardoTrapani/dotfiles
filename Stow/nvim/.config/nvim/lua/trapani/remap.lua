@@ -61,6 +61,6 @@ end)
 -- Cursor AI integration
 vim.keymap.set("n", "<leader>ai", function()
 	local current_dir = vim.fn.getcwd()
-	vim.cmd("!cursor " .. current_dir)
+	vim.cmd("!cursor " .. current_dir .. " &")
 	vim.notify("Launched Cursor AI in: " .. current_dir, vim.log.levels.INFO)
 end)  -- Open Cursor AI in current directory
