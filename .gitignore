@@ -22,3 +22,5 @@ zsh/.secrets
 #tmux
 tmux/.tmux/tmux-client-*.log
 # tmux/.tmux/plugins/
+
+nvim/.config/nvim/lua/plugins/theme.lua

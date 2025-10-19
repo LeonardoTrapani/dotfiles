@@ -20,6 +20,14 @@ alias tls='tmuxp load'
 alias tks='tmux kill-session'
 alias tksv='tmux kill-server'
 
+tn() {
+  if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$1" 2>/dev/null || tmux new-session -d -s "$1" && tmux switch-client -t "$1"
+  else
+    tmux new -A -s "$1"
+  fi
+}
+
 # Clear terminal
 alias c='clear'
 
