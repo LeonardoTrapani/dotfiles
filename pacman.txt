@@ -1,0 +1,2 @@
+1password-beta
+1password-cli

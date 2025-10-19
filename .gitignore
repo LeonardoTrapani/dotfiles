@@ -1,0 +1,24 @@
+
+zsh/.secrets
+.ssh
+**/.claude
+
+
+#hypr
+hypr/.config/hypr/sspaeti/.bg_mode_state
+hypr/.config/hypr/sspaeti/.current_personal_image
+# file image search
+hypr/.config/hypr/sspaeti/image-browser/.image_ocr_index.txt
+
+# Secrets and sensitive files
+zsh/.secrets
+**/secrets
+**/.secrets
+**/.secret.*
+**/*.secret
+**/*.key
+.env.local
+
+#tmux
+tmux/.tmux/tmux-client-*.log
+# tmux/.tmux/plugins/

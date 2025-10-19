@@ -1,0 +1,1 @@
+/home/trapani/.config/omarchy/current/theme/neovim.lua

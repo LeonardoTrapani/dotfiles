@@ -1,0 +1,18 @@
+{
+  "headers": [
+    {
+      "source": "/boot.sh",
+      "headers": [
+        { "key": "Content-Type", "value": "text/x-shellscript; charset=utf-8" },
+        { "key": "Cache-Control", "value": "no-cache" }
+      ]
+    }
+  ],
+  "redirects": [
+    { "source": "/", "destination": "/boot.sh", "permanent": false }
+  ],
+  "rewrites": [
+    { "source": "/boot.sh", "destination": "/install.sh" }
+  ],
+  "cleanUrls": false
+}
