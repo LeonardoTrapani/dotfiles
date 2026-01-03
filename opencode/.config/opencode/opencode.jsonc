@@ -1,0 +1,14 @@
+{
+	"$schema": "https://opencode.ai/config.json",
+	"theme": "system",
+	"plugin": [
+		"opencode-supermemory@latest",
+		"@franlol/opencode-md-table-formatter@0.0.3",
+		"@mohak34/opencode-notifier@latest"
+	],
+	"permission": {
+		"bash": {
+			"git push": "ask",
+		},
+	}
+}

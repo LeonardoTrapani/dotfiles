@@ -7,6 +7,8 @@ yay -S --needed --noconfirm - < yay_aur.txt
 omarchy-webapp-install "Tasks" https://tasks.google.com/tasks/ https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/todoist.svg
 omarchy-webapp-install "Bocconi" https://youatb.unibocconi.it/ https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/synology-calendar.png
 
+omarchy-theme-install https://github.com/vyrx-dev/omarchy-void-theme.git
+
 rm -rf ~/.tmux/plugins
 mkdir -p ~/.tmux/plugins
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm 2>/dev/null || true
@@ -14,5 +16,10 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm 2>/dev/null ||
 
 ./scripts/setup-trezor.sh
 ./scripts/setup-nvim.sh
+
+echo "Installing Opencode..."
+curl -fsSL https://opencode.ai/install | bash
+stow opencode
+cd ~/.config/opencode && bun install
 
 echo "Installation complete!"
