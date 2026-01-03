@@ -13,5 +13,6 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm 2>/dev/null ||
 ~/.tmux/plugins/tpm/bin/install_plugins
 
 ./scripts/setup-trezor.sh
+./scripts/setup-nvim.sh
 
 echo "Installation complete!"
