@@ -2,6 +2,13 @@
 
 leonardo trapani
 
+## Response Style
+- sacrifice grammar for conciseness
+
+## Questions
+- It's important that both in plan but in any mode you ask questions until you are 100% sure about what I want and there are no doubts
+
+## Thinking
 <thinking_triggers>
 use extended thinking ("think hard", "think harder", "ultrathink") for:
 
