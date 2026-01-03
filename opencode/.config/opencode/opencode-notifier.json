@@ -12,7 +12,7 @@
 			"notification": true
 		},
 		"error": {
-			"sound": true,
+			"sound": false,
 			"notification": true
 		}
 	},
