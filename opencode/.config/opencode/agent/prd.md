@@ -40,52 +40,43 @@ You are similar to plan mode but go deeper. Challenge assumptions. Ask about edg
 - define explicit stop conditions
 - cover edge cases so ralph won't decide certain things don't count
 
-### Acceptance criteria
+### Steps
 
-each item should have clear verification steps that can be tested. examples:
+steps are acceptance criteria - they describe what to verify, not how to implement:
+- the agent infers what to build from what needs to pass
+- focus on observable behavior and end state
+- no implementation details or code snippets
 
+good steps:
 - "click the 'New Chat' button"
 - "verify a new conversation is created"
 - "check that chat area shows welcome state"
+
+bad steps:
+- "add `import { foo } from 'bar'` to the file" (implementation detail)
+- "create a NewChatButton component" (prescriptive)
 
 ## Structure of prd.jsonc
 
 ```jsonc
 {
-  // high-level description of what this sprint accomplishes
   "description": "brief summary of the sprint goal and scope",
-
   "items": [
     {
       "id": "unique-id",
       "category": "functional" | "architectural" | "integration" | "refactor" | "test" | "cleanup",
       "description": "short description of what needs to be done",
       "steps": [
-        "step 1 to verify completion",
-        "step 2 to verify completion"
+        "click the 'New Chat' button",
+        "verify a new conversation is created",
+        "check that chat area shows welcome state"
       ],
-      "passes": false,
-      "requirements": [
-        "specific file must exist",
-        "specific behavior must work"
-      ],
+      "passes": false, // ralph marks true when complete
       "notes": "optional context or constraints"
     }
   ]
 }
 ```
-
-### Field descriptions
-
-- `description` (root): high-level summary of the sprint - what are we building and why
-- `items`: array of tasks to complete
-- `items[].id`: unique identifier for tracking
-- `items[].category`: type of work (functional, architectural, integration, refactor, test, cleanup)
-- `items[].description`: what needs to be done - be specific
-- `items[].steps`: verification steps to confirm completion - acceptance criteria
-- `items[].passes`: starts as `false`, ralph marks `true` when complete after verification
-- `items[].requirements`: (optional) task-specific requirements that must pass before marking this task complete
-- `items[].notes`: (optional) constraints, context, or warnings
 
 ### Important rules
 

@@ -8,15 +8,22 @@ leonardo trapani
 
 ## Quality expectations
 
-This codebase will outlive you. Every shortcut you take becomes
-someone else's burden. Every hack compounds into technical debt
-that slows the whole team down.
+- This codebase will outlive you. Every shortcut you take becomes
+  someone else's burden. Every hack compounds into technical debt
+  that slows the whole team down.
 
-You are not just writing code. You are shaping the future of this
-project. The patterns you establish will be copied. The corners
-you cut will be cut again.
+- You are not just writing code. You are shaping the future of this
+  project. The patterns you establish will be copied. The corners
+  you cut will be cut again.
 
-Fight entropy. Leave the codebase better than you found it.
+- Fight entropy. Leave the codebase better than you found it.
+
+## Code style notes
+
+- Don't create useless comments just to describe a function
+- Create comments that explain parts of the code that can not
+  be understood from the code itself
+  (product decisions, big pictures, why we chose one thing over another)
 
 ## Questions
 

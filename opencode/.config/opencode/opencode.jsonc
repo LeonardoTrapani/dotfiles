@@ -7,10 +7,7 @@
 			"url": "https://mcp.context7.com/mcp"
 		}
 	},
-	"plugin": [
-		"@franlol/opencode-md-table-formatter@0.0.3",
-		"@mohak34/opencode-notifier@0.1.10",
-	],
+	"plugin": [],
 	"permission": {
 		"bash": {
 			"git push": "ask"

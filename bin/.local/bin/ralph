@@ -24,22 +24,31 @@ prompt='@prd.jsonc @progress.txt @AGENTS.md
 2. Read progress.txt to see what was recently done
 3. Pick the task YOU decide has highest priority - not necessarily first in list
 4. Implement the task
-5. Check AGENTS.md for requirements to run after each task (typecheck, tests, lint, etc.)
-6. If the task has requirements in prd.jsonc, verify those pass too
+5. Verify the steps in the task pass (acceptance criteria)
+6. Check AGENTS.md for requirements to run after each task (typecheck, tests, lint, etc.)
 7. Mark the task as passes: true in prd.jsonc
-8. Append your progress to progress.txt
+8. Append your progress to progress.txt (make it detailed and include any decision taken)
 9. Make a git commit
 
 ONLY WORK ON A SINGLE TASK.
 If all items have passes: true, output <promise>COMPLETE</promise>.'
 
+if [[ "$iterations" == "1" ]]; then
+  if $use_docker; then
+    docker sandbox run opencode --prompt "$prompt"
+  else
+    opencode --prompt "$prompt"
+  fi
+  exit 0
+fi
+
 for ((i=1; i<=iterations; i++)); do
   echo "=== Ralph iteration $i/$iterations ==="
   
   if $use_docker; then
-    result=$(docker sandbox run opencode run "$prompt")
+    result=$(OPENCODE_PERMISSION='{"*":"allow"}' docker sandbox run opencode run "$prompt")
   else
-    result=$(opencode run "$prompt")
+    result=$(OPENCODE_PERMISSION='{"*":"allow"}' opencode run "$prompt")
   fi
 
   echo "$result"
