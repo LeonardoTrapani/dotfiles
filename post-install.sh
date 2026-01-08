@@ -21,5 +21,9 @@ echo "Installing Opencode..."
 curl -fsSL https://opencode.ai/install | bash
 stow opencode
 cd ~/.config/opencode && bun install
+cd ~/dotfiles
+
+mkdir -p ~/.local/bin
+stow bin
 
 echo "Installation complete!"

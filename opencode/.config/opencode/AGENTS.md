@@ -3,28 +3,24 @@
 leonardo trapani
 
 ## Response Style
+
 - sacrifice grammar for conciseness
 
+## Quality expectations
+
+This codebase will outlive you. Every shortcut you take becomes
+someone else's burden. Every hack compounds into technical debt
+that slows the whole team down.
+
+You are not just writing code. You are shaping the future of this
+project. The patterns you establish will be copied. The corners
+you cut will be cut again.
+
+Fight entropy. Leave the codebase better than you found it.
+
 ## Questions
+
 - It's important that both in plan but in any mode you ask questions until you are 100% sure about what I want and there are no doubts
-
-## Thinking
-<thinking_triggers>
-use extended thinking ("think hard", "think harder", "ultrathink") for:
-
-- architecture decisions with multiple valid approaches
-- debugging gnarly issues after initial attempts fail
-- planning multi-file refactors before touching code
-- reviewing complex pull requests or understanding unfamiliar code
-- any time you're about to do something irreversible
-
-skip extended thinking for:
-
-- simple CRUD operations
-- obvious bug fixes
-- file reads and exploration
-- running commands
-</thinking_triggers>
 
 ## knowledge files (load on-demand)
 
@@ -37,9 +33,13 @@ reference these when relevant
 - always use the package manager being used to add, remove or update dependencies. mostly bun, sometimes pnpm
 - never edit the package.json or any similar file manually
 
+## subagents
+
+- use a subagent when the task would fill your context, and you just need the final result of the task, and not the process
+- for example, researching documentation, searching through the codebase etc...
+
 ## commiting patterns
 
-- never commit if not asked to
 - always use lowercase text. this does not mean not using camelCase when applicable
 - commit messages should be short and to the point
 - default to using the git cli

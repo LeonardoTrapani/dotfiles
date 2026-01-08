@@ -63,7 +63,6 @@ fi
 
 . "$HOME/.local/share/../bin/env"
 
-
 latcompile() {
   local file="$1"
   [[ -z "$file" || "${file##*.}" != "tex" || ! -f "$file" ]] && {

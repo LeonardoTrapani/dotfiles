@@ -1,0 +1,51 @@
+#!/bin/bash
+set -e
+
+iterations=""
+use_docker=false
+
+# parse args
+for arg in "$@"; do
+  if [[ "$arg" == "-d" ]]; then
+    use_docker=true
+  elif [[ -z "$iterations" ]]; then
+    iterations="$arg"
+  fi
+done
+
+if [[ -z "$iterations" ]]; then
+  echo "Usage: ralph <iterations> [-d]"
+  echo "  -d: run in docker sandbox"
+  exit 1
+fi
+
+prompt='@prd.jsonc @progress.txt @AGENTS.md
+1. Read prd.jsonc to understand the sprint and pending items (passes: false)
+2. Read progress.txt to see what was recently done
+3. Pick the task YOU decide has highest priority - not necessarily first in list
+4. Implement the task
+5. Check AGENTS.md for requirements to run after each task (typecheck, tests, lint, etc.)
+6. If the task has requirements in prd.jsonc, verify those pass too
+7. Mark the task as passes: true in prd.jsonc
+8. Append your progress to progress.txt
+9. Make a git commit
+
+ONLY WORK ON A SINGLE TASK.
+If all items have passes: true, output <promise>COMPLETE</promise>.'
+
+for ((i=1; i<=iterations; i++)); do
+  echo "=== Ralph iteration $i/$iterations ==="
+  
+  if $use_docker; then
+    result=$(docker sandbox run opencode run "$prompt")
+  else
+    result=$(opencode run "$prompt")
+  fi
+
+  echo "$result"
+
+  if [[ "$result" == *"<promise>COMPLETE</promise>"* ]]; then
+    echo "PRD complete, exiting."
+    exit 0
+  fi
+done

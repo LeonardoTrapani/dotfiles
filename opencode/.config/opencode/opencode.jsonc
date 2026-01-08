@@ -1,6 +1,12 @@
 {
 	"$schema": "https://opencode.ai/config.json",
 	"theme": "system",
+	"mcp": {
+		"context7": {
+			"type": "remote",
+			"url": "https://mcp.context7.com/mcp"
+		}
+	},
 	"plugin": [
 		"@franlol/opencode-md-table-formatter@0.0.3",
 		"@mohak34/opencode-notifier@0.1.10",
