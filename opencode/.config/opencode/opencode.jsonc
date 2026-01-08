@@ -3,11 +3,12 @@
 	"theme": "system",
 	"plugin": [
 		"@franlol/opencode-md-table-formatter@0.0.3",
-		"@mohak34/opencode-notifier@0.1.10"
+		"@mohak34/opencode-notifier@0.1.10",
 	],
 	"permission": {
 		"bash": {
-			"git push": "ask",
+			"git push": "ask"
 		},
+		"doom_loop": "ask"
 	}
 }
