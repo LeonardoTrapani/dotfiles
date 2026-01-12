@@ -27,13 +27,11 @@ leonardo trapani
 
 ## Questions
 
-- UNLESS SPECIFIED TO NOT ASK QUESTIONS: It's important that both in plan but in any mode you ask questions until you are 100% sure about what I want and there are no doubts
+- It's important that both in plan but in any mode you ask questions until you are 100% sure about what I want and there are no doubts
 
-## knowledge files (load on-demand)
+## Plans
 
-reference these when relevant
-
-- **effect-ts**: @knowledge/effect.md
+- At the end of each plan, give me a list of unresolved questions to answer if any. Make the questions extremely concise. Sacrifice grammar for the sake of concision.
 
 ## dependency handling
 
@@ -50,3 +48,4 @@ reference these when relevant
 - always use lowercase text. this does not mean not using camelCase when applicable
 - commit messages should be short and to the point
 - default to using the git cli
+- NEVER WRITE CO AUTHORED BY CLAUDE CODE or similar in the commit description
