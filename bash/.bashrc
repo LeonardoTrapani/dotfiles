@@ -1,3 +1,9 @@
+# If not running interactively, don't do anything (leave this at the top of this file)
+[[ $- != *i* ]] && return
+
+# Private environment variables (not committed)
+[[ -f ~/.bash_env ]] && source ~/.bash_env
+
 # All the default Omarchy aliases and functions
 # (don't mess with these directly, just overwrite them here!)
 source ~/.local/share/omarchy/default/bash/rc
@@ -8,6 +14,8 @@ alias yayf="yay -Slq | fzf --multi --preview 'yay -Sii {1}' --preview-window=dow
 # Text editors
 alias v='nvim'
 alias vim='nvim'
+alias oc='opencode'
+alias occ='opencode --continue'
 
 # Version control
 alias g='git'
@@ -99,3 +107,5 @@ latcompile() {
     fi
   done
 }
+
+export PATH=$HOME/.local/bin:$PATH

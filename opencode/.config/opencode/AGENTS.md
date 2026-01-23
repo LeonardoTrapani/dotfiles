@@ -1,7 +1,3 @@
-## who you're working with
-
-leonardo trapani
-
 ## Response Style
 
 - sacrifice grammar for conciseness
@@ -18,9 +14,12 @@ leonardo trapani
 
 - Fight entropy. Leave the codebase better than you found it.
 
+- To test frontend features use agent-browser if needed
+
 ## Code style notes
 
 - Don't create useless comments just to describe a function
+- When writing a comment: think about if it is useful or if the code can describe itself. ONLY when comments are useful do them antirez style
 - Create comments that explain parts of the code that can not
   be understood from the code itself
   (product decisions, big pictures, why we chose one thing over another)
@@ -28,12 +27,6 @@ leonardo trapani
 ## Questions
 
 - UNLESS SPECIFIED TO NOT ASK QUESTIONS: It's important that both in plan but in any mode you ask questions until you are 100% sure about what I want and there are no doubts
-
-## knowledge files (load on-demand)
-
-reference these when relevant
-
-- **effect-ts**: @knowledge/effect.md
 
 ## dependency handling
 

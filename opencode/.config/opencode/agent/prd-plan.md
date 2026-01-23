@@ -1,6 +1,9 @@
 ---
 name: prd-plan
-description: "Generate a Product Requirements Document (PRD) for a new feature. Use when planning a feature, starting a new project, or when asked to create a PRD. Triggers on: create a prd, write prd for, plan this feature, requirements for, spec out."
+description: "An agent that interactively asks user clarifying questions, until it has a clear understanding to generate a Product Requirements Document (PRD) for a new feature. Use when planning a feature, starting a new project, or when asked to create a PRD. Triggers on: create a prd, write prd for, plan this feature, requirements for, spec out."
+mode: primary
+permission:
+  question: allow
 ---
 
 # PRD Generator
@@ -80,7 +83,7 @@ Each story should be small enough to implement in one focused session.
 **Format:**
 
 ```markdown
-### US-001: [Title]
+### [Title]
 
 **Description:** As a [user], I want [feature] so that [benefit].
 
@@ -89,13 +92,13 @@ Each story should be small enough to implement in one focused session.
 - [ ] Specific verifiable criterion
 - [ ] Another criterion
 - [ ] Typecheck/lint passes
-- [ ] **[UI stories only]** Verify in browser using dev-browser skill
+- [ ] **[UI stories only]** Verify in browser using agent-browser skill
 ```
 
 **Important:**
 
 - Acceptance criteria must be verifiable, not vague. "Works correctly" is bad. "Button shows confirmation dialog before deleting" is good.
-- **For any story with UI changes:** Always include "Verify in browser using dev-browser skill" as acceptance criteria.
+- **For any story with UI changes:** Always include "Verify in browser using agent-browser skill" as acceptance criteria.
 
 ### 4. Functional Requirements
 
@@ -120,14 +123,17 @@ What this feature will NOT include. Critical for managing scope.
 
 - Known constraints or dependencies
 - Integration points with existing systems
-- Performance requirements
+- Reference repos/docs to follow (but don't copy-paste their code into the PRD)
+- Environment variables needed
 
 ### 8. Success Metrics
 
-How will success be measured?
+How will success be measured? **Must be verifiable now**, not aspirational.
 
-- "Reduce time to complete X by 50%"
-- "Increase conversion rate by 10%"
+- **Good:** "All acceptance criteria tests pass"
+- **Good:** "Unauthorized users get 401 (verified by test)"
+- **Bad:** "95% of users complete flow" (requires telemetry you don't have)
+- **Bad:** "Time-to-completion under 3 minutes" (unmeasurable without tooling)
 
 ---
 
@@ -140,6 +146,45 @@ The PRD reader may be a junior developer or AI agent. Therefore:
 - Provide enough detail to understand purpose and core logic
 - Number requirements for easy reference
 - Use concrete examples where helpful
+
+---
+
+## Anti-Patterns (What NOT to Do)
+
+A PRD defines **WHAT** to build, not **HOW** to build it. Avoid:
+
+### Don't include implementation details
+
+- **Bad:** Step-by-step bash commands (`git clone X`, `cp file to Y`)
+- **Bad:** Exact dependency versions (`"@clack/prompts": "^0.7.0"`)
+- **Bad:** Full config file contents (docker-compose.yml, tsconfig.json)
+- **Bad:** Complete test scripts
+- **Good:** "Clone repo X and follow its patterns for Y"
+- **Good:** "Use library X for Y"
+- **Good:** "Config file at path Z"
+
+### Don't include lengthy UX mockups inline
+
+- **Bad:** 50+ lines of CLI output examples in the PRD
+- **Good:** "See `/docs/ux/feature-flows.md` for detailed mockups"
+- Create a separate doc and reference it
+
+### Don't write unmeasurable success metrics
+
+- **Bad:** "95% of users complete the flow" (no telemetry)
+- **Bad:** "Under 3 minutes to complete" (no measurement)
+- **Good:** "All acceptance criteria tests pass"
+- **Good:** "Verified by running X command"
+
+### Don't contradict yourself
+
+- If "No support for X" is in Non-Goals, don't show X in examples
+- Don't duplicate sections (e.g., two "Environment Variables" sections)
+
+### Don't forget dependent stories
+
+- If a CLI fetches from `/api/foo`, there must be a story for that endpoint
+- If code references a type, there must be a story that creates it
 
 ---
 
@@ -169,7 +214,7 @@ Add priority levels to tasks so users can focus on what matters most. Tasks can 
 
 ## User Stories
 
-### US-001: Add priority field to database
+### Add priority field to database
 
 **Description:** As a developer, I need to store task priority so it persists across sessions.
 
@@ -179,7 +224,7 @@ Add priority levels to tasks so users can focus on what matters most. Tasks can 
 - [ ] Generate and run migration successfully
 - [ ] Typecheck passes
 
-### US-002: Display priority indicator on task cards
+### Display priority indicator on task cards
 
 **Description:** As a user, I want to see task priority at a glance so I know what needs attention first.
 
@@ -188,9 +233,9 @@ Add priority levels to tasks so users can focus on what matters most. Tasks can 
 - [ ] Each task card shows colored priority badge (red=high, yellow=medium, gray=low)
 - [ ] Priority visible without hovering or clicking
 - [ ] Typecheck passes
-- [ ] Verify in browser using dev-browser skill
+- [ ] Verify in browser using agent-browser skill
 
-### US-003: Add priority selector to task edit
+### Add priority selector to task edit
 
 **Description:** As a user, I want to change a task's priority when editing it.
 
@@ -200,9 +245,9 @@ Add priority levels to tasks so users can focus on what matters most. Tasks can 
 - [ ] Shows current priority as selected
 - [ ] Saves immediately on selection change
 - [ ] Typecheck passes
-- [ ] Verify in browser using dev-browser skill
+- [ ] Verify in browser using agent-browser skill
 
-### US-004: Filter tasks by priority
+### Filter tasks by priority
 
 **Description:** As a user, I want to filter the task list to see only high-priority items.
 
@@ -212,7 +257,7 @@ Add priority levels to tasks so users can focus on what matters most. Tasks can 
 - [ ] Filter persists in URL params
 - [ ] Empty state message when no tasks match filter
 - [ ] Typecheck passes
-- [ ] Verify in browser using dev-browser skill
+- [ ] Verify in browser using agent-browser skill
 
 ## Functional Requirements
 
@@ -250,6 +295,13 @@ Before saving the PRD:
 - [ ] Asked clarifying questions with lettered options
 - [ ] Incorporated user's answers
 - [ ] User stories are small and specific
+- [ ] Each acceptance criterion is a verifiable pass/fail check
 - [ ] Functional requirements are numbered and unambiguous
 - [ ] Non-goals section defines clear boundaries
+- [ ] No step-by-step implementation instructions (WHAT not HOW)
+- [ ] No exact dependency versions
+- [ ] No lengthy inline mockups (reference separate docs)
+- [ ] Success metrics are measurable now, not aspirational
+- [ ] No contradictions between sections
+- [ ] All dependent APIs/types have their own stories
 - [ ] Saved to `tasks/prd-[feature-name].md`

@@ -8,8 +8,8 @@ iterations=""
 use_docker=false
 use_claude=false
 
-# opencode defaults to codex-ish models; force non-codex
-opencode_model="openai/gpt-5.2"
+# opencode model for multi-iteration mode
+opencode_model="anthropic/claude-opus-4-5"
 
 # parse args
 for arg in "$@"; do
@@ -57,7 +57,7 @@ if $use_claude; then
   cmd_single="claude --dangerously-skip-permissions"
   cmd_multi="claude -p --dangerously-skip-permissions"
 else
-  cmd_single="opencode"
+  cmd_single="opencode -m $opencode_model"
   export OPENCODE_PERMISSION='{"*":"allow"}'
   cmd_multi="opencode run -m $opencode_model"
 fi
@@ -72,9 +72,7 @@ if [[ "$iterations" == "1" ]]; then
   if $use_claude; then
     eval "$cmd_single \"\$prompt\""
   else
-    echo "$prompt" | wl-copy
-    echo "Prompt copied to clipboard"
-    eval "$cmd_single"
+    eval "$cmd_single --prompt \"\$prompt\""
   fi
   exit 0
 fi
@@ -97,6 +95,13 @@ for ((i=1; i<=iterations; i++)); do
     echo ""
     echo "Ralph completed all tasks!"
     echo "Completed at iteration $i of $iterations"
+    exit 0
+  fi
+
+  if [[ "$result" == *"<promise>ABORT</promise>"* ]]; then
+    echo ""
+    echo "Aborted"
+    echo "Aborted at iteration $i of $iterations"
     exit 0
   fi
 
