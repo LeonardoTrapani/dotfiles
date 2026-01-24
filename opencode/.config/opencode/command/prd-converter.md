@@ -86,8 +86,6 @@ For stories that change UI:
 2. All stories: `passes: false` and empty `notes`
 3. Always add: "Typecheck passes" to every story's acceptance criteria
 
-Note: No priority field needed - Ralph determines execution order based on dependencies.
-
 ## Splitting Large Stories
 
 If a PRD has big features, split them:
