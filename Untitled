@@ -1,0 +1,23 @@
+
+
+Error detected while processing /home/trapani/.config/nvim/init.lua:
+E5113: Error while calling lua chunk: /home/trapani/.config/nvim/init.lua:898: module 'leotrapani.plugins.supermaven' not found:
+        no field package.preload['leotrapani.plugins.supermaven']
+        no file './leotrapani/plugins/supermaven.lua'
+        no file '/usr/share/luajit-2.1/leotrapani/plugins/supermaven.lua'
+        no file '/usr/local/share/lua/5.1/leotrapani/plugins/supermaven.lua'
+        no file '/usr/local/share/lua/5.1/leotrapani/plugins/supermaven/init.lua'
+        no file '/usr/share/lua/5.1/leotrapani/plugins/supermaven.lua'
+        no file '/usr/share/lua/5.1/leotrapani/plugins/supermaven/init.lua'
+        no file './leotrapani/plugins/supermaven.so'
+        no file '/usr/local/lib/lua/5.1/leotrapani/plugins/supermaven.so'
+        no file '/usr/lib/lua/5.1/leotrapani/plugins/supermaven.so'
+        no file '/usr/local/lib/lua/5.1/loadall.so'
+        no file './leotrapani.so'
+        no file '/usr/local/lib/lua/5.1/leotrapani.so'
+        no file '/usr/lib/lua/5.1/leotrapani.so'
+        no file '/usr/local/lib/lua/5.1/loadall.so'
+stack traceback:
+        [C]: in function 'require'
+        /home/trapani/.config/nvim/init.lua:898: in main chunk
+

@@ -18,7 +18,7 @@
 
 ## Code style notes
 
-- Don't create useless comments just to describe a function
+- IMPORTANT: Don't create useless comments just to describe a function
 - When writing a comment: think about if it is useful or if the code can describe itself. ONLY when comments are useful do them antirez style
 - Create comments that explain parts of the code that can not
   be understood from the code itself
