@@ -54,7 +54,7 @@ If you discover the task is larger than expected (needs a refactor first, missin
 
 - **Typecheck**: Run the typecheck command
 - **Tests**: Run the test suite
-- **UI tasks**: Use agent-browser skill - no exceptions
+- **UI tasks**: Use agent-browser skill - no exceptions -> if need authentication, it can sometimes be found in .agent-browser-auth.json
 - **API tasks**: Actually call the endpoint, check response
 - **CLI tasks**: Run the command, check output
 

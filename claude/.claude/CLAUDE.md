@@ -4,7 +4,7 @@
 
 ## Quality expectations
 
-- The code will outlive you. Every shortcut you take becomes
+- This codebase will outlive you. Every shortcut you take becomes
   someone else's burden. Every hack compounds into technical debt
   that slows the whole team down.
 
@@ -32,10 +32,6 @@
 
 - always use the package manager being used to add, remove or update dependencies. mostly bun, sometimes pnpm
 - never edit the package.json or any similar file manually
-
-## dev servers
-
-- never run the dev server manually unless explicitly asked to. they should be already running, if needed and they are not ask to run or abort the task
 
 ## subagents
 

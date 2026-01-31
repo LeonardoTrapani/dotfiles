@@ -16,6 +16,8 @@ alias v='nvim'
 alias vim='nvim'
 alias oc='opencode'
 alias occ='opencode --continue'
+alias cc='claude --dangerously-skip-permissions'
+alias ccc='claude --dangerously-skip-permissions --continue'
 
 # Version control
 alias g='git'

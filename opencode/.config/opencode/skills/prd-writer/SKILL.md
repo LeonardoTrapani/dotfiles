@@ -1,6 +1,8 @@
 ---
 name: prd-writer
 description: Create PRDs for Ralph autonomous execution. Use when planning features, starting projects, or asked to create/write a PRD. Triggers on: create prd, write prd, plan feature, ralph prd, tasks/prd.
+version: 1.0.0
+user-invocable: true
 ---
 
 # PRD Writer for Ralph
