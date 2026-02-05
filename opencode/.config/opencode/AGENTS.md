@@ -16,6 +16,8 @@
 
 - To test frontend features use agent-browser if needed
 
+- Make sure to run tests like type checking, linting etc..., even without asking
+
 ## Code style notes
 
 - IMPORTANT: Don't create useless comments just to describe a function

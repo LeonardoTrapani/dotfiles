@@ -1,3 +1,5 @@
+- Always read AGENTS.md from the codebase root on every call, and any other relevant AGENTS.md
+
 ## Response Style
 
 - sacrifice grammar for conciseness

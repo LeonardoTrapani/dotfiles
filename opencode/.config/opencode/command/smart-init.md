@@ -27,18 +27,6 @@ Think of it as a configuration layer between the agent's base instructions and y
 
 The `AGENTS.md` file is an open standard supported by many - though not all - tools.
 
-<details>
-  <summary>CLAUDE.md</summary>
-
-Notably, Claude Code doesn't use `AGENTS.md` - it uses `CLAUDE.md` instead. You can symlink between them to keep all your tools working the same way:
-
-```bash
-# Create a symlink from AGENTS.md to CLAUDE.md
-ln -s AGENTS.md CLAUDE.md
-```
-
-</details>
-
 ## Why Massive `AGENTS.md` Files are a Problem
 
 There's a natural feedback loop that causes `AGENTS.md` files to grow dangerously large:
