@@ -9,7 +9,7 @@ use_docker=false
 use_claude=false
 
 # opencode model for multi-iteration mode
-opencode_model="anthropic/claude-opus-4-5"
+opencode_model="anthropic/claude-opus-4-6"
 
 # parse args
 for arg in "$@"; do

@@ -14,7 +14,7 @@
 
 - Fight entropy. Leave the codebase better than you found it.
 
-- To test frontend features use agent-browser if needed
+- To test frontend features use browser-use if needed
 
 - Make sure to run tests like type checking, linting etc..., even without asking
 

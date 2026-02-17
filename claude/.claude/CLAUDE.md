@@ -16,7 +16,7 @@
 
 - Fight entropy. Leave the codebase better than you found it.
 
-- To test frontend features use agent-browser if needed
+- To test frontend features use browser-use if needed
 
 ## Code style notes
 

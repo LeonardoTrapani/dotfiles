@@ -130,7 +130,7 @@ Every verify item must be something Ralph can execute and get a pass/fail result
 
 **UI/Frontend tasks:**
 
-- `"Verify in browser using agent-browser skill"` - MANDATORY, no exceptions
+- `"Verify in browser using browser-use skill"` - MANDATORY, no exceptions
 - Check specific elements render, interactions work, styles apply
 
 **API/Backend tasks:**
@@ -166,7 +166,7 @@ Every verify item must be something Ralph can execute and get a pass/fail result
   "Clicking button opens modal",
   "Modal shows user data",
   "Typecheck passes",
-  "Verify in browser using agent-browser skill"
+  "Verify in browser using browser-use skill"
 ]
 
 // API task
@@ -225,7 +225,7 @@ Every verify item must be something Ralph can execute and get a pass/fail result
         "Each task card shows colored priority badge",
         "Colors match: red=high, yellow=medium, gray=low",
         "Typecheck passes",
-        "Verify in browser using agent-browser skill",
+        "Verify in browser using browser-use skill",
       ],
       "passes": false,
     },
@@ -241,7 +241,7 @@ Every verify item must be something Ralph can execute and get a pass/fail result
         "Changing priority saves immediately",
         "UI updates without page refresh",
         "Typecheck passes",
-        "Verify in browser using agent-browser skill",
+        "Verify in browser using browser-use skill",
       ],
       "passes": false,
     },
@@ -257,7 +257,7 @@ Every verify item must be something Ralph can execute and get a pass/fail result
         "Selecting filter shows only matching tasks",
         "Filter persists on page reload via URL",
         "Typecheck passes",
-        "Verify in browser using agent-browser skill",
+        "Verify in browser using browser-use skill",
       ],
       "passes": false,
     },
@@ -274,5 +274,5 @@ Every verify item must be something Ralph can execute and get a pass/fail result
 - [ ] Steps are concrete actions, not vague
 - [ ] Verify items are executable pass/fail checks
 - [ ] Every task has "Typecheck passes"
-- [ ] UI tasks have "Verify in browser using agent-browser skill
+- [ ] UI tasks have "Verify in browser using browser-use skill"
 - [ ] Saved to `tasks/prd.jsonc`
