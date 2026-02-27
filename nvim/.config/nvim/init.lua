@@ -857,38 +857,15 @@ require('lazy').setup({
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require('nvim-treesitter.configs').setup {
-        ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'python', 'query', 'vim', 'vimdoc' },
-        auto_install = true,
-        highlight = {
-          enable = true,
-          additional_vim_regex_highlighting = { 'ruby' },
-        },
-        indent = { enable = true, disable = { 'ruby' } },
-      }
-      
-      -- Fix Python treesitter query issue with except*
-      -- The query includes "except*" but the parser doesn't support it yet
-      local fix_python_query = function()
-        local query_file = vim.fn.expand("~/.local/share/nvim/lazy/nvim-treesitter/queries/python/highlights.scm")
-        if vim.fn.filereadable(query_file) == 1 then
-          local content = vim.fn.readfile(query_file)
-          for i, line in ipairs(content) do
-            if line:match('"except%*"') then
-              content[i] = '  ; "except*" ; Not supported by parser yet'
-              vim.fn.writefile(content, query_file)
-              break
-            end
-          end
-        end
-      end
-      
-      -- Run the fix after setup
-      fix_python_query()
-    end,
+    opts = {
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'python', 'query', 'vim', 'vimdoc' },
+      auto_install = true,
+      highlight = {
+        enable = true,
+        additional_vim_regex_highlighting = { 'ruby' },
+      },
+      indent = { enable = true, disable = { 'ruby' } },
+    },
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
     --
@@ -911,7 +888,7 @@ require('lazy').setup({
   require 'leotrapani.plugins.neo-tree',
   require 'leotrapani.plugins.gitsigns', -- adds gitsigns recommend keymaps
   require 'leotrapani.plugins.harpoon',
-  require 'leotrapani.plugins.dashboard',
+
   require 'leotrapani.plugins.supermaven',
     -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
     --    This is the easiest way to modularize your config.
