@@ -28,13 +28,14 @@ stow -D <package> # uninstall
 | `nvim` | Neovim config (kickstart-based) |
 | `omarchy` | Omarchy branding/customization |
 | `opencode` | OpenCode AI config + custom commands |
+| `pi` | Pi agent config (`~/.pi/agent`) |
 | `tmux` | tmux config + themes |
 | `walker` | Walker launcher config |
 | `waybar` | Waybar config + styling |
 
 ## Scripts
 
-- `post-install.sh` - full setup (packages, tmux plugins, stow bin/opencode)
+- `post-install.sh` - full setup (packages, tmux plugins, stow bin/opencode/pi)
 - `scripts/setup-nvim.sh` - nvim dependencies
 - `scripts/setup-trezor.sh` - Trezor udev rules
 

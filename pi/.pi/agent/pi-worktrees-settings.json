@@ -1,0 +1,12 @@
+{
+	"worktrees": {
+		"**": {
+			"worktreeRoot": "{{mainWorktree}}.worktrees",
+			"onCreate": [
+				"/home/trapani/.pi/agent/bin/pi-worktree-on-create.sh '{{mainWorktree}}' '{{path}}' '{{name}}' '{{branch}}'"
+			]
+		}
+	},
+	"matchingStrategy": "fail-on-tie",
+	"onCreateDisplayOutputMaxLines": 20
+}
