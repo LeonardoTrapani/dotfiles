@@ -46,4 +46,16 @@ table.insert(plugins, {
   },
 })
 
+table.insert(plugins, {
+  'sindrets/diffview.nvim',
+  dependencies = { 'nvim-lua/plenary.nvim' },
+  cmd = { 'DiffviewOpen', 'DiffviewFileHistory', 'DiffviewClose' },
+  keys = {
+    { '<leader>gd', '<cmd>DiffviewOpen<CR>', desc = 'Git diff view' },
+    { '<leader>gh', '<cmd>DiffviewFileHistory %<CR>', desc = 'Git file history' },
+    { '<leader>gH', '<cmd>DiffviewFileHistory<CR>', desc = 'Git repo history' },
+    { '<leader>gq', '<cmd>DiffviewClose<CR>', desc = 'Git close diff view' },
+  },
+})
+
 return plugins

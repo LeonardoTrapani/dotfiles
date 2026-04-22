@@ -1,7 +1,3 @@
-## Response Style
-
-- sacrifice grammar for conciseness
-
 ## Quality expectations
 
 - The code will outlive you. Every shortcut you take becomes

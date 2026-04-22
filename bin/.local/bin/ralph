@@ -57,9 +57,9 @@ if $use_claude; then
   cmd_single="claude --dangerously-skip-permissions"
   cmd_multi="claude -p --dangerously-skip-permissions"
 else
-  cmd_single="opencode -m $opencode_model"
+  cmd_single="opencode"
   export OPENCODE_PERMISSION='{"*":"allow"}'
-  cmd_multi="opencode run -m $opencode_model"
+  cmd_multi="opencode run"
 fi
 $use_docker && cmd_single="docker sandbox run $cmd_single"
 $use_docker && cmd_multi="docker sandbox run $cmd_multi"

@@ -111,3 +111,8 @@ latcompile() {
 }
 
 export PATH=$HOME/.local/bin:$PATH
+
+if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init bash)"; fi
+
+# opencode
+export PATH=/home/trapani/.opencode/bin:$PATH
