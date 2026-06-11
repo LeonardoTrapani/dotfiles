@@ -1,10 +1,20 @@
 {
-  "lastChangelogVersion": "0.68.1",
+  "lastChangelogVersion": "0.76.0",
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.4",
+  "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "high",
-  "packages": ["npm:pi-subagents", "npm:@zenobius/pi-worktrees"],
+  "packages": [
+    "npm:pi-subagents",
+    "npm:@zenobius/pi-worktrees",
+    "npm:pi-web-access",
+    "npm:pi-add-dir",
+    "npm:@tmustier/pi-raw-paste",
+    "npm:pi-mcp-adapter"
+  ],
   "hideThinkingBlock": false,
-  "enabledModels": ["openai-codex/gpt-5.4"],
+  "enabledModels": [
+    "openai-codex/gpt-5.4",
+    "openai-codex/gpt-5.5"
+  ],
   "quietStartup": true
 }

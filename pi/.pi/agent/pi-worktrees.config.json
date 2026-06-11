@@ -1,4 +1,5 @@
 {
+	"__configVersion": 5,
 	"worktrees": {
 		"**": {
 			"worktreeRoot": "{{mainWorktree}}.worktrees",

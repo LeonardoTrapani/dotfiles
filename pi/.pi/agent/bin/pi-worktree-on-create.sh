@@ -6,13 +6,10 @@ worktree_path=${2:?missing worktree path}
 worktree_name=${3:?missing worktree name}
 branch_name=${4:-}
 
-log() {
-  printf '[pi-worktrees] %s\n' "$*"
-}
-
-sanitize_name() {
-  printf '%s' "$1" | tr ' /:' '---' | tr -cd '[:alnum:]_.-'
-}
+script_path="$(readlink -f "${BASH_SOURCE[0]}")"
+script_dir="$(cd "$(dirname "$script_path")" && pwd)"
+# shellcheck source=/dev/null
+source "$script_dir/pi-worktree-tmux.sh"
 
 copy_env_files() {
   local src="$main_worktree"
@@ -76,41 +73,7 @@ maybe_bun_install() {
   )
 }
 
-launch_tmux_workspace() {
-  if ! command -v tmux >/dev/null 2>&1; then
-    log "tmux is not installed; skipping tmux workspace creation"
-    return 0
-  fi
-
-  local shell_path="${SHELL:-/bin/bash}"
-  local safe_name
-  safe_name="$(sanitize_name "$worktree_name")"
-  if [[ -z "$safe_name" ]]; then
-    safe_name="worktree"
-  fi
-
-  if [[ -n "${TMUX:-}" ]]; then
-    log "Starting tmux window '$safe_name'"
-    tmux new-window -d -n "$safe_name" -c "$worktree_path" "$shell_path -lc 'nvim'"
-    tmux split-window -h -t "$safe_name" -c "$worktree_path" "$shell_path -lc 'pi'"
-    tmux select-layout -t "$safe_name" even-horizontal
-    tmux select-window -t "$safe_name"
-    log "tmux window ready: $safe_name"
-    return 0
-  fi
-
-  local session_name="wt-$safe_name"
-  if tmux has-session -t "$session_name" 2>/dev/null; then
-    session_name="${session_name}-$(date +%H%M%S)"
-  fi
-
-  log "Starting tmux session '$session_name'"
-  tmux new-session -d -s "$session_name" -c "$worktree_path" "$shell_path -lc 'nvim'"
-  tmux split-window -h -t "$session_name" -c "$worktree_path" "$shell_path -lc 'pi'"
-  tmux select-layout -t "$session_name" even-horizontal
-  log "Attach with: tmux attach -t $session_name"
-}
-
+maybe_sync_git_submodules
 copy_env_files
 maybe_bun_install
 launch_tmux_workspace

@@ -28,6 +28,7 @@
 [core]
   ignorecase = false
   editor = nvim
+	pager = hunk pager
 
 [pull]
   rebase = true
