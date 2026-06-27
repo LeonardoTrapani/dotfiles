@@ -51,7 +51,7 @@ focus_agent = "ctrl+1..9"
 new_worktree = "prefix+shift+g"
 open_worktree = "prefix+shift+o"
 remove_worktree = "prefix+alt+d"
-switch_workspace = "prefix+shift+1..9"
+switch_workspace = ["prefix+shift+1..9", "ctrl+alt+1..9"]
 
 # Tabs (closest Herdr equivalent to tmux windows)
 new_tab = "prefix+c"            # tmux: prefix c new-window
