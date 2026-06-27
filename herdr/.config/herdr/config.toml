@@ -54,7 +54,7 @@ switch_workspace = "prefix+shift+1..9"
 new_tab = "prefix+c"            # tmux: prefix c new-window
 rename_tab = "prefix+r"         # tmux: prefix r rename-window
 close_tab = "prefix+k"          # tmux: prefix k kill-window
-previous_tab = ["alt+left", "prefix+p"]
+previous_tab = ["alt+left", "prefix+p", "prefix+/"] # closest Herdr-safe leader-style previous tab
 next_tab = ["alt+right", "prefix+n"]
 switch_tab = "alt+1..9"         # tmux: M-1..M-9 select-window
 
