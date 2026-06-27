@@ -60,8 +60,10 @@ switch_tab = "alt+1..9"         # tmux: M-1..M-9 select-window
 
 # Panes
 # tmux: prefix h split-window -v, prefix v split-window -h
-split_vertical = "prefix+h"
-split_horizontal = "prefix+v"
+# Herdr names the actions by divider orientation; keep the physical keys swapped
+# to match what you asked for.
+split_vertical = "prefix+v"
+split_horizontal = "prefix+h"
 close_pane = "prefix+x"
 zoom = "prefix+z"
 rename_pane = "prefix+alt+p"
