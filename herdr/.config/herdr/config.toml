@@ -26,9 +26,8 @@ manifest_check = true
 
 [keys]
 # tmux uses C-_ as primary prefix and C-b as prefix2. Herdr supports one prefix;
-# keep the primary tmux prefix here. If your terminal emits Ctrl-/ for C-_,
-# use Ctrl-/ on the keyboard; terminals usually send the same control byte.
-prefix = "ctrl+_"
+# set Herdr to the physical key you use: Ctrl+/.
+prefix = "ctrl+/"
 
 # General / config
 help = "prefix+?"
