@@ -24,6 +24,7 @@ stow -D <package> # uninstall
 | `bash` | .bashrc |
 | `bin` | custom scripts (~/.local/bin) |
 | `git` | git config |
+| `herdr` | Herdr terminal workspace manager config |
 | `hypr` | Hyprland config (monitors, bindings, autostart) |
 | `nvim` | Neovim config (kickstart-based) |
 | `omarchy` | Omarchy branding/customization |
