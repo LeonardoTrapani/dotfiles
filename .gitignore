@@ -23,3 +23,6 @@ tmux/.tmux/tmux-client-*.log
 # tmux/.tmux/plugins/
 
 nvim/.config/nvim/lua/plugins/theme.lua
+
+# Herdr-managed plugin runtime state
+herdr/.config/herdr/plugins/

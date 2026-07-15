@@ -78,13 +78,6 @@ cycle_pane_next = "prefix+ctrl+n"
 cycle_pane_previous = "prefix+ctrl+p"
 toggle_sidebar = "prefix+b"
 
-# vim-tmux-navigator muscle memory. Unlike tmux, Herdr cannot conditionally pass
-# these to vim/nvim, so these direct chords are owned by Herdr globally.
-focus_pane_left = "ctrl+h"
-focus_pane_down = "ctrl+j"
-focus_pane_up = "ctrl+k"
-focus_pane_right = "ctrl+l"
-
 # Pane swapping. Use Alt because Shift+K/P are reserved for tmux-like workspace controls.
 swap_pane_left = "prefix+alt+h"
 swap_pane_down = "prefix+alt+j"
@@ -98,6 +91,31 @@ navigate_pane_left = "h"
 navigate_pane_down = "j"
 navigate_pane_up = "k"
 navigate_pane_right = "l"
+
+# Seamless navigation across Neovim splits and Herdr panes.
+[[keys.command]]
+key = "ctrl+h"
+type = "plugin_action"
+command = "vim-herdr-navigation.left"
+description = "navigate left (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+j"
+type = "plugin_action"
+command = "vim-herdr-navigation.down"
+description = "navigate down (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+k"
+type = "plugin_action"
+command = "vim-herdr-navigation.up"
+description = "navigate up (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+l"
+type = "plugin_action"
+command = "vim-herdr-navigation.right"
+description = "navigate right (vim/herdr)"
 
 # Direct resize bindings to mirror tmux's C-M-S-arrow resize-pane bindings.
 [[keys.command]]
@@ -132,7 +150,7 @@ prompt_new_tab_name = false
 pane_borders = true
 pane_gaps = false
 show_agent_labels_on_pane_borders = true
-agent_panel_sort = "spaces"
+agent_panel_sort = "priority"
 accent = "blue"
 
 [ui.toast]

@@ -37,13 +37,16 @@ end
 local plugins = load_omarchy_theme()
 
 table.insert(plugins, {
-  'christoomey/vim-tmux-navigator',
-  keys = {
-    { '<C-h>', '<cmd>TmuxNavigateLeft<CR>', desc = 'Tmux left' },
-    { '<C-j>', '<cmd>TmuxNavigateDown<CR>', desc = 'Tmux down' },
-    { '<C-k>', '<cmd>TmuxNavigateUp<CR>', desc = 'Tmux up' },
-    { '<C-l>', '<cmd>TmuxNavigateRight<CR>', desc = 'Tmux right' },
-  },
+  'paulbkim-dev/vim-herdr-navigation',
+  lazy = false,
+  dependencies = { 'christoomey/vim-tmux-navigator' },
+  init = function()
+    vim.g.tmux_navigator_no_mappings = 1
+  end,
+  build = 'herdr plugin link .',
+  config = function(plugin)
+    dofile(plugin.dir .. '/editor/nvim.lua')
+  end,
 })
 
 table.insert(plugins, {

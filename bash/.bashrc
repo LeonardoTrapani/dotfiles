@@ -30,6 +30,9 @@ alias tls='tmuxp load'
 alias tks='tmux kill-session'
 alias tksv='tmux kill-server'
 
+# Herdr
+alias h='herdr'
+
 tn() {
   if [ -n "$TMUX" ]; then
     tmux switch-client -t "$1" 2>/dev/null || tmux new-session -d -s "$1" && tmux switch-client -t "$1"
@@ -116,3 +119,42 @@ if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init bash
 
 # opencode
 export PATH=/home/trapani/.opencode/bin:$PATH
+
+# Refresh an OpenVPN3 profile (defaults to datapizza)
+vpnrefresh() {
+  local config="${1:-datapizza}"
+
+  echo "Refreshing OpenVPN3 VPN with a clean auth start: $config"
+
+  # Avoid OpenVPN3's stale web-auth state. A restart can open browser auth and
+  # then still fail, causing a second auth when we fall back to session-start.
+  if openvpn3 sessions-list 2>/dev/null | rg -q "Config name: $config"; then
+    openvpn3 session-manage --config "$config" --disconnect >/dev/null 2>&1 || true
+    openvpn3 session-manage --cleanup >/dev/null 2>&1 || true
+  fi
+
+  openvpn3 session-start --config "$config"
+}
+
+# Try OpenVPN3's in-place restart instead of clean auth. Useful when the session
+# is healthy, but may ask for browser auth twice if auth state is stale.
+vpnrestart() {
+  local config="${1:-datapizza}"
+  openvpn3 session-manage --config "$config" --restart --timeout 45
+}
+
+vpnlogs() {
+  local since="${1:--30m}"
+  journalctl --no-pager --since "$since" \
+    | rg -i 'openvpn|datapizza|403|forbidden|auth|failed|error|expire|connect|tls|http|saml|oauth|url|web'
+}
+
+alias dpvpn='vpnrefresh datapizza'
+
+# Pi
+export PATH="/home/trapani/.local/share/mise/installs/node/25.0.0/bin:$PATH"
+
+# >>> Codex installer >>>
+export PATH="/home/trapani/.local/bin:$PATH"
+alias cx='codex --dangerously-bypass-approvals-and-sandbox'
+# <<< Codex installer <<<

@@ -34,6 +34,10 @@ stow -D <package> # uninstall
 | `walker` | Walker launcher config |
 | `waybar` | Waybar config + styling |
 
+## Vim/Herdr navigation
+
+Neovim installs [vim-herdr-navigation](https://github.com/paulbkim-dev/vim-herdr-navigation) through Lazy and links the same checkout into Herdr. In normal mode, `Ctrl+h/j/k/l` moves across Neovim splits and Herdr panes. Outside Herdr, navigation falls back to tmux.
+
 ## Scripts
 
 - `post-install.sh` - full setup (packages, tmux plugins, stow bin/opencode/pi)
