@@ -1,0 +1,8 @@
+{
+  "name": "trapani-workflows-runtime",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "acorn": "^8.17.0"
+  }
+}

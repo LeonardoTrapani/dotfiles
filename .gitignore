@@ -17,6 +17,7 @@ zsh/.secrets
 **/*.secret
 **/*.key
 .env.local
+pi/.pi/agent/extensions/*/node_modules/
 
 #tmux
 tmux/.tmux/tmux-client-*.log

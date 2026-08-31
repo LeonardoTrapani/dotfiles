@@ -26,6 +26,7 @@ stow -D <package> # uninstall
 | `git` | git config |
 | `herdr` | Herdr terminal workspace manager config |
 | `hypr` | Hyprland config (monitors, bindings, autostart) |
+| `mcp` | Shared MCP server config |
 | `nvim` | Neovim config (kickstart-based) |
 | `omarchy` | Omarchy branding/customization |
 | `opencode` | OpenCode AI config + custom commands |

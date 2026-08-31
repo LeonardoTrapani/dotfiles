@@ -25,6 +25,7 @@ cd ~/dotfiles
 
 mkdir -p ~/.local/bin
 stow bin
+stow mcp
 stow pi
 
 echo "Installation complete!"

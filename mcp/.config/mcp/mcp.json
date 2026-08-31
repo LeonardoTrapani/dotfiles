@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "executor": {
+      "type": "http",
+      "url": "https://executor.sh/trapani-s-organization/mcp",
+      "directTools": true
+    }
+  }
+}

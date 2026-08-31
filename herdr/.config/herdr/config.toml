@@ -143,14 +143,19 @@ command = "${HERDR_BIN_PATH:-herdr} pane resize --direction right --amount 0.05 
 description = "resize pane right"
 
 [ui]
+sidebar_width = 32
+sidebar_min_width = 18
+sidebar_max_width = 36
 mouse_capture = true
+right_click_passthrough_modifier = "ctrl"
 mouse_scroll_lines = 3
 confirm_close = true
-prompt_new_tab_name = false
+prompt_new_tab_name = true
+prompt_new_workspace_name = true
 pane_borders = true
 pane_gaps = false
-show_agent_labels_on_pane_borders = true
-agent_panel_sort = "priority"
+show_agent_labels_on_pane_borders = false
+agent_panel_sort = "spaces"
 accent = "blue"
 
 [ui.toast]
@@ -158,14 +163,15 @@ delivery = "herdr"
 delay_seconds = 1
 
 [ui.toast.herdr]
-position = "bottom-right"
+position = "top-right"
 
 [ui.toast.clipboard]
 enabled = true
 position = "bottom-center"
 
 [ui.sound]
-enabled = true
+# Keep sound notifications disabled.
+enabled = false
 
 [ui.sound.agents]
 droid = "off"
@@ -177,11 +183,12 @@ resume_agents_on_restore = true
 manage_ssh_config = true
 
 [experimental]
+# This persists recent pane output to disk; keep in mind it may include secrets.
+pane_history = true
 allow_nested = false
-kitty_graphics = false
-pane_history = false
+kitty_graphics = true
 
 [advanced]
 # tmux uses history-limit 50000. Herdr's knob is bytes, so keep a larger
 # per-pane scrollback budget than the default 10MB.
-scrollback_limit_bytes = 50000000
+scrollback_limit_bytes = 52428800

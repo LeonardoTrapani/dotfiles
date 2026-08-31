@@ -1,17 +1,14 @@
 {
-  "lastChangelogVersion": "0.80.5",
+  "lastChangelogVersion": "0.84.4",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-sol",
-  "defaultThinkingLevel": "high",
+  "defaultThinkingLevel": "xhigh",
   "packages": [
-    "npm:pi-subagents",
-    "npm:@zenobius/pi-worktrees",
-    "npm:pi-web-access",
     "npm:pi-add-dir",
     "npm:@tmustier/pi-raw-paste",
-    "npm:pi-mcp-adapter",
-    "npm:pi-dynamic-workflows",
-    "npm:@pi-kaush/pi-inline-skill-identifier"
+    "npm:@pi-kaush/pi-inline-skill-identifier",
+    "npm:pi-mcp-adapter@2.19.0",
+    "npm:pi-web-search"
   ],
   "hideThinkingBlock": false,
   "enabledModels": [
