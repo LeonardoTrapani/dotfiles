@@ -11,7 +11,7 @@ check_command() {
   fi
 }
 
-for command in bash git gh nvim tmux stow fzf rg fd bat eza zoxide mise; do
+for command in bash git gh nvim tmux stow fzf rg fd bat eza zoxide mise starship; do
   check_command "$command"
 done
 
@@ -19,6 +19,14 @@ if /opt/homebrew/bin/bash -lic 'exit' >/dev/null 2>&1; then
   printf 'ok  %-12s clean startup\n' bash
 else
   printf 'ERR %-12s startup failed\n' bash
+  failures=$((failures + 1))
+fi
+
+if TERM=xterm-ghostty /opt/homebrew/bin/bash -lic '[[ ${STARSHIP_SHELL:-} == bash ]]' \
+    >/dev/null 2>&1; then
+  printf 'ok  %-12s initialized\n' prompt
+else
+  printf 'ERR %-12s Starship not initialized\n' prompt
   failures=$((failures + 1))
 fi
 

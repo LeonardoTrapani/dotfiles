@@ -4,6 +4,16 @@
 # Private environment variables (not committed).
 [[ -f "$HOME/.bash_env" ]] && source "$HOME/.bash_env"
 
+# Omarchy's portable interactive-shell defaults.
+shopt -s histappend
+HISTCONTROL=ignoreboth
+HISTSIZE=32768
+HISTFILESIZE="$HISTSIZE"
+set +h
+export BAT_THEME=ansi
+export MANROFFOPT="-c"
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
 # Load Omarchy defaults when this config is used on an Omarchy installation.
 [[ -f "$HOME/.local/share/omarchy/default/bash/rc" ]] \
   && source "$HOME/.local/share/omarchy/default/bash/rc"
@@ -37,9 +47,45 @@ alias occ='opencode --continue'
 alias cc='claude --dangerously-skip-permissions'
 alias ccc='claude --dangerously-skip-permissions --continue'
 
+# Omarchy-style file navigation and previews.
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza -lh --group-directories-first --icons=auto'
+  alias lsa='ls -a'
+  alias lt='eza --tree --level=2 --long --icons --git'
+  alias lta='lt -a'
+fi
+alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
+alias eff='$EDITOR "$(ff)"'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+if command -v zoxide >/dev/null 2>&1; then
+  alias cd='zd'
+  zd() {
+    if (( $# == 0 )); then
+      builtin cd ~ || return
+    elif [[ -d $1 ]]; then
+      builtin cd "$1" || return
+    else
+      if ! z "$@"; then
+        echo "Error: Directory not found"
+        return 1
+      fi
+      printf '󱞩 '
+      pwd
+    fi
+  }
+fi
+
 # Version control and package management.
 alias g='git'
+alias gcm='git commit -m'
+alias gcam='git commit -a -m'
+alias gcad='git commit -a --amend'
 alias npm='pnpm'
+alias mup='MISE_MINIMUM_RELEASE_AGE=0 mise up'
+n() { if (( $# == 0 )); then command nvim .; else command nvim "$@"; fi; }
 
 # Tmux.
 alias tls='tmuxp load'
@@ -61,7 +107,13 @@ alias mkdir='mkdir -p'
 export _ZO_DOCTOR=0
 
 command -v pyenv >/dev/null 2>&1 && eval "$(pyenv init - bash)"
+
+if [[ ${TERM:-} != dumb ]] && command -v starship >/dev/null 2>&1; then
+  eval "$(starship init bash)"
+fi
+
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"
+# Activate mise last so its prompt hook is retained alongside Starship/zoxide.
 command -v mise >/dev/null 2>&1 && eval "$(mise activate bash)"
 
 if command -v fzf >/dev/null 2>&1; then
@@ -140,3 +192,31 @@ vpnlogs() {
 }
 
 alias dpvpn='vpnrefresh datapizza'
+
+# Portable Omarchy helpers.
+compress() { tar -czf "${1%/}.tar.gz" "${1%/}"; }
+alias decompress='tar -xzf'
+
+fip() {
+  (( $# < 2 )) && echo "Usage: fip <host> <port1> [port2] ..." && return 1
+  local host="$1" port
+  shift
+  for port in "$@"; do
+    ssh -f -N -L "${port}:localhost:${port}" "$host" \
+      && echo "Forwarding localhost:$port -> $host:$port"
+  done
+}
+
+dip() {
+  (( $# == 0 )) && echo "Usage: dip <port1> [port2] ..." && return 1
+  local port
+  for port in "$@"; do
+    pkill -f "ssh.*-L ${port}:localhost:${port}" \
+      && echo "Stopped forwarding port $port" \
+      || echo "No forwarding on port $port"
+  done
+}
+
+lip() {
+  pgrep -af "ssh.*-L [0-9]+:localhost:[0-9]+" || echo "No active forwards"
+}

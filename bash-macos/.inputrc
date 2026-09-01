@@ -1,0 +1,24 @@
+set meta-flag on
+set input-meta on
+set output-meta on
+set convert-meta off
+set completion-ignore-case on
+set completion-prefix-display-length 2
+set show-all-if-ambiguous on
+set show-all-if-unmodified on
+
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+"\e[C": forward-char
+"\e[D": backward-char
+
+set mark-symlinked-directories on
+set match-hidden-files off
+set page-completions off
+set completion-query-items 200
+set visible-stats on
+set skip-completed-text on
+set colored-stats on
+TAB: menu-complete
+"\e[Z": menu-complete-backward
+set menu-complete-display-prefix on

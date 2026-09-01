@@ -41,6 +41,7 @@ stow -D <package> # uninstall
 | `bash-macos` | macOS Bash configuration derived from the original Bash setup |
 | `git-macos` | macOS Git configuration |
 | `ghostty-macos` | Ghostty configured to launch Homebrew Bash |
+| `starship-macos` | Omarchy-derived minimal Starship prompt |
 | `bin` | custom scripts (~/.local/bin) |
 | `git` | git config |
 | `herdr` | Herdr terminal workspace manager config |

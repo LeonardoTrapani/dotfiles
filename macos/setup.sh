@@ -4,7 +4,7 @@ set -euo pipefail
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BREWFILE="$DOTFILES_DIR/macos/Brewfile"
 BACKUP_DIR="$HOME/.dotfiles-backups/$(date +%Y%m%d-%H%M%S)"
-PACKAGES=(bash-macos git-macos ghostty-macos tmux nvim bin)
+PACKAGES=(bash-macos git-macos ghostty-macos starship-macos tmux nvim bin)
 DRY_RUN=false
 
 usage() {
