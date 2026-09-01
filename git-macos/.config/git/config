@@ -1,0 +1,39 @@
+[user]
+  name = leonardotrapani
+  email = ciao@leotrapani.com
+
+[alias]
+  st = status
+  br = branch
+  ps = push
+  pl = pull origin
+  c = commit
+  a = add .
+  hist = log --pretty=format:"%Cgreen%h %Creset%cd %Cblue[%cn] %Creset%s%C(yellow)%d%C(reset)" --graph --date=relative --decorate --all
+  llog = log --graph --name-status --pretty=format:"%C(red)%h %C(reset)(%cd) %C(green)%an %Creset%s %C(yellow)%d%Creset" --date=relative
+  d = diff
+  rv = revert --no-commit
+
+[init]
+  defaultBranch = main
+
+[core]
+  ignorecase = false
+  editor = nvim
+  pager = delta
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  navigate = true
+  line-numbers = true
+
+[pull]
+  rebase = true
+
+[push]
+  autoSetupRemote = true
+
+[rerere]
+  enabled = true

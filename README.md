@@ -1,6 +1,6 @@
 # Dotfiles
 
-My dotfiles for Arch Linux with Hyprland (using [Omarchy](https://omarchy.app))
+My dotfiles for Arch Linux with Hyprland (using [Omarchy](https://omarchy.app)) and macOS.
 
 ## Setup
 
@@ -9,6 +9,22 @@ git clone https://github.com/leonardotrapani/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 stow <package>  # symlink a package
 ```
+
+### macOS
+
+The macOS setup is separate from the Arch/Omarchy installer:
+
+```bash
+git clone git@github.com:LeonardoTrapani/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+./macos/setup.sh --dry-run
+./macos/setup.sh
+./macos/verify.sh
+```
+
+It installs the terminal toolchain with Homebrew and links only the packages that
+are compatible with macOS. Conflicting files are moved to
+`~/.dotfiles-backups/<timestamp>/`. It does not change `~/.ssh` or 1Password.
 
 ## Stow Packages
 
@@ -22,6 +38,8 @@ stow -D <package> # uninstall
 | Package | Contents |
 |---------|----------|
 | `bash` | .bashrc |
+| `zsh-macos` | macOS zsh configuration |
+| `git-macos` | macOS Git configuration |
 | `bin` | custom scripts (~/.local/bin) |
 | `git` | git config |
 | `herdr` | Herdr terminal workspace manager config |
@@ -42,6 +60,8 @@ Neovim installs [vim-herdr-navigation](https://github.com/paulbkim-dev/vim-herdr
 ## Scripts
 
 - `post-install.sh` - full setup (packages, tmux plugins, stow bin/opencode/pi)
+- `macos/setup.sh` - macOS/Homebrew setup with safe conflict backups
+- `macos/verify.sh` - verify linked tools and GitHub SSH authentication
 - `scripts/setup-nvim.sh` - nvim dependencies
 - `scripts/setup-trezor.sh` - Trezor udev rules
 

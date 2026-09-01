@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BREWFILE="$DOTFILES_DIR/macos/Brewfile"
+BACKUP_DIR="$HOME/.dotfiles-backups/$(date +%Y%m%d-%H%M%S)"
+PACKAGES=(zsh-macos git-macos tmux nvim bin)
+DRY_RUN=false
+
+usage() {
+  cat <<'EOF'
+Usage: macos/setup.sh [--dry-run]
+
+Install the macOS terminal toolchain and link compatible dotfiles.
+Existing files that conflict with Stow are moved into a timestamped backup.
+SSH configuration and 1Password data are never modified.
+EOF
+}
+
+log() { printf '[macos-setup] %s\n' "$*"; }
+
+run() {
+  if "$DRY_RUN"; then
+    printf '+ '
+    printf '%q ' "$@"
+    printf '\n'
+  else
+    "$@"
+  fi
+}
+
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN=true ;;
+    -h|--help) usage; exit 0 ;;
+    *) printf 'Unknown argument: %s\n' "$arg" >&2; usage >&2; exit 2 ;;
+  esac
+done
+
+if [[ "$(uname -s)" != Darwin ]]; then
+  printf 'This installer is for macOS only.\n' >&2
+  exit 1
+fi
+
+if ! command -v brew >/dev/null 2>&1; then
+  printf 'Homebrew is required. Install it from https://brew.sh and rerun this script.\n' >&2
+  exit 1
+fi
+
+log "Installing command-line tools from macos/Brewfile"
+if "$DRY_RUN"; then
+  run brew bundle check --file "$BREWFILE"
+else
+  brew bundle --file "$BREWFILE"
+fi
+
+backup_conflicts() {
+  local package="$1" source relative target
+  while IFS= read -r -d '' source; do
+    relative="${source#"$DOTFILES_DIR/$package/"}"
+    target="$HOME/$relative"
+    if [[ -e "$target" || -L "$target" ]]; then
+      if [[ -L "$target" && "$(readlink "$target")" == "$source" ]]; then
+        continue
+      fi
+      log "Backing up $target to $BACKUP_DIR/$relative"
+      run mkdir -p "$BACKUP_DIR/$(dirname "$relative")"
+      run mv "$target" "$BACKUP_DIR/$relative"
+    fi
+  done < <(find "$DOTFILES_DIR/$package" -type f -print0)
+}
+
+for package in "${PACKAGES[@]}"; do
+  backup_conflicts "$package"
+  log "Linking $package"
+  run stow --dir "$DOTFILES_DIR" --target "$HOME" --no-folding "$package"
+done
+
+if ! "$DRY_RUN"; then
+  git lfs install --skip-repo
+fi
+
+log "Done. Open a new Ghostty window, then run: macos/verify.sh"
