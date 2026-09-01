@@ -2,4 +2,4 @@ command = /opt/homebrew/bin/bash --login
 font-family = MesloLGS Nerd Font Mono
 shell-integration = bash
 window-padding-x = 24
-window-padding-y = 24
+window-padding-y = 14
