@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ "$(uname -s)" = Darwin ] && [ -x /opt/homebrew/bin/bash ]; then
+  exec /opt/homebrew/bin/bash "$@"
+fi
+
+if [ -x /usr/bin/bash ]; then
+  exec /usr/bin/bash "$@"
+fi
+
+exec /bin/bash "$@"

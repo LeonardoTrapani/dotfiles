@@ -16,8 +16,9 @@ blue = "blue"
 [terminal]
 # Match tmux's `-c "#{pane_current_path}"` bindings: new panes/tabs/workspaces
 # follow the currently focused pane/workspace directory.
+default_shell = "dotfiles-bash"
 new_cwd = "follow"
-shell_mode = "auto"
+shell_mode = "login"
 
 [update]
 channel = "stable"

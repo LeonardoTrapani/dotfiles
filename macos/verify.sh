@@ -22,6 +22,13 @@ else
   failures=$((failures + 1))
 fi
 
+if dotfiles-bash -lc '[[ $BASH == /opt/homebrew/bin/bash ]]' >/dev/null 2>&1; then
+  printf 'ok  %-12s Homebrew Bash selected\n' shell-launcher
+else
+  printf 'ERR %-12s wrong Bash selected\n' shell-launcher
+  failures=$((failures + 1))
+fi
+
 if TERM=xterm-ghostty /opt/homebrew/bin/bash -lic \
     '[[ $(alias h) == *herdr* && $(alias cx) == *codex* ]] && declare -F tn latcompile vpnrefresh >/dev/null' \
     >/dev/null 2>&1; then
