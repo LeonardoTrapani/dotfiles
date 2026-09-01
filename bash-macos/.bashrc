@@ -46,6 +46,8 @@ alias oc='opencode'
 alias occ='opencode --continue'
 alias cc='claude --dangerously-skip-permissions'
 alias ccc='claude --dangerously-skip-permissions --continue'
+alias cx='codex --dangerously-bypass-approvals-and-sandbox'
+alias h='herdr'
 
 # Omarchy-style file navigation and previews.
 if command -v eza >/dev/null 2>&1; then

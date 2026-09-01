@@ -4,7 +4,7 @@ set -euo pipefail
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BREWFILE="$DOTFILES_DIR/macos/Brewfile"
 BACKUP_DIR="$HOME/.dotfiles-backups/$(date +%Y%m%d-%H%M%S)"
-PACKAGES=(bash-macos git-macos ghostty-macos starship-macos tmux nvim bin)
+PACKAGES=(bash-macos git-macos ghostty-macos starship-macos herdr tmux nvim bin)
 DRY_RUN=false
 
 usage() {
@@ -82,6 +82,20 @@ for package in "${PACKAGES[@]}"; do
   log "Linking $package"
   run stow --dir "$DOTFILES_DIR" --target "$HOME" --no-folding "$package"
 done
+
+log "Installing Neovim plugins"
+run nvim --headless "+Lazy! sync" "+qa"
+
+HERDR_NVIM_PLUGIN="$HOME/.local/share/nvim/lazy/vim-herdr-navigation"
+if "$DRY_RUN"; then
+  run herdr plugin link "$HERDR_NVIM_PLUGIN"
+elif [[ -d "$HERDR_NVIM_PLUGIN" ]]; then
+  herdr plugin link "$HERDR_NVIM_PLUGIN" >/dev/null
+else
+  printf 'Expected Neovim/Herdr plugin checkout is missing: %s\n' \
+    "$HERDR_NVIM_PLUGIN" >&2
+  exit 1
+fi
 
 if ! "$DRY_RUN"; then
   git lfs install --skip-repo

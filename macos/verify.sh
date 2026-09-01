@@ -11,7 +11,7 @@ check_command() {
   fi
 }
 
-for command in bash git gh nvim tmux stow fzf rg fd bat eza zoxide mise starship; do
+for command in bash git gh herdr nvim tmux stow fzf rg fd bat eza zoxide mise starship; do
   check_command "$command"
 done
 
@@ -19,6 +19,23 @@ if /opt/homebrew/bin/bash -lic 'exit' >/dev/null 2>&1; then
   printf 'ok  %-12s clean startup\n' bash
 else
   printf 'ERR %-12s startup failed\n' bash
+  failures=$((failures + 1))
+fi
+
+if TERM=xterm-ghostty /opt/homebrew/bin/bash -lic \
+    '[[ $(alias h) == *herdr* && $(alias cx) == *codex* ]] && declare -F tn latcompile vpnrefresh >/dev/null' \
+    >/dev/null 2>&1; then
+  printf 'ok  %-12s restored\n' shortcuts
+else
+  printf 'ERR %-12s aliases/functions missing\n' shortcuts
+  failures=$((failures + 1))
+fi
+
+if herdr config check >/dev/null 2>&1 \
+    && herdr plugin list 2>/dev/null | grep -q 'vim-herdr-navigation.*enabled'; then
+  printf 'ok  %-12s config + navigation plugin\n' herdr-config
+else
+  printf 'ERR %-12s config/plugin invalid\n' herdr-config
   failures=$((failures + 1))
 fi
 
