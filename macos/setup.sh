@@ -4,7 +4,20 @@ set -euo pipefail
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BREWFILE="$DOTFILES_DIR/macos/Brewfile"
 BACKUP_DIR="$HOME/.dotfiles-backups/$(date +%Y%m%d-%H%M%S)"
-PACKAGES=(bash bash-macos git-macos ghostty-macos starship-macos herdr tmux nvim bin)
+PACKAGES=(
+  bash
+  bash-macos
+  git-macos
+  ghostty-macos
+  starship-macos
+  herdr
+  tmux
+  nvim
+  bin
+  opencode
+  mcp
+  pi
+)
 DRY_RUN=false
 
 usage() {
@@ -90,6 +103,28 @@ for package in "${PACKAGES[@]}"; do
   log "Linking $package"
   run stow --dir "$DOTFILES_DIR" --target "$HOME" --no-folding "$package"
 done
+
+log "Installing Pi extension dependencies"
+while IFS= read -r -d '' package_json; do
+  extension_dir="$(dirname "$package_json")"
+  # Linux-generated lockfiles can omit optional macOS packages. Install from
+  # package.json without rewriting the shared lockfile on either platform.
+  run npm install --prefix "$extension_dir" --package-lock=false
+
+  extension_name="$(basename "$extension_dir")"
+  live_node_modules="$HOME/.pi/agent/extensions/$extension_name/node_modules"
+  if [[ -e "$live_node_modules" || -L "$live_node_modules" ]]; then
+    if [[ -L "$live_node_modules" \
+        && "$(realpath "$live_node_modules")" == "$extension_dir/node_modules" ]]; then
+      continue
+    fi
+    log "Backing up $live_node_modules to $BACKUP_DIR/.pi/agent/extensions/$extension_name/node_modules"
+    run mkdir -p "$BACKUP_DIR/.pi/agent/extensions/$extension_name"
+    run mv "$live_node_modules" "$BACKUP_DIR/.pi/agent/extensions/$extension_name/node_modules"
+  fi
+  run ln -s "$extension_dir/node_modules" "$live_node_modules"
+done < <(find "$DOTFILES_DIR/pi/.pi/agent/extensions" -mindepth 2 -maxdepth 2 \
+  -name package.json -print0)
 
 log "Installing Neovim plugins"
 run nvim --headless "+Lazy! sync" "+qa"

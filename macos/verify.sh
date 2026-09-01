@@ -11,9 +11,28 @@ check_command() {
   fi
 }
 
-for command in bash git gh herdr nvim tmux stow fzf rg fd bat eza zoxide mise starship; do
+for command in bash git gh herdr nvim tmux stow fzf rg fd bat eza zoxide mise starship pi; do
   check_command "$command"
 done
+
+for path in \
+  "$HOME/.pi/agent/settings.json" \
+  "$HOME/.config/mcp/mcp.json" \
+  "$HOME/.config/opencode/opencode.jsonc"; do
+  [[ -e "$path" ]] || {
+    printf 'Missing restored developer-agent config: %s\n' "$path" >&2
+    exit 1
+  }
+done
+
+while IFS= read -r -d '' package_json; do
+  extension_dir="$(dirname "$package_json")"
+  [[ -d "$extension_dir/node_modules" ]] || {
+    printf 'Missing Pi extension dependencies: %s\n' "$extension_dir" >&2
+    exit 1
+  }
+done < <(find "$HOME/.pi/agent/extensions" -mindepth 2 -maxdepth 2 \
+  -name package.json -print0)
 
 if /opt/homebrew/bin/bash -lic 'exit' >/dev/null 2>&1; then
   printf 'ok  %-12s clean startup\n' bash
