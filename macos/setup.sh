@@ -4,7 +4,7 @@ set -euo pipefail
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BREWFILE="$DOTFILES_DIR/macos/Brewfile"
 BACKUP_DIR="$HOME/.dotfiles-backups/$(date +%Y%m%d-%H%M%S)"
-PACKAGES=(bash-macos git-macos ghostty-macos starship-macos herdr tmux nvim bin)
+PACKAGES=(bash bash-macos git-macos ghostty-macos starship-macos herdr tmux nvim bin)
 DRY_RUN=false
 
 usage() {
@@ -59,6 +59,14 @@ fi
 if [[ -d "$DOTFILES_DIR/zsh-macos" ]] && command -v stow >/dev/null 2>&1; then
   log "Removing legacy zsh-macos links"
   run stow --dir "$DOTFILES_DIR" --target "$HOME" --delete zsh-macos
+fi
+
+# Migrate revisions that linked ~/.bashrc from bash-macos. The canonical file
+# now lives in the shared bash package.
+if [[ -L "$HOME/.bashrc" \
+    && "$(readlink "$HOME/.bashrc")" == *"dotfiles/bash-macos/.bashrc" ]]; then
+  log "Removing legacy bash-macos .bashrc link"
+  run unlink "$HOME/.bashrc"
 fi
 
 backup_conflicts() {

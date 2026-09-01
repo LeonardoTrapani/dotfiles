@@ -1,96 +1,158 @@
-# If not running interactively, don't do anything (leave this at the top of this file)
+# If not running interactively, don't do anything.
 [[ $- != *i* ]] && return
 
-# Private environment variables (not committed)
-[[ -f ~/.bash_env ]] && source ~/.bash_env
+IS_MACOS=false
+[[ $(uname -s) == Darwin ]] && IS_MACOS=true
 
-# All the default Omarchy aliases and functions
-# (don't mess with these directly, just overwrite them here!)
-source ~/.local/share/omarchy/default/bash/rc
+# Private environment variables (not committed).
+[[ -f "$HOME/.bash_env" ]] && source "$HOME/.bash_env"
 
-# Find packages without leaving the terminal
-alias yayf="yay -Slq | fzf --multi --preview 'yay -Sii {1}' --preview-window=down:75% | xargs -ro yay -S"
+# Omarchy provides these defaults on Linux. Reproduce the portable subset only
+# on macOS, where the Omarchy runtime is not installed.
+if "$IS_MACOS"; then
+  shopt -s histappend
+  HISTCONTROL=ignoreboth
+  HISTSIZE=32768
+  HISTFILESIZE="$HISTSIZE"
+  set +h
+  export BAT_THEME=ansi
+  export MANROFFOPT="-c"
+  export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+fi
 
-# Text editors
+# Load Omarchy defaults when this config is used on an Omarchy installation.
+[[ -f "$HOME/.local/share/omarchy/default/bash/rc" ]] \
+  && source "$HOME/.local/share/omarchy/default/bash/rc"
+
+export EDITOR=nvim
+export VISUAL=nvim
+export GIT_CONFIG_GLOBAL="$HOME/.config/git/config"
+export PYENV_ROOT="$HOME/.pyenv"
+export PNPM_HOME="$HOME/Library/pnpm"
+export TMUXP_CONFIGDIR="$HOME/.config/tmux/layouts"
+
+path_prepend() {
+  [[ -d "$1" && ":$PATH:" != *":$1:"* ]] && PATH="$1:$PATH"
+}
+
+path_prepend "/opt/homebrew/sbin"
+path_prepend "/opt/homebrew/bin"
+path_prepend "$PYENV_ROOT/bin"
+path_prepend "$PNPM_HOME"
+path_prepend "$HOME/go/bin"
+path_prepend "$HOME/bin"
+path_prepend "$HOME/.local/bin"
+export PATH
+unset -f path_prepend
+
+# Text editors and agents.
 alias v='nvim'
 alias vim='nvim'
 alias oc='opencode'
 alias occ='opencode --continue'
 alias cc='claude --dangerously-skip-permissions'
 alias ccc='claude --dangerously-skip-permissions --continue'
+alias cx='codex --dangerously-bypass-approvals-and-sandbox'
+alias h='herdr'
 
-# Version control
+# Omarchy-style file navigation and previews. Linux receives these from the
+# sourced Omarchy runtime; macOS uses the local equivalents below.
+if "$IS_MACOS"; then
+  if command -v eza >/dev/null 2>&1; then
+    alias ls='eza -lh --group-directories-first --icons=auto'
+    alias lsa='ls -a'
+    alias lt='eza --tree --level=2 --long --icons --git'
+    alias lta='lt -a'
+  fi
+  alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
+  alias eff='$EDITOR "$(ff)"'
+  alias ..='cd ..'
+  alias ...='cd ../..'
+  alias ....='cd ../../..'
+
+  if command -v zoxide >/dev/null 2>&1; then
+    alias cd='zd'
+    zd() {
+      if (( $# == 0 )); then
+        builtin cd ~ || return
+      elif [[ -d $1 ]]; then
+        builtin cd "$1" || return
+      else
+        if ! z "$@"; then
+          echo "Error: Directory not found"
+          return 1
+        fi
+        printf '󱞩 '
+        pwd
+      fi
+    }
+  fi
+fi
+
+# Version control and package management.
 alias g='git'
-
-# Package manager
+alias gcm='git commit -m'
+alias gcam='git commit -a -m'
+alias gcad='git commit -a --amend'
 alias npm='pnpm'
+alias mup='MISE_MINIMUM_RELEASE_AGE=0 mise up'
+n() { if (( $# == 0 )); then command nvim .; else command nvim "$@"; fi; }
 
-# Tmux
+# Tmux.
 alias tls='tmuxp load'
 alias tks='tmux kill-session'
 alias tksv='tmux kill-server'
 
-# Herdr
-alias h='herdr'
-
 tn() {
-  if [ -n "$TMUX" ]; then
-    tmux switch-client -t "$1" 2>/dev/null || tmux new-session -d -s "$1" && tmux switch-client -t "$1"
+  if [[ -n "${TMUX:-}" ]]; then
+    tmux switch-client -t "$1" 2>/dev/null \
+      || { tmux new-session -d -s "$1" && tmux switch-client -t "$1"; }
   else
     tmux new -A -s "$1"
   fi
 }
 
-# Clear terminal
+# Original convenience aliases.
 alias c='clear'
-
-# Create directory and parent directories if needed
 alias mkdir='mkdir -p'
-
 export _ZO_DOCTOR=0
 
-export TMUXP_CONFIGDIR="$HOME/.config/tmux/layouts"
+command -v pyenv >/dev/null 2>&1 && eval "$(pyenv init - bash)"
 
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
+if "$IS_MACOS"; then
+  if [[ ${TERM:-} != dumb ]] && command -v starship >/dev/null 2>&1; then
+    eval "$(starship init bash)"
+  fi
 
-export PNPM_HOME="$HOME/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-
-export PATH="/home/trapani/.cache/.bun/bin:$PATH"
-
-export GIT_CONFIG_GLOBAL=~/.config/git/config
-
-export PATH=$HOME/go/bin:$PATH
-
-if command -v pyenv &> /dev/null; then
-  eval "$(pyenv init -)"
+  command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"
+  # Activate mise last so its prompt hook is retained alongside Starship/zoxide.
+  command -v mise >/dev/null 2>&1 && eval "$(mise activate bash)"
 fi
 
-if command -v op &> /dev/null; then
-  eval "$(op completion bash)"
+if command -v fzf >/dev/null 2>&1; then
+  eval "$(fzf --bash)"
 fi
 
-. "$HOME/.local/share/../bin/env"
+if [[ -r /opt/homebrew/etc/profile.d/bash_completion.sh ]]; then
+  source /opt/homebrew/etc/profile.d/bash_completion.sh
+fi
 
+if command -v op >/dev/null 2>&1; then
+  source <(op completion bash)
+fi
+
+# Compile a LaTeX file, watch its directory, and clean generated artifacts.
+# On macOS, install fswatch; on Linux this continues to use inotifywait.
 latcompile() {
   local file="$1"
-  [[ -z "$file" || "${file##*.}" != "tex" || ! -f "$file" ]] && {
+  [[ -z "$file" || "${file##*.}" != tex || ! -f "$file" ]] && {
     echo "Usage: latcompile path/to/file.tex"; return 2; }
 
-  # Choose a LaTeX engine (first available)
-  local engine=""
+  local engine="" e
   for e in xelatex lualatex pdflatex; do
     command -v "$e" >/dev/null 2>&1 && { engine="$e"; break; }
   done
-  [[ -z "$engine" ]] && { echo "No LaTeX engine found. Install TeX Live."; return 2; }
-
-  # Need inotifywait for file watching
-  command -v inotifywait >/dev/null 2>&1 || {
-    echo "inotifywait not found. Install: sudo pacman -S inotify-tools"; return 2; }
+  [[ -z "$engine" ]] && { echo "No LaTeX engine found."; return 2; }
 
   local dir base
   dir="$(dirname -- "$file")"
@@ -101,60 +163,73 @@ latcompile() {
   }
   trap _latcleanup EXIT INT TERM
 
-  # Initial build
   "$engine" -interaction=nonstopmode -halt-on-error "$file" && _latcleanup
 
-  # Watch dir; rebuild when source/bib/assets change
-  while inotifywait -qq -e close_write,move,create,delete "$dir"; do
-    # Rebuild only if relevant files changed
-    if find "$dir" -maxdepth 1 -type f | grep -qE "$base\.tex|\.bib$|\.sty$|\.cls$|\.png$|\.jpe?g$|\.pdf$|\.eps$|\.svg$|\.tikz$"; then
+  if command -v fswatch >/dev/null 2>&1; then
+    fswatch -o "$dir" | while read -r _; do
       "$engine" -interaction=nonstopmode -halt-on-error "$file" && _latcleanup
-    fi
-  done
+    done
+  elif command -v inotifywait >/dev/null 2>&1; then
+    while inotifywait -qq -e close_write,move,create,delete "$dir"; do
+      "$engine" -interaction=nonstopmode -halt-on-error "$file" && _latcleanup
+    done
+  else
+    echo "Install fswatch (macOS) or inotify-tools (Linux) to watch for changes."
+    return 2
+  fi
 }
 
-export PATH=$HOME/.local/bin:$PATH
-
-if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init bash)"; fi
-
-# opencode
-export PATH=/home/trapani/.opencode/bin:$PATH
-
-# Refresh an OpenVPN3 profile (defaults to datapizza)
+# Linux-only OpenVPN helpers remain available when openvpn3 is installed.
 vpnrefresh() {
   local config="${1:-datapizza}"
-
-  echo "Refreshing OpenVPN3 VPN with a clean auth start: $config"
-
-  # Avoid OpenVPN3's stale web-auth state. A restart can open browser auth and
-  # then still fail, causing a second auth when we fall back to session-start.
+  command -v openvpn3 >/dev/null 2>&1 || {
+    echo "openvpn3 is not installed"; return 127; }
   if openvpn3 sessions-list 2>/dev/null | rg -q "Config name: $config"; then
     openvpn3 session-manage --config "$config" --disconnect >/dev/null 2>&1 || true
     openvpn3 session-manage --cleanup >/dev/null 2>&1 || true
   fi
-
   openvpn3 session-start --config "$config"
 }
 
-# Try OpenVPN3's in-place restart instead of clean auth. Useful when the session
-# is healthy, but may ask for browser auth twice if auth state is stale.
 vpnrestart() {
   local config="${1:-datapizza}"
-  openvpn3 session-manage --config "$config" --restart --timeout 45
+  command openvpn3 session-manage --config "$config" --restart --timeout 45
 }
 
 vpnlogs() {
   local since="${1:--30m}"
+  command -v journalctl >/dev/null 2>&1 || {
+    echo "journalctl is not available on macOS"; return 127; }
   journalctl --no-pager --since "$since" \
     | rg -i 'openvpn|datapizza|403|forbidden|auth|failed|error|expire|connect|tls|http|saml|oauth|url|web'
 }
 
 alias dpvpn='vpnrefresh datapizza'
 
-# Pi
-export PATH="/home/trapani/.local/share/mise/installs/node/25.0.0/bin:$PATH"
+# Portable Omarchy helpers.
+compress() { tar -czf "${1%/}.tar.gz" "${1%/}"; }
+alias decompress='tar -xzf'
 
-# >>> Codex installer >>>
-export PATH="/home/trapani/.local/bin:$PATH"
-alias cx='codex --dangerously-bypass-approvals-and-sandbox'
-# <<< Codex installer <<<
+fip() {
+  (( $# < 2 )) && echo "Usage: fip <host> <port1> [port2] ..." && return 1
+  local host="$1" port
+  shift
+  for port in "$@"; do
+    ssh -f -N -L "${port}:localhost:${port}" "$host" \
+      && echo "Forwarding localhost:$port -> $host:$port"
+  done
+}
+
+dip() {
+  (( $# == 0 )) && echo "Usage: dip <port1> [port2] ..." && return 1
+  local port
+  for port in "$@"; do
+    pkill -f "ssh.*-L ${port}:localhost:${port}" \
+      && echo "Stopped forwarding port $port" \
+      || echo "No forwarding on port $port"
+  done
+}
+
+lip() {
+  pgrep -af "ssh.*-L [0-9]+:localhost:[0-9]+" || echo "No active forwards"
+}
