@@ -137,10 +137,6 @@ if [[ -r /opt/homebrew/etc/profile.d/bash_completion.sh ]]; then
   source /opt/homebrew/etc/profile.d/bash_completion.sh
 fi
 
-if command -v op >/dev/null 2>&1; then
-  source <(op completion bash)
-fi
-
 # Compile a LaTeX file, watch its directory, and clean generated artifacts.
 # On macOS, install fswatch; on Linux this continues to use inotifywait.
 latcompile() {
