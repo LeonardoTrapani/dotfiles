@@ -1,0 +1,3 @@
+command = /opt/homebrew/bin/bash --login
+font-family = MesloLGS Nerd Font Mono
+shell-integration = bash

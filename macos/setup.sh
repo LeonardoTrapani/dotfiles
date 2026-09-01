@@ -4,7 +4,7 @@ set -euo pipefail
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BREWFILE="$DOTFILES_DIR/macos/Brewfile"
 BACKUP_DIR="$HOME/.dotfiles-backups/$(date +%Y%m%d-%H%M%S)"
-PACKAGES=(zsh-macos git-macos tmux nvim bin)
+PACKAGES=(bash-macos git-macos ghostty-macos tmux nvim bin)
 DRY_RUN=false
 
 usage() {
@@ -54,13 +54,20 @@ else
   brew bundle --file "$BREWFILE"
 fi
 
+# Older revisions used a zsh-macos package. Remove only links owned by that
+# package when upgrading; never remove an unrelated user-managed .zshrc.
+if [[ -d "$DOTFILES_DIR/zsh-macos" ]] && command -v stow >/dev/null 2>&1; then
+  log "Removing legacy zsh-macos links"
+  run stow --dir "$DOTFILES_DIR" --target "$HOME" --delete zsh-macos
+fi
+
 backup_conflicts() {
   local package="$1" source relative target
   while IFS= read -r -d '' source; do
     relative="${source#"$DOTFILES_DIR/$package/"}"
     target="$HOME/$relative"
     if [[ -e "$target" || -L "$target" ]]; then
-      if [[ -L "$target" && "$(readlink "$target")" == "$source" ]]; then
+      if [[ -L "$target" && "$(realpath "$target")" == "$source" ]]; then
         continue
       fi
       log "Backing up $target to $BACKUP_DIR/$relative"
@@ -80,4 +87,4 @@ if ! "$DRY_RUN"; then
   git lfs install --skip-repo
 fi
 
-log "Done. Open a new Ghostty window, then run: macos/verify.sh"
+log "Done. Open a new Ghostty window (configured for Bash), then run: macos/verify.sh"

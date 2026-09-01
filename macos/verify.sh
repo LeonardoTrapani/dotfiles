@@ -11,14 +11,14 @@ check_command() {
   fi
 }
 
-for command in git gh nvim tmux stow fzf rg fd bat eza zoxide mise; do
+for command in bash git gh nvim tmux stow fzf rg fd bat eza zoxide mise; do
   check_command "$command"
 done
 
-if zsh -lic 'exit' >/dev/null 2>&1; then
-  printf 'ok  %-12s clean startup\n' zsh
+if /opt/homebrew/bin/bash -lic 'exit' >/dev/null 2>&1; then
+  printf 'ok  %-12s clean startup\n' bash
 else
-  printf 'ERR %-12s startup failed\n' zsh
+  printf 'ERR %-12s startup failed\n' bash
   failures=$((failures + 1))
 fi
 
@@ -40,7 +40,8 @@ else
   failures=$((failures + 1))
 fi
 
-if [[ -L "$HOME/.zshrc" && -L "$HOME/.config/git/config" ]]; then
+if [[ -L "$HOME/.bashrc" && -L "$HOME/.bash_profile" \
+    && -L "$HOME/.config/git/config" ]]; then
   printf 'ok  %-12s linked\n' dotfiles
 else
   printf 'ERR %-12s expected links missing\n' dotfiles

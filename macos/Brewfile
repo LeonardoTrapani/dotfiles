@@ -1,4 +1,6 @@
 brew "bat"
+brew "bash"
+brew "bash-completion@2"
 brew "eza"
 brew "fd"
 brew "fzf"
