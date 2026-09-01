@@ -36,18 +36,25 @@ end
 
 local plugins = load_omarchy_theme()
 
-table.insert(plugins, {
-  'paulbkim-dev/vim-herdr-navigation',
-  lazy = false,
-  dependencies = { 'christoomey/vim-tmux-navigator' },
-  init = function()
-    vim.g.tmux_navigator_no_mappings = 1
-  end,
-  build = 'herdr plugin link .',
-  config = function(plugin)
-    dofile(plugin.dir .. '/editor/nvim.lua')
-  end,
-})
+if vim.fn.executable 'herdr' == 1 then
+  table.insert(plugins, {
+    'paulbkim-dev/vim-herdr-navigation',
+    lazy = false,
+    dependencies = { 'christoomey/vim-tmux-navigator' },
+    init = function()
+      vim.g.tmux_navigator_no_mappings = 1
+    end,
+    build = 'herdr plugin link .',
+    config = function(plugin)
+      dofile(plugin.dir .. '/editor/nvim.lua')
+    end,
+  })
+else
+  table.insert(plugins, {
+    'christoomey/vim-tmux-navigator',
+    lazy = false,
+  })
+end
 
 table.insert(plugins, {
   'sindrets/diffview.nvim',

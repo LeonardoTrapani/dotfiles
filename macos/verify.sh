@@ -15,6 +15,23 @@ for command in git gh nvim tmux stow fzf rg fd bat eza zoxide mise; do
   check_command "$command"
 done
 
+if zsh -lic 'exit' >/dev/null 2>&1; then
+  printf 'ok  %-12s clean startup\n' zsh
+else
+  printf 'ERR %-12s startup failed\n' zsh
+  failures=$((failures + 1))
+fi
+
+tmux_socket="dotfiles-verify-$$"
+if tmux -L "$tmux_socket" -f "$HOME/.config/tmux/tmux.conf" \
+    new-session -d -s verify 2>/dev/null; then
+  tmux -L "$tmux_socket" kill-server 2>/dev/null || true
+  printf 'ok  %-12s config loaded\n' tmux-config
+else
+  printf 'ERR %-12s config failed\n' tmux-config
+  failures=$((failures + 1))
+fi
+
 if ssh -T -o BatchMode=yes -o ConnectTimeout=10 git@github.com 2>&1 \
     | grep -q "successfully authenticated"; then
   printf 'ok  %-12s authenticated\n' github-ssh

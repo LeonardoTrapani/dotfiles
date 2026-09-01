@@ -43,4 +43,9 @@ command -v pyenv >/dev/null 2>&1 && eval "$(pyenv init - zsh)"
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
 command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
 command -v fzf >/dev/null 2>&1 && source <(fzf --zsh)
-command -v op >/dev/null 2>&1 && eval "$(op completion zsh)"
+
+if command -v op >/dev/null 2>&1; then
+  autoload -Uz compinit
+  compinit
+  eval "$(op completion zsh)"
+fi
