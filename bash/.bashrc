@@ -30,6 +30,13 @@ export GIT_CONFIG_GLOBAL="$HOME/.config/git/config"
 export PYENV_ROOT="$HOME/.pyenv"
 export PNPM_HOME="$HOME/Library/pnpm"
 export TMUXP_CONFIGDIR="$HOME/.config/tmux/layouts"
+export BUN_INSTALL="$HOME/.bun"
+
+# Homebrew must precede macOS system binaries so `bash` selects modern Bash
+# instead of Apple's legacy /bin/bash (which prints the zsh migration notice).
+if "$IS_MACOS"; then
+  PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+fi
 
 path_prepend() {
   [[ -d "$1" && ":$PATH:" != *":$1:"* ]] && PATH="$1:$PATH"
@@ -39,6 +46,7 @@ path_prepend "/opt/homebrew/sbin"
 path_prepend "/opt/homebrew/bin"
 path_prepend "$PYENV_ROOT/bin"
 path_prepend "$PNPM_HOME"
+path_prepend "$BUN_INSTALL/bin"
 path_prepend "$HOME/go/bin"
 path_prepend "$HOME/bin"
 path_prepend "$HOME/.local/bin"
