@@ -2,7 +2,6 @@
   "lastChangelogVersion": "0.84.4",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-sol",
-  "defaultThinkingLevel": "xhigh",
   "packages": [
     "npm:pi-add-dir",
     "npm:@tmustier/pi-raw-paste",
@@ -12,9 +11,9 @@
   ],
   "hideThinkingBlock": false,
   "enabledModels": [
-    "openai-codex/gpt-5.6-luna",
     "openai-codex/gpt-5.6-sol",
-    "openai-codex/gpt-5.6-terra"
+    "openai-codex/gpt-5.6-terra",
+    "opencode-go/grok-4.6"
   ],
   "quietStartup": true,
   "theme": "dark"
