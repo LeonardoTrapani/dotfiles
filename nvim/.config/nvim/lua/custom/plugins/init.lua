@@ -1,7 +1,26 @@
--- Parse omarchy theme spec to get plugin name and colorscheme
+local function fallback_theme()
+  return {
+    {
+      'folke/tokyonight.nvim',
+      lazy = false,
+      priority = 1000,
+      opts = { style = 'moon' },
+    },
+    {
+      name = 'fallback-theme-apply',
+      dir = vim.fn.stdpath('config'),
+      lazy = false,
+      priority = 999,
+      config = function()
+        vim.cmd.colorscheme 'tokyonight-moon'
+      end,
+    },
+  }
+end
+
 local function load_omarchy_theme()
   local ok, spec = pcall(require, 'omarchy-theme')
-  if not ok then return {} end
+  if not ok then return fallback_theme() end
 
   local plugins = {}
   local colorscheme = nil
