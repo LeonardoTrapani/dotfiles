@@ -171,8 +171,7 @@ enabled = true
 position = "bottom-center"
 
 [ui.sound]
-# Keep sound notifications disabled.
-enabled = false
+enabled = true
 
 [ui.sound.agents]
 droid = "off"
