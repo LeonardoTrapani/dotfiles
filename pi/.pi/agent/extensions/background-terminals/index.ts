@@ -22,7 +22,6 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import type {
   ExtensionAPI,
-  ExtensionContext,
   ExtensionUIContext,
 } from "@earendil-works/pi-coding-agent";
 import { getMarkdownTheme } from "@earendil-works/pi-coding-agent";
@@ -46,7 +45,10 @@ import {
   buildTerminalResultMessage,
   describeTerminal,
 } from "./src/prompt.ts";
-import { createDeferredResultDelivery } from "./src/result-delivery.ts";
+import {
+  createCompletionDelivery,
+  formatCompletionBatch,
+} from "../shared/completion-delivery.ts";
 import {
   createTerminalRuntime,
   runTool,
@@ -60,10 +62,30 @@ const WIDGET_KEY = "background-terminals";
 export default function (pi: ExtensionAPI) {
   let runtime: TerminalRuntime | undefined;
   let managerPromise: Promise<TerminalManagerShape> | undefined;
-  let sessionContext: ExtensionContext | undefined;
   let ui: ExtensionUIContext | undefined;
   let unsubStatus: (() => void) | undefined;
-  const resultDelivery = createDeferredResultDelivery<TerminalSnapshot>();
+  const resultDelivery = createCompletionDelivery<TerminalSnapshot>(pi, {
+    customType: "background-terminal-result",
+    buildMessage: (results) => ({
+      content: formatCompletionBatch(
+        results.map((snap) => ({
+          text: buildTerminalResultMessage(snap),
+          retrievalHint: `Use bg_status(id: "${snap.id}") or /ps for the retained output and full log paths.`,
+        })),
+      ),
+      details:
+        results.length === 1
+          ? { ...resultDetails(results[0]!) }
+          : { results: results.map(resultDetails) },
+    }),
+  });
+  const resultDetails = (snap: TerminalSnapshot) => ({
+    id: snap.id,
+    title: snap.title,
+    status: snap.status,
+    exitCode: snap.exitCode,
+    signal: snap.signal,
+  });
 
   const getRuntime = () => (runtime ??= createTerminalRuntime());
 
@@ -116,48 +138,7 @@ export default function (pi: ExtensionAPI) {
     }
   };
 
-  const deliverResult = (snap: TerminalSnapshot) => {
-    try {
-      pi.sendMessage(
-        {
-          customType: "background-terminal-result",
-          content: buildTerminalResultMessage(snap),
-          display: true,
-          details: {
-            id: snap.id,
-            title: snap.title,
-            status: snap.status,
-            exitCode: snap.exitCode,
-            signal: snap.signal,
-          },
-        },
-        // followUp: queued until the agent has no more tool calls — never
-        // interrupts a mid-turn stream. triggerTurn: wakes the model
-        // immediately iff idle; if busy, the queued follow-up is delivered
-        // when the current run settles. Either way exactly one delivery.
-        { deliverAs: "followUp", triggerTurn: true },
-      );
-      return true;
-    } catch (error) {
-      // Session may be shutting down, but retain the snapshot so any later
-      // agent-settled flush can retry instead of silently dropping it.
-      console.error("background-terminals: failed to deliver result", error);
-      return false;
-    }
-  };
-
-  const flushResults = () => {
-    for (const snap of resultDelivery.drain()) {
-      if (!deliverResult(snap)) resultDelivery.defer(snap);
-    }
-  };
-
-  const onSettled = (snap: TerminalSnapshot, consumed: boolean) => {
-    if (consumed) {
-      // An in-flight bg_kill is returning this settlement itself.
-      resultDelivery.consume([snap.id]);
-      return;
-    }
+  const onSettled = (snap: TerminalSnapshot) => {
     // Defer a deep-enough copy: the live snapshot's output views keep
     // mutating (late flushes) after settle.
     resultDelivery.defer({
@@ -165,18 +146,11 @@ export default function (pi: ExtensionAPI) {
       stdout: { ...snap.stdout },
       stderr: { ...snap.stderr },
     });
-    if (sessionContext?.isIdle()) flushResults();
   };
 
   pi.on("session_start", (_event, ctx) => {
-    sessionContext = ctx;
     if (ctx.hasUI) ui = ctx.ui;
   });
-
-  // Drain deferred results when the agent settles: together with the
-  // isIdle() fast path above and the Map-keyed delivery (drain clears),
-  // double delivery is structurally impossible — whoever drains first wins.
-  pi.on("agent_settled", flushResults);
 
   // /new, /resume, /fork, /reload, and quit all emit session_shutdown for
   // the old extension instance. Processes never survive a session
@@ -184,7 +158,6 @@ export default function (pi: ExtensionAPI) {
   // disposeAll → every entry scope → SIGTERM→SIGKILL tree kill, each close
   // bounded so a wedged process cannot hang shutdown.
   pi.on("session_shutdown", async () => {
-    sessionContext = undefined;
     resultDelivery.clear();
     unsubStatus?.();
     unsubStatus = undefined;
@@ -256,8 +229,9 @@ export default function (pi: ExtensionAPI) {
     parameters: Type.Object({
       id: Type.String({ description: BG_STATUS_PARAMETER_DESCRIPTIONS.id }),
     }),
-    async execute(_toolCallId, params) {
+    async execute(_toolCallId, params, signal) {
       const manager = await getManager();
+      signal?.throwIfAborted();
       const snap = manager.view.get(params.id);
       if (!snap) {
         const known = manager.view.list().map((s) => s.id);
@@ -266,12 +240,11 @@ export default function (pi: ExtensionAPI) {
         );
       }
 
-      // This status is returning the settlement itself; a pending automatic
-      // follow-up for the same settle would be a duplicate.
+      const text = buildStatusResult(snap);
       if (snap.status !== "running") resultDelivery.consume([snap.id]);
 
       return {
-        content: [{ type: "text", text: buildStatusResult(snap) }],
+        content: [{ type: "text", text }],
         details: {
           id: snap.id,
           status: snap.status,
@@ -338,13 +311,14 @@ export default function (pi: ExtensionAPI) {
           "Kill wait aborted; termination continues in the background.",
       });
 
-      // Settlement may have happened before this kill began (or during it,
-      // via the killInterest consumed flag). Remove any deferred automatic
-      // delivery now that this tool returns the final state itself.
+      // An interrupted kill leaves its completion pending; only a returned
+      // report acknowledges the final state.
+      signal?.throwIfAborted();
+      const text = buildKillReport(report);
       resultDelivery.consume(ids);
 
       return {
-        content: [{ type: "text", text: buildKillReport(report) }],
+        content: [{ type: "text", text }],
         details: {
           results: report.map((entry) => ({
             id: entry.id,
@@ -368,8 +342,11 @@ export default function (pi: ExtensionAPI) {
         status?: string;
         exitCode?: number;
         signal?: string;
+        results?: { status: string }[];
       };
-      const failed = details.status === "failed";
+      const failed =
+        details.results?.some((result) => result.status === "failed") ??
+        details.status === "failed";
       const killed = details.status === "killed";
       const icon = failed
         ? theme.fg("error", "x")
@@ -379,17 +356,22 @@ export default function (pi: ExtensionAPI) {
       const how = killed
         ? "killed"
         : (details.signal ?? `exit ${details.exitCode ?? "?"}`);
-      const header =
-        `${icon} ` +
-        theme.fg("accent", theme.bold(`terminal ${details.id ?? "?"}`)) +
-        theme.fg("muted", ` · ${details.title ?? ""} · ${how}`);
+      const header = details.results
+        ? `${icon} ${theme.fg("accent", theme.bold(`${details.results.length} background terminals finished`))}`
+        : `${icon} ` +
+          theme.fg("accent", theme.bold(`terminal ${details.id ?? "?"}`)) +
+          theme.fg("muted", ` · ${details.title ?? ""} · ${how}`);
 
       const content =
         typeof message.content === "string" ? message.content : "";
       // Remove only the summary line; the Error line (when present) is part
       // of the actual result and must remain visible. The body carries raw
       // process output — sanitize ANSI/control chars or the transcript smears.
-      const body = sanitizeText(content.split("\n").slice(1).join("\n").trim());
+      const body = sanitizeText(
+        details.results
+          ? content
+          : content.split("\n").slice(1).join("\n").trim(),
+      );
 
       if (expanded) {
         const md = new Markdown(`${body}`, 0, 0, getMarkdownTheme());

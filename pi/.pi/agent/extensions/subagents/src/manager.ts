@@ -120,9 +120,9 @@ export interface SubagentReadModel {
   /** Fire-and-forget: abort a running subagent (dashboard `x`, takeover). */
   requestAbort(id: string): void;
   /**
-   * Register the settle hook. `consumed` is true when an active
-   * subagent_wait/cancel is collecting the result (so it must not also be
-   * delivered as a follow-up message).
+   * Every settlement remains available until the extension exposes its result.
+   * Wait/cancel interest only protects entries from pruning, not delivery.
+   * `consumed` is always false; retained for callback compatibility.
    */
   setOnSettled(
     hook: ((snap: SubagentSnapshot, consumed: boolean) => void) | undefined,
@@ -148,9 +148,9 @@ export interface SubagentManagerShape {
   >;
   /**
    * Wait until all listed subagents are settled. Unknown ids are treated as
-   * settled (the tool layer validates ids first). While waiting, settles for
-   * these ids are marked "consumed". Interruption (tool abort) releases the
-   * interest and leaves the subagents running.
+   * settled (the tool layer validates ids first). While waiting, these ids
+   * are protected from pruning. Interruption (tool abort) releases that
+   * interest and leaves the subagents and their results available.
    */
   waitFor(
     ids: ReadonlyArray<string>,
@@ -300,14 +300,14 @@ const makeManager = Effect.gen(function* () {
     entry.liveToolMap.clear();
     s.liveTools = [];
     s.queued = [];
-    const consumed = (waitInterest.get(s.id) ?? 0) > 0;
-    notify(s.id);
     try {
-      // During teardown, don't queue results into a shutting-down session.
-      if (!disposed) onSettled?.(s, consumed);
+      // Publish before waking waiters: only successful tool exposure may
+      // acknowledge this result, never the presence of wait interest.
+      if (!disposed) onSettled?.(s, false);
     } catch {
       // The parent session may be unavailable; settlement stays final.
     }
+    notify(s.id);
     pruneSettled();
   };
 
@@ -589,8 +589,7 @@ const makeManager = Effect.gen(function* () {
           (entry): entry is Entry => entry?.snapshot.status === "running",
         );
       const runningIds = running.map((entry) => entry.snapshot.id);
-      // Mark consumed before interrupting so cancellation does not also
-      // enqueue duplicate automatic result messages into the parent.
+      // Keep entries tracked until the cancellation report is assembled.
       addInterest(runningIds);
       const work = Effect.gen(function* () {
         yield* Effect.forEach(running, abortEntry, {
@@ -704,8 +703,7 @@ const makeManager = Effect.gen(function* () {
     requestAbort: (id) => {
       const entry = entries.get(id);
       if (!entry) return;
-      // UI-initiated aborts are not "consumed": the failed result still
-      // flows back to the parent as a follow-up message, matching v1.
+      // An abort requests a state change; it does not expose the result.
       runDetached(abortEntry(entry).pipe(Effect.ignore));
     },
     setOnSettled: (hook) => {

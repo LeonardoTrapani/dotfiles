@@ -10,8 +10,8 @@
  * - subagent_check: peek at a subagent's status and recent activity.
  * - subagent_list: list all subagents.
  *
- * Unawaited subagents queue their result as a follow-up message when they
- * settle. `/subagents` opens a picker + full interactive takeover view.
+ * Uncollected results join the parent's next tool boundary in a batch.
+ * `/subagents` opens a picker + full interactive takeover view.
  *
  * Architecture: Effect v4 generators throughout (backends -> manager ->
  * runtime); this file is the async boundary where tool handlers run effects
@@ -30,13 +30,9 @@ import type {
   ExtensionUIContext,
 } from "@earendil-works/pi-coding-agent";
 import {
-  DEFAULT_MAX_BYTES,
-  DEFAULT_MAX_LINES,
-  formatSize,
   getAgentDir,
   getMarkdownTheme,
   ProjectTrustStore,
-  truncateHead,
 } from "@earendil-works/pi-coding-agent";
 import { Markdown, Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
@@ -44,7 +40,6 @@ import { deriveBtwTitle, isModelVisible } from "./src/by-the-way.ts";
 import {
   BACKEND_NAMES,
   formatElapsed,
-  latestText,
   REASONING_EFFORTS,
   type SubagentSnapshot,
 } from "./src/domain.ts";
@@ -68,7 +63,15 @@ import {
   SUBAGENT_WAIT_PARAMETER_DESCRIPTIONS,
   SUBAGENT_WAIT_TOOL_DESCRIPTION,
 } from "./src/prompt.ts";
-import { createDeferredResultDelivery } from "./src/result-delivery.ts";
+import {
+  createCompletionDelivery,
+  formatCompletionBatch,
+} from "../shared/completion-delivery.ts";
+import {
+  formatCheckResult,
+  formatSubagentOutput,
+  formatWaitResult,
+} from "./src/result-exposure.ts";
 import {
   createSubagentRuntime,
   runTool,
@@ -104,16 +107,7 @@ function truncatedOutput(
   snap: SubagentSnapshot,
   maxBytes = SUBAGENT_OUTPUT_MAX_BYTES,
 ): string {
-  const output = snap.finalText || "(no output)";
-  const truncation = truncateHead(output, {
-    maxBytes: Math.min(maxBytes, DEFAULT_MAX_BYTES),
-    maxLines: Math.min(600, DEFAULT_MAX_LINES),
-  });
-  let text = truncation.content;
-  if (truncation.truncated) {
-    text += `\n\n[Output truncated: ${formatSize(truncation.outputBytes)} of ${formatSize(truncation.totalBytes)} shown. Full transcript in session file: ${snap.meta.sessionFilePath ?? "?"}]`;
-  }
-  return text;
+  return formatSubagentOutput(snap, maxBytes).text;
 }
 
 /**
@@ -143,7 +137,32 @@ export default function (pi: ExtensionAPI) {
   let sessionContext: ExtensionContext | undefined;
   let ui: ExtensionUIContext | undefined;
   let unsubStatus: (() => void) | undefined;
-  const resultDelivery = createDeferredResultDelivery<SubagentSnapshot>();
+  const resultDelivery = createCompletionDelivery<SubagentSnapshot>(pi, {
+    customType: "subagent-result",
+    buildMessage: (results) => ({
+      content: formatCompletionBatch(
+        results.map((snap) => ({
+          text: buildSubagentResultMessage({
+            id: snap.id,
+            title: snap.title,
+            status: snap.status,
+            errorText: snap.errorText,
+            output: truncatedOutput(snap),
+          }),
+          retrievalHint: `Use subagent_wait(ids: ["${snap.id}"]) for the result and transcript path.`,
+        })),
+      ),
+      details:
+        results.length === 1
+          ? resultDetails(results[0]!)
+          : { results: results.map(resultDetails) },
+    }),
+  });
+  const resultDetails = (snap: SubagentSnapshot) => ({
+    id: snap.id,
+    title: snap.title,
+    status: snap.status,
+  });
 
   const getRuntime = () => (runtime ??= createSubagentRuntime());
 
@@ -177,28 +196,6 @@ export default function (pi: ExtensionAPI) {
     );
   };
 
-  const deliverResult = (snap: SubagentSnapshot) => {
-    pi.sendMessage(
-      {
-        customType: "subagent-result",
-        content: buildSubagentResultMessage({
-          id: snap.id,
-          title: snap.title,
-          status: snap.status,
-          errorText: snap.errorText,
-          output: truncatedOutput(snap),
-        }),
-        display: true,
-        details: { id: snap.id, title: snap.title, status: snap.status },
-      },
-      { deliverAs: "followUp", triggerTurn: true },
-    );
-  };
-
-  const flushResults = () => {
-    for (const snap of resultDelivery.drain()) deliverResult(snap);
-  };
-
   const deliverBtwResult = (snap: SubagentSnapshot) => {
     // appendEntry is a synchronous SessionManager operation and emits an
     // entry_appended event, so it is safe while the parent is streaming and
@@ -220,7 +217,7 @@ export default function (pi: ExtensionAPI) {
     );
   };
 
-  const onSettled = (snap: SubagentSnapshot, consumed: boolean) => {
+  const onSettled = (snap: SubagentSnapshot) => {
     // A shutdown can settle children while disposing their scopes. Never
     // append into a session whose extension runtime is already closing.
     if (!sessionContext) return;
@@ -228,24 +225,17 @@ export default function (pi: ExtensionAPI) {
       deliverBtwResult({ ...snap, meta: { ...snap.meta } });
       return;
     }
-    if (consumed) {
-      resultDelivery.consume([snap.id]);
-      return;
-    }
-    // Keep the result retractable while the parent is working. A later
-    // subagent_wait can consume it before agent_settled flushes follow-ups.
+    // A waiting tool can still abort or omit this output. Only a successful
+    // result retrieval consumes it; interest alone is not acknowledgment.
     // Defer a copy: the live snapshot keeps mutating if the subagent is
     // restarted before the deferred result flushes.
     resultDelivery.defer({ ...snap, meta: { ...snap.meta } });
-    if (sessionContext?.isIdle()) flushResults();
   };
 
   pi.on("session_start", (_event, ctx) => {
     sessionContext = ctx;
     if (ctx.hasUI) ui = ctx.ui;
   });
-
-  pi.on("agent_settled", flushResults);
 
   pi.on("session_shutdown", async () => {
     sessionContext = undefined;
@@ -397,49 +387,20 @@ export default function (pi: ExtensionAPI) {
         { signal, interruptMessage: "Wait aborted. Subagents keep running." },
       );
 
-      // Settlement may have happened before this wait began. Remove any
-      // deferred automatic delivery now that the tool is returning the result.
-      resultDelivery.consume(ids);
-
-      const sections: string[] = [];
-      let remainingBytes = WAIT_OUTPUT_MAX_BYTES;
-      for (const id of ids) {
-        const snap = manager.view.get(id);
-        if (!snap) {
-          sections.push(`## ${id}\n\n(no longer tracked)`);
-          continue;
-        }
-        const verb = snap.status === "error" ? "failed" : "finished";
-        let section = `## ${snap.id} "${snap.title}" ${verb}`;
-        if (snap.errorText) section += `\nError: ${snap.errorText}`;
-        const headerBytes = Buffer.byteLength(section, "utf8") + 2;
-        const outputBudget = Math.max(
-          512,
-          Math.min(WAIT_PER_AGENT_MAX_BYTES, remainingBytes - headerBytes),
-        );
-        section += `\n\n${truncatedOutput(snap, outputBudget)}`;
-        const sectionBytes = Buffer.byteLength(section, "utf8");
-        if (sectionBytes > remainingBytes) {
-          sections.push(
-            `## ${snap.id} "${snap.title}"\n\n[omitted: total wait output limit reached]`,
-          );
-          break;
-        }
-        sections.push(section);
-        remainingBytes -= sectionBytes;
-      }
-
-      const combined = sections.join("\n\n---\n\n");
-      const bounded = truncateHead(combined, {
-        maxBytes: WAIT_OUTPUT_MAX_BYTES - 128,
-        maxLines: DEFAULT_MAX_LINES,
-      });
-      const text = bounded.truncated
-        ? `${bounded.content}\n\n[wait output truncated at the total output limit]`
-        : bounded.content;
+      signal?.throwIfAborted();
+      const { text, consumedIds } = formatWaitResult(
+        ids.map((id) => ({ id, snapshot: manager.view.get(id) })),
+        {
+          maxBytes: WAIT_OUTPUT_MAX_BYTES,
+          perAgentMaxBytes: WAIT_PER_AGENT_MAX_BYTES,
+        },
+      );
+      signal?.throwIfAborted();
+      resultDelivery.consume(consumedIds);
       return {
         content: [{ type: "text", text }],
         details: {
+          consumedIds,
           results: ids.map((id) => {
             const snap = manager.view.get(id);
             return { id, title: snap?.title, status: snap?.status };
@@ -511,8 +472,9 @@ export default function (pi: ExtensionAPI) {
         description: SUBAGENT_CHECK_PARAMETER_DESCRIPTIONS.id,
       }),
     }),
-    async execute(_toolCallId, params) {
+    async execute(_toolCallId, params, signal) {
       const manager = await getManager();
+      signal?.throwIfAborted();
       const snap = manager.view.get(params.id);
       if (!snap || !isModelVisible(snap)) {
         const known = manager.view
@@ -524,21 +486,20 @@ export default function (pi: ExtensionAPI) {
         );
       }
 
-      let text = `${describeSubagent(snap)}\nTurns: ${snap.turns}`;
-      if (snap.errorText) text += `\nError: ${snap.errorText}`;
-
-      const output = latestText(snap);
-      if (output) {
-        const preview = truncateHead(output, { maxBytes: 2048, maxLines: 20 });
-        text += `\n\nLatest output:\n${preview.content}`;
-        if (preview.truncated) text += "\n[...]";
-      } else if (snap.status === "running") {
-        text += "\n\n(no text output yet)";
-      }
-
+      const { text, consumedIds } = formatCheckResult(
+        snap,
+        describeSubagent(snap),
+      );
+      signal?.throwIfAborted();
+      resultDelivery.consume(consumedIds);
       return {
         content: [{ type: "text", text }],
-        details: { id: snap.id, status: snap.status, turns: snap.turns },
+        details: {
+          id: snap.id,
+          status: snap.status,
+          turns: snap.turns,
+          consumedIds,
+        },
       };
     },
   });
@@ -578,22 +539,28 @@ export default function (pi: ExtensionAPI) {
         id?: string;
         title?: string;
         status?: string;
+        results?: { status: string }[];
       };
-      const failed = details.status === "error";
+      const failed =
+        details.results?.some((result) => result.status === "error") ??
+        details.status === "error";
       const icon = failed ? theme.fg("error", "x") : theme.fg("success", "■");
-      const header =
-        `${icon} ` +
-        theme.fg("accent", theme.bold(`subagent ${details.id ?? "?"}`)) +
-        theme.fg(
-          "muted",
-          ` · ${details.title ?? ""} · ${failed ? "failed" : "finished"}`,
-        );
+      const header = details.results
+        ? `${icon} ${theme.fg("accent", theme.bold(`${details.results.length} subagents finished`))}`
+        : `${icon} ` +
+          theme.fg("accent", theme.bold(`subagent ${details.id ?? "?"}`)) +
+          theme.fg(
+            "muted",
+            ` · ${details.title ?? ""} · ${failed ? "failed" : "finished"}`,
+          );
 
       const content =
         typeof message.content === "string" ? message.content : "";
       // Remove only the summary line. The following Error line (when present)
       // is part of the actual result and must remain visible.
-      const body = content.split("\n").slice(1).join("\n").trim();
+      const body = details.results
+        ? content
+        : content.split("\n").slice(1).join("\n").trim();
 
       if (expanded) {
         const md = new Markdown(`${body}`, 0, 0, getMarkdownTheme());

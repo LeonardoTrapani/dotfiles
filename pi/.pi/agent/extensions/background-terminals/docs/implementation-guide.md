@@ -5,7 +5,7 @@
 >   `unstable/process` module exists there but we deliberately do NOT use it — see §6)
 > - `@earendil-works/pi-coding-agent@^0.82.0` docs from the installed package
 > - Reference implementations: `extensions/subagents` (Effect v4 service/manager/read-model/tools)
->   and `extensions/workflows` (dashboard UI, status line, background completion follow-ups).
+>   and `extensions/workflows` (dashboard UI, status line).
 >
 > Read alongside `extensions/subagents/docs/effect-v4-notes.md` (API cheat sheet) and
 > `extensions/subagents/docs/effect-v4-extension-guide.md` (toolchain + ManagedRuntime boundary).
@@ -23,9 +23,10 @@ the key simplification vs. subagents' `send()`).
 - Full stdout and stderr are captured **separately and completely** in private spill files;
   bounded in-memory tails keep `/ps` responsive (§7.4).
 - Tool responses to the model are **always truncated** with the pi truncation utilities.
-- When a process exits, the model is woken **exactly once** via `pi.sendMessage(...,
-  { deliverAs: "followUp", triggerTurn: true })` — no polling — using the same
-  deferred-delivery/consumed dance as subagents (§9).
+- At `turn_end`, pending terminal and subagent completions are collected across both
+  extensions into one shared `steer` message with `triggerTurn: true`. Successful
+  tool-free turns and idle/`agent_settled` late fallback use the same delivery (§9).
+  No polling, per-result continuation turns, or `agent_settled` backlog.
 - While ≥1 process is running, a one-line widget renders **directly above the editor**:
   `N background terminal(s) running • /ps to view` (§10).
 - `/ps` opens a two-stage full-screen overlay (list → detail with scrollable stdout/stderr),
@@ -50,15 +51,20 @@ extensions/background-terminals/
 │   ├── output.ts             # OutputBuffer: bounded decoded text + byte counters (plain TS class)
 │   ├── runtime.ts            # ManagedRuntime factory + runTool helper (copy of subagents')
 │   ├── prompt.ts             # all model-facing strings (tool descriptions, result builders)
-│   ├── result-delivery.ts    # deferred one-shot delivery map (copy of subagents')
 │   └── ui/
 │       ├── ps.ts             # /ps picker + detail view components
 │       └── output-view.ts    # stdout/stderr → wrapped display lines
 ├── manager.test.ts           # node:test end-to-end through a real ManagedRuntime
 ├── output.test.ts            # OutputBuffer truncation/decoding unit tests
-├── result-delivery.test.ts   # (copied semantics, tiny)
 └── ps.test.ts                # selection-reconciliation tests (like takeover.test.ts)
 ```
+
+Both extension indexes import `createCompletionDelivery` from
+`../shared/completion-delivery.ts`; the old per-extension `src/result-delivery.ts` maps
+have been removed. Shared scheduling tests live in `../shared/completion-delivery.test.ts`;
+actual Pi `AgentSession` fake-model tests live in
+`../shared/completion-delivery.integration.test.mjs`. Scheduling belongs in the shared
+helper, not a copy.
 
 Tests live at the package root, plain `node --test --experimental-strip-types`, exactly like
 `extensions/subagents/package.json`'s `test` script. Note the repo-root `package.json` test
@@ -505,7 +511,7 @@ results and treat already-settled ids as no-ops rather than errors.
   completeness.)
 
 **Recommended:** record `{code, signal}` on `exit`, settle + notify on `close`. This
-guarantees the completion follow-up message contains the final output tail.
+ensures the completion snapshot contains the final output tail before batching.
 
 ## 8. Tools (`index.ts` + `src/prompt.ts`)
 
@@ -563,8 +569,8 @@ const stderr = truncateTail(snap.stderr.text, { maxBytes: 8 * 1024, maxLines: 20
 guidance in docs/extensions.md Output Truncation. When truncated, append
 `[stdout truncated: showing last X of Y. Full log: <spillPath or "in /ps viewer">]` using
 `formatSize` + the truncation result fields (see `truncatedOutput()` in subagents index.ts for
-the message shape). If `bg_status` observes a settled entry whose completion message is still
-pending delivery, mark it consumed (§9.3).
+the message shape). If `bg_status` successfully returns a settled entry's output whose
+completion is still pending, mark that result consumed (§9.3). A lookup alone is not exposure.
 
 ### 8.3 `bg_list`
 
@@ -582,72 +588,76 @@ parameters: Type.Object({ ids: Type.Array(Type.String(), { description: 'Termina
 Validate all ids known first (throw listing unknowns, copy `subagent_cancel`). Then
 `runTool(getRuntime(), manager.kill(ids), { signal, interruptMessage: "Kill wait aborted; termination continues in the background." })`.
 Report per id: `Killed bt-1 "dev server" (SIGTERM).` or `bt-2 "build" was already done (exit 0).`
-Killing marks the settle consumed so the model doesn't also get the async completion message
-(§9.3) — same reason subagents' `cancel` calls `addInterest` before interrupting.
+Consume pending results only for settled outputs included in the successful `bg_kill`
+response (§9.3). Starting a kill or waiting for it does not consume anything; an aborted
+wait must leave completion delivery available.
 
 **No `bg_wait` and no `bg_send`.** No stdin is a hard requirement. Blocking wait is
 deliberately omitted in v1: completion notification makes it redundant, and it would drag in
 subagents' full `waitInterest` machinery. If it's ever wanted, each entry already has a
 settlement `Deferred` and the subagents `waitFor` result shaping is the template.
 
-## 9. Completion notification — exactly once, no polling, no turn races
+## 9. Completion notification — shared scheduling, no polling
 
-This is the subtlest requirement. Copy the subagents solution wholesale; it exists precisely
-to solve this problem (see comments in `extensions/subagents/index.ts` lines 168–222 and
-`result-delivery.ts`).
+Both extensions use `../shared/completion-delivery.ts`. The extension edge supplies the
+message builder and copied settled snapshots; the helper owns pending results and parent
+lifecycle hooks. The old local delivery maps must not be copied back in.
 
 ### 9.1 Mechanism
 
-On settle, the manager invokes a hook `onSettled(snap, consumed)` registered by `index.ts`
-(same `view.setOnSettled` bridge). The hook:
+On settle, defer a deep-enough copy (`{ ...snap, stdout: { ...snap.stdout },
+stderr: { ...snap.stderr } }`) through `createCompletionDelivery`. Keep results pending
+until a safe delivery boundary or successful tool exposure:
 
-```ts
-const resultDelivery = createDeferredResultDelivery<TerminalSnapshot>();  // copy the 20-line module
+- **Tool or successful tool-free `turn_end`:** synchronously emit the `pi.events`
+  collection channel `dotfiles:collect-completions:v1`. Both extensions contribute
+  pending results for the same session before one `pi.sendMessage` call with
+  `{ deliverAs: "steer", triggerTurn: true }`. Separate per-extension steer messages
+  would add turns under Pi's default one-at-a-time steering queue.
+- **Queued user messages:** defer submission until those messages are delivered. Their
+  responses can consume pending results or fail; a completion queued behind them cannot
+  be retracted and could otherwise duplicate output or restart a failed run.
+- **Late completion while idle / `agent_settled`:** use the same shared collection and
+  steer-true fallback, not an `agent_settled` backlog. Repeated boundaries must not
+  resubmit results already delivered or awaiting delivery.
+- Actual Pi fake-model testing showed that `triggerTurn: false` appends a context-only
+  message to session state, but not the active loop context. It cannot deliver results
+  into the already-required next request; always use steer with `triggerTurn: true`.
+- Single-source batches retain `background-terminal-result` or `subagent-result` and
+  their registered renderers. Mixed-source batches use `background-completions` with
+  Pi's default renderer.
 
-const onSettled = (snap: TerminalSnapshot, consumed: boolean) => {
-  if (consumed) { resultDelivery.consume([snap.id]); return; }
-  // Defer a deep-enough copy: the live snapshot keeps mutating (late output flushes).
-  resultDelivery.defer({ ...snap, stdout: { ...snap.stdout }, stderr: { ...snap.stderr } });
-  if (sessionContext?.isIdle()) flushResults();
-};
+No per-result drain/send loop. Batch formatting retains result identities and retrieval
+pointers while bounding the combined model-visible output.
 
-pi.on("agent_settled", flushResults);
+### 9.2 Lifecycle and scheduling constraints
 
-const flushResults = () => {
-  for (const snap of resultDelivery.drain()) {
-    pi.sendMessage({
-      customType: "background-terminal-result",
-      content: buildTerminalResultMessage(snap),   // prompt.ts; truncateTail'd output inside
-      display: true,
-      details: { id: snap.id, title: snap.title, status: snap.status, exitCode: snap.exitCode, signal: snap.signal },
-    }, { deliverAs: "followUp", triggerTurn: true });
-  }
-};
-```
+- Keep completions retractable until the safe boundary: a tool may return their output
+  before then. A pending-map drain alone does not prove delivery or model-request counts;
+  verify both against pi's event and message lifecycle (§14).
+- Retain submitted snapshots and their shared `completionDeliveryId` token until a
+  matching custom `message_end` acknowledges delivery. Neither context-only submission
+  nor a `context` event acknowledges it. A synchronous submission failure releases the
+  guard for retry without dropping pending results. Pi's void extension API does not
+  expose asynchronous send failures; do not infer delivery from the call returning.
+- Parent abort/error (including an aborted turn signal) pauses automatic wake-up until
+  the next `agent_start`. Pending results remain available; idle/`agent_settled` must not
+  restart an aborted or failed parent run. When paused, `agent_settled` releases the
+  submission guard (queued steering may have been discarded), retaining pending results.
+- `session_shutdown` drops pending results before runtime disposal and disables delivery
+  from late callbacks. The manager's `disposed` guard remains a second teardown boundary.
 
-### 9.2 Why this is race-free (the reasoning to preserve in code comments)
+### 9.3 Consumption means successful returned exposure
 
-- `deliverAs: "followUp"` queues the message until the agent has no more tool calls; it never
-  interrupts a mid-turn stream (docs/extensions.md § pi.sendMessage).
-- `triggerTurn: true` wakes the model immediately **iff idle**; if busy, the queued follow-up
-  is delivered when the current run settles — either way exactly one delivery.
-- The `Map`-keyed `resultDelivery` (keyed by id, `drain()` clears) makes double-delivery
-  structurally impossible even if both the `isIdle()` fast-path and the `agent_settled` event
-  fire: whoever drains first wins, the second drain sees an empty map.
-- The `consumed` flag closes the remaining hole: if the model is *currently inside*
-  `bg_kill` (which returns the final state itself), the settle must not ALSO queue a message.
-  Manager computes `consumed` = "a kill/status collection is in flight for this id" at settle
-  time (subagents: `waitInterest`; here: the `kill()`-marked id set).
-- `if (!disposed)` in `settle` prevents queueing into a shutting-down session.
+Only consume pending ids whose settled output is actually included in a successful tool
+response. `bg_status` can consume its returned settled result; `bg_kill` consumes the
+settled outputs it returns. Mere in-flight kill interest, a status lookup, UI inspection,
+or an aborted/failed tool wait is not consumption. Interest may still coordinate cleanup,
+but must not suppress completion delivery.
 
-### 9.3 Consumed-set details
-
-Keep a `Map<string, number> killInterest` in the manager; `kill()` adds interest before
-signaling and releases in `Effect.ensuring` (identical to `addInterest`/`releaseInterest`).
-`settle` computes `consumed = (killInterest.get(id) ?? 0) > 0`. Additionally, `bg_kill`'s tool
-handler calls `resultDelivery.consume(ids)` after `runTool` returns, mirroring
-`subagent_wait`'s "settlement may have happened before this wait began" comment (index.ts
-line 352) — belt and suspenders for the settled-before-kill-started ordering.
+The same rule applies to subagents: `subagent_check` consumes only when the full settled
+result fits its preview, and `subagent_wait` consumes only included outputs, not ids whose
+sections were omitted by the response budget.
 
 ### 9.4 Result message content
 
@@ -810,7 +820,7 @@ Consequences:
 ```ts
 const STATUS_STDOUT_MAX = 16 * 1024;   // bg_status stdout tail
 const STATUS_STDERR_MAX = 8 * 1024;    // bg_status stderr tail
-const RESULT_STDOUT_MAX = 16 * 1024;   // completion follow-up stdout tail
+const RESULT_STDOUT_MAX = 16 * 1024;   // completion result stdout tail
 const RESULT_STDERR_MAX = 8 * 1024;
 const RETAINED_PER_STREAM = 2 * 1024 * 1024;  // in-memory cap per stream (spill keeps the rest)
 ```
@@ -845,29 +855,51 @@ tricks; they exist on any machine running pi)
    spawned child so PID reuse cannot create a false pass.
 5. concurrency cap: cap+1 concurrent starts → last fails with ConcurrencyLimitError;
    reservation released on spawn failure (start a bogus binary → SpawnError → slot free).
-6. consumed semantics: settle during an in-flight `kill` reports `consumed: true`.
+6. consumption semantics: settle during an in-flight `kill` remains unconsumed until
+   its settled output is successfully returned by the tool.
 7. `disposeAll` (via `runtime.dispose()`) kills a running process and settles it as killed;
    no settle hook fires after dispose (`disposed` guard).
 8. pruning: exceed MAX_TRACKED with settled entries → oldest pruned, running never pruned.
 9. SIGTERM-resistant process → SIGKILL after the 2s grace, within the 5s close bound.
 10. aborted `bg_kill` wait → detached escalation still reaches SIGKILL and settles.
 11. overlapping multi-id kills → every caller observes every captured settlement; each
-    settle hook fires once and consumed state remains true.
+    settle hook fires once; overlapping interest alone never consumes a result.
 12. shell `exit` without stdio `close` → bounded cleanup reaps the descendant holding the
     pipes, preserves the shell's natural exit status, and releases the running slot.
 
-**`result-delivery.test.ts`** — consume-before-drain, drain-once (copy subagents' file).
+**Completion scheduling tests (verification plan)** — extend the shared helper tests
+and add actual Pi `AgentSession` fake-model integration tests for both extensions;
+fake-host/map-only tests cannot establish active-loop visibility or request counts.
+- Terminal and subagent completions during one tool turn produce one cross-extension
+  `steer`, `triggerTurn: true` batch visible to the already-required next request,
+  with no per-source extra turns, including concurrent steering.
+- Successful tool-free `turn_end`, idle arrival, and `agent_settled` late fallback each
+  use the same shared steer-true batch; overlapping hooks do not duplicate it and no
+  backlog waits for `agent_settled`.
+- Verify single-source custom types/renderers and mixed-source `background-completions`.
+  Retain queued submissions until token-matched `message_end`; no context-only or
+  `context` event acknowledgment. Demonstrate that steer-false only updates session
+  state, not active-loop context.
+- Successful returned `bg_status`/`bg_kill` output consumes pending ids before delivery;
+  aborted/failed kills and mere in-flight interest leave them pending.
+- Abort/error pauses auto wake until `agent_start`; shutdown drops pending and late
+  callbacks cannot send. Cover message acknowledgment and submission-failure orderings.
+- Check batch output budgets and full-log pointers. Mirror subagent preview/omitted-output
+  consumption regressions so both adapters obey the shared scheduling contract.
 
 **`ps.test.ts`** — `reconcileTerminalSelection` behavior (copy `takeover.test.ts` cases).
 
-**Manual validation (must actually run pi):**
+**Manual validation (must actually run pi; delegate interaction to a Codex subagent):**
 - `pi` → ask the model to `bg_start` a dev-server-like command → widget appears above editor
   with correct count/pluralization → `/ps` list → enter detail → live tail scrolls, `t`
   toggles stderr, ANSI-heavy output (e.g. `npm run dev`) renders without smearing → back →
-  `x` kills → widget disappears when last settles → completion message arrives exactly once,
+  `x` kills → widget disappears when last settles → completion batch arrives,
   rendered collapsed, expands with ctrl+o.
-- Race check: start a 2s `sleep`-then-echo while the model is mid-long-turn → result arrives
-  as follow-up after the turn, not mid-stream, and only once.
+- Race check: settle terminals and subagents during a tool turn → one shared steer-true
+  batch joins the next request, with no per-source extra turn. Settle after a tool-free
+  final turn or while idle → same wake fallback. Repeat with concurrent user/extension
+  steering and count actual model requests.
+- Abort/error with pending completions → no automatic restart until the next `agent_start`.
 - `/new` and `/reload` with a running process → process is dead afterwards (`ps aux | grep`),
   no orphan, widget cleared.
 - `npm run check` green; `npm test` green; repo-root `npm run format:check` clean for the new
@@ -892,18 +924,18 @@ tricks; they exist on any machine running pi)
    `if (status !== "running") return` in settle. Set `killSignaled` atomically with SIGTERM
    only while the shell is live; an already-observed natural exit keeps `done`/`failed` even
    if its surviving process group still needs cleanup.
-8. **Never queue messages into a dying session** — `disposed` guard around `onSettled`, and
-   try/catch around `pi.sendMessage` (workflows wraps its follow-up send in try/catch:
-   "Session may be shutting down").
+8. **Never queue messages into a dying session** — `disposed` guard around `onSettled`,
+   shared scheduler shutdown before runtime disposal, and submission error handling around
+   `pi.sendMessage`.
 9. **Defer a copy, not the live snapshot** — the buffer keeps mutating after settle (late
    flushes); subagents defers `{ ...snap, meta: { ...snap.meta } }` for the same reason.
 10. **Synchronous reservation for the cap** — an `await` between check and increment lets
     parallel tool calls race past it (manager.ts spawn comment).
 11. **Bound every teardown wait** — 5s timeout on scope closes, or a wedged child hangs
     `session_shutdown` (subagents `disposeAll` + `abortEntry` comments).
-12. **Snapshot kill interest before Deferred completion** — Effect can resume kill waiters
-    immediately; compute `consumed` before `Deferred.doneUnsafe` so their `ensuring`
-    blocks cannot release interest first.
+12. **Interest is not exposure** — a kill waiter can abort or fail after settlement.
+    Consume only settled outputs included in its successful tool response, never from an
+    in-flight interest count.
 13. **Tool output limits are a hard requirement** — unbounded stdout in a tool result causes
     context overflow/compaction failures (docs Output Truncation). Truncate *everything* the
     model sees, including the completion message.
@@ -921,9 +953,12 @@ tricks; they exist on any machine running pi)
       `/ps` detail can inspect both, read-only, scrollable, ANSI-sanitized, live-tailing.
 - [ ] Every model-visible output path truncated (`truncateTail` + clamps) with pointers to the
       full log.
-- [ ] Exactly-once async completion notification via `sendMessage followUp + triggerTurn`,
-      deferred-delivery map, consumed-set for kill, `agent_settled` flush, `isIdle()` fast
-      path, `disposed` guard. No polling anywhere.
+- [ ] Shared completion scheduler: synchronous `pi.events` collection across both
+      extensions into one `steer`, `triggerTurn: true` batch at `turn_end`; same
+      successful tool-free/idle/`agent_settled` late fallback, no settled backlog.
+      Retain queued submission until token-matched `message_end`; consume only
+      successful returned output. Abort/error pauses until `agent_start`, shutdown
+      drops pending. Shared and actual Pi fake-model integration coverage. No polling.
 - [ ] Widget above editor only while ≥1 running, text `N background terminals running • /ps to
       view`, cleared on last settle and on shutdown.
 - [ ] `/ps` two-stage overlay: list (select/kill/open) → detail (metadata, stdout/stderr

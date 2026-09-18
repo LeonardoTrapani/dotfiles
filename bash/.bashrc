@@ -102,7 +102,6 @@ alias g='git'
 alias gcm='git commit -m'
 alias gcam='git commit -a -m'
 alias gcad='git commit -a --amend'
-alias npm='pnpm'
 alias mup='MISE_MINIMUM_RELEASE_AGE=0 mise up'
 n() { if (( $# == 0 )); then command nvim .; else command nvim "$@"; fi; }
 

@@ -97,8 +97,8 @@ test("stub subagent completes and delivers a final result", async () => {
     );
     assert.ok(done.turns >= 2);
     assert.ok(done.transcript.some((item) => item.kind === "toolResult"));
-    // The waitFor marked the settle as consumed.
-    assert.deepEqual(settled, [{ id: snap.id, consumed: true }]);
+    // Waiting is not acknowledgment: the tool may still abort or omit output.
+    assert.deepEqual(settled, [{ id: snap.id, consumed: false }]);
   });
 });
 
@@ -124,8 +124,12 @@ test("FAIL: prompts settle as errors; unconsumed settles are delivered", async (
   });
 });
 
-test("cancel interrupts a running stub subagent", async () => {
+test("cancel interrupts a running stub subagent without consuming its result", async () => {
   await withManager(async (manager, runtime) => {
+    const settled: Array<{ id: string; consumed: boolean }> = [];
+    manager.view.setOnSettled((snap, consumed) =>
+      settled.push({ id: snap.id, consumed }),
+    );
     const snap = await runTool(
       runtime,
       manager.spawn("claude", task("Long running task")),
@@ -135,6 +139,34 @@ test("cancel interrupts a running stub subagent", async () => {
       { id: snap.id, title: "test", status: "error", cancelled: true },
     ]);
     assert.equal(manager.view.get(snap.id)?.errorText, "Run was aborted");
+    assert.deepEqual(settled, [{ id: snap.id, consumed: false }]);
+  });
+});
+
+test("aborting a multi-wait after one settlement leaves every result available", async () => {
+  await withManager(async (manager, runtime) => {
+    const controller = new AbortController();
+    const settled: Array<{ id: string; consumed: boolean }> = [];
+    manager.view.setOnSettled((snap, consumed) => {
+      settled.push({ id: snap.id, consumed });
+      controller.abort();
+    });
+    const fast = await runTool(runtime, manager.spawn("codex", task("fast")));
+    const slow = await runTool(runtime, manager.spawn("claude", task("slow")));
+    const ids = [fast.id, slow.id];
+    await assert.rejects(
+      runTool(runtime, manager.waitFor(ids), {
+        signal: controller.signal,
+        interruptMessage: "Wait aborted",
+      }),
+      /Wait aborted/,
+    );
+    await runTool(runtime, manager.waitFor(ids));
+    assert.deepEqual(
+      settled,
+      ids.map((id) => ({ id, consumed: false })),
+    );
+    assert.ok(ids.every((id) => manager.view.get(id)?.status === "done"));
   });
 });
 

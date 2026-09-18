@@ -14,25 +14,26 @@ carried over. No real Claude/Codex process integration yet; the pi backend may a
 stubbed initially so the manager/UI/tool loop can be exercised end to end with zero
 external dependencies.
 
-**Location:** `~/.pi/agent/extensions/subagents/` — fully self-contained
-(no imports from `../shared` or `../subagents`; the handful of shared helpers v1 uses are
-copied in).
+**Location:** `~/.pi/agent/extensions/subagents/`. Completion scheduling is shared with
+background-terminals through `../shared/completion-delivery.ts`; do not copy its state
+machine into either extension. The scheduling and consumption rules below supersede
+the original v1 delivery plan.
 
 ---
 
 ## 1. V1 inventory (what must be preserved)
 
 Source: `~/.pi/agent/extensions/subagents/` (`index.ts`, `manager.ts`,
-`prompt.ts`, `result-delivery.ts`, `takeover.ts`) plus `../shared/` helpers.
+`prompt.ts`, `takeover.ts`) plus `../shared/` helpers, including `completion-delivery.ts`.
 
 ### 1.1 Tools exposed to the parent LLM
 
 | Tool | Parameters | Behavior |
 |---|---|---|
 | `subagent_spawn` | `prompt`, `title`, `working_dir?`, `model?`, `provider?`, `reasoning_effort?` | Fire-and-forget spawn. Returns immediately with an id (`sa-N`). Enforces `MAX_RUNNING = 4` with a synchronous reservation so parallel tool calls can't race past the cap. Validates `working_dir`, resolves model against the registry (inherit parent model/thinking level by default), truncates title to 160 chars. |
-| `subagent_wait` | `ids[]` (max 64) | Blocks until all listed subagents settle; respects the tool `AbortSignal`; streams `Waiting for ...` via `onUpdate`. Marks the awaited results "consumed" so they are not also auto-delivered. Output budgets: 48KB total, 16KB per agent, with per-section fallbacks (`[omitted: ...]`). Errors on unknown ids (lists known ids). |
-| `subagent_cancel` | `ids[]` | Aborts running subagents (marks consumed first to avoid duplicate delivery), waits for settlement, reports per-id `Cancelled ...` / `was already <status>`. Partial transcripts remain on disk. |
-| `subagent_check` | `id` | Non-blocking peek: status line, turn count, error text, up to 2KB/20 lines of latest output (includes the live streaming assistant message). Does not consume the result. |
+| `subagent_wait` | `ids[]` (max 64) | Blocks until all listed subagents settle; respects the tool `AbortSignal`; streams `Waiting for ...` via `onUpdate`. Consumes only settled outputs included in the successful response, not sections omitted by the response budget or mere in-flight wait interest. Output budgets: 48KB total, 16KB per agent, with per-section fallbacks (`[omitted: ...]`). Errors on unknown ids (lists known ids). |
+| `subagent_cancel` | `ids[]` | Aborts running subagents, waits for settlement, reports per-id `Cancelled ...` / `was already <status>`. Consumes only settled results actually exposed in a successful response, never from cancellation interest alone. Partial transcripts remain on disk. |
+| `subagent_check` | `id` | Non-blocking peek: status line, turn count, error text, up to 2KB/20 lines of latest output (includes the live streaming assistant message). Consumes pending completion only if the full settled result fits the preview and is successfully returned; live or truncated previews do not consume. |
 | `subagent_list` | — | One `describeSubagent()` line per agent: `id [status] "title" (provider/model, ctx%, elapsed, cwd)`. |
 
 Prompt metadata (all strings live in `prompt.ts`): `subagent_spawn` has a
@@ -55,8 +56,8 @@ the concurrency cap, and that children can't orchestrate/see the parent conversa
   `stopReason === "error" | "aborted"`, error text bounded to 4096 chars.
 - Change notification: `addChangeListener()` + `nextChange(signal)` promise — used by
   `waitFor`, the footer status, and the dashboard.
-- `waitFor(ids, signal, onPending)` keeps a `waitInterest` refcount per id so settles
-  during an active wait are marked consumed.
+- `waitFor(ids, signal, onPending)` tracks wait interest for coordination/pruning, not
+  delivery acknowledgment. Settling during an active wait does not consume the result.
 - `send(sub, text)`: steer via `session.steer()` while streaming, else start a fresh
   `prompt()` run (used by takeover).
 - Caps and cleanup: `MAX_RUNNING = 4`, `MAX_TRACKED = 64` with LRU pruning of settled
@@ -65,17 +66,43 @@ the concurrency cap, and that children can't orchestrate/see the parent conversa
 
 ### 1.3 Result delivery back to the parent
 
-- When a child settles **unconsumed**, `onSettled` defers it into a tiny
-  `createDeferredResultDelivery` buffer (defer/consume/drain/clear keyed by id).
-- Flush happens when the parent goes idle: immediately if `sessionContext.isIdle()`,
-  otherwise on the parent's `agent_settled` event. A later `subagent_wait` can still
-  consume a deferred result before flush (that's why it is a buffer, not an immediate
-  send).
-- Delivery = `pi.sendMessage({ customType: "subagent-result", content, display: true,
-  details: { id, title, status } }, { deliverAs: "followUp", triggerTurn: true })`.
-  Content is built by `buildSubagentResultMessage` (`Subagent sa-N "title"
-  finished/failed.` + optional `Error:` line + output truncated to 24KB/600 lines with a
-  pointer to the child session file for the full transcript).
+- `onSettled` defers a copied snapshot into `createCompletionDelivery` from
+  `../shared/completion-delivery.ts`, used by both extension indexes. Pending results
+  remain retractable until the safe boundary or successful tool exposure.
+- At a parent **tool or successful tool-free `turn_end`**, synchronously collect
+  pending results across both extensions through the `pi.events` channel
+  `dotfiles:collect-completions:v1`, scoped to the same session. Submit one shared
+  `pi.sendMessage` batch with `{ deliverAs: "steer", triggerTurn: true }`, not separate
+  per-extension messages that add turns under Pi's default one-at-a-time steering queue.
+- While user messages are queued, keep completions local and retractable. Those responses
+  can collect results or fail; do not leave an irrevocable completion behind them in Pi's
+  queue that duplicates tool output or restarts a failed run.
+- Late idle/`agent_settled` arrivals use the same shared steer-true fallback. There is
+  no per-result drain/send loop or `agent_settled` backlog. Repeated hooks must not
+  resubmit a delivered or in-flight batch.
+- Actual Pi fake-model testing showed that `triggerTurn: false` appends context-only
+  messages to session state, not active-loop context. It cannot inject completions
+  into the already-required next request; always use steer with `triggerTurn: true`.
+- Retain queued snapshots and their shared `completionDeliveryId` token until a matching
+  custom `message_end` acknowledges delivery. Neither context-only submission nor a
+  `context` event acknowledges it. Synchronous submission failure releases the guard
+  for retry without dropping pending results. Pi's void extension API does not expose
+  asynchronous send failures; the call returning is not a delivery acknowledgment.
+- Parent abort/error, including an aborted turn signal, pauses automatic wake-up until
+  the next `agent_start`; idle/`agent_settled` must not restart that run. When paused,
+  `agent_settled` releases the submission guard because queued steering may have been
+  discarded, retaining pending results. `session_shutdown` clears pending and submitted
+  state and disables late-callback delivery.
+- Only successful returned tool exposure consumes pending results: `subagent_check`
+  requires the full settled result to fit its preview; `subagent_wait` consumes only
+  included outputs, leaving budget-omitted sections pending. Aborted/failed waits and
+  mere in-flight wait/cancel interest do not consume.
+- Single-source batches retain `subagent-result` or `background-terminal-result` and
+  their registered renderers; mixed-source batches use `background-completions` with
+  Pi's default renderer. Preserve per-result identity, status, error text, truncated
+  output, and full-transcript pointers. Bound combined batches and individual sections.
+  Pending-map bookkeeping alone is not proof of delivery or model-request counts;
+  test actual Pi lifecycle integration (§4).
 
 ### 1.4 UI (carried over into v2 essentially as-is)
 
@@ -356,18 +383,16 @@ Behavior preserved from v1, expressed in Effect terms:
   counts *running* agents across all backends (see Open Questions for per-backend caps).
 - **Settlement**: the per-subagent event pump fiber updates the snapshot on every event;
   on `RunSettled` it computes `status`/`errorText` (bounded to 4096 chars) and invokes
-  the settle hook with `consumed = waitInterest > 0`. `waitFor` keeps the same
-  wait-interest refcounts (a `Ref<Map<string, number>>`) and wakes on snapshot changes
-  (a `Latch`/`PubSub`-based "next change" primitive replacing v1's resolver array).
-- **Cancel**: mark consumed → `session.interrupt` with 5s bound → close scope on
-  timeout → wait for settle. Same "already \<status\>" reporting.
+  the settle hook without treating wait interest as consumption. `waitFor` retains
+  coordination/pruning interest and wakes on snapshot changes; the tool edge consumes
+  only outputs included in its successful response.
+- **Cancel**: `session.interrupt` with 5s bound → close scope on timeout → wait for
+  settle. Same "already \<status\>" reporting; do not pre-consume before interruption.
 - **Pruning**: `MAX_TRACKED = 64`, oldest settled non-wait-interested entries pruned by
   closing their scopes; cleanup tracked so `disposeAll` can await it.
-- **Settle → result delivery hook**: the manager exposes `onSettled` wiring identical in
-  spirit to v1: the extension layer registers a callback that defers into the
-  `result-delivery` buffer and flushes on parent idle / `agent_settled`. The
-  `createDeferredResultDelivery` module is copied over unchanged (it is pure and already
-  has a test).
+- **Settle → result delivery hook**: the extension registers `onSettled` to defer copied
+  snapshots into the shared completion scheduler (§1.3). The helper owns turn-boundary,
+  idle, abort/error, and shutdown scheduling; the manager owns child settlement.
 
 ### 3.6 Synchronous read model for the TUI (`src/read-model.ts`)
 
@@ -429,9 +454,9 @@ Layer graph:
   dashboard gain the backend name (e.g. `sa-3 [running] "title" (codex, gpt-5-codex,
   41%/272k, 1m32s, /repo)`).
 - `pi.registerMessageRenderer("subagent-result", ...)`, `pi.registerCommand(
-  "subagents", ...)`, footer status updates, and the result-delivery flush hooks
-  (`agent_settled`, idle-check on settle) are wired exactly like v1 — these all live
-  outside the runtime and call into it only via `runPromise`/the read model.
+  "subagents", ...)`, and footer status updates remain outside the runtime and call
+  into it only via `runPromise`/the read model. Completion lifecycle hooks belong to
+  `../shared/completion-delivery.ts` (§1.3), not a local idle-only flush.
 
 ### 3.8 What the stubs do (v1 of this extension)
 
@@ -490,8 +515,6 @@ views are exercised end to end:
     │                          # cancel, prune, settle hook, event-fold into snapshots
     ├── read-model.ts          # sync SubagentReadModel bridge for the TUI
     ├── runtime.ts             # AppLayer composition + ManagedRuntime create/dispose helpers
-    ├── result-delivery.ts     # deferred delivery buffer (copied from v1, unchanged)
-    ├── result-delivery.test.ts
     ├── prompt.ts              # all model-facing strings (v1 copy + `agent` param description)
     ├── format.ts              # elapsed/context-utilization/activity-status formatting
     │                          # (merged copies of ../shared/{context-utilization,activity-status}.ts)
@@ -508,9 +531,40 @@ Notes:
   `backends/pi.ts` when implemented. The `resolveStandaloneChildProjectTrust` logic *is*
   still referenced by the design (SpawnTask.parentContext.projectTrusted) so the tool
   layer computes trust the same way v1 does.
-- Suggested project scripts (per house rules, to be added): `check` (`tsc --noEmit`),
-  `test` (`node --test` or vitest for `result-delivery` + manager fold tests against
-  stub backends).
+- Both indexes import `../shared/completion-delivery.ts`. The obsolete per-extension
+  `src/result-delivery.ts` maps and their local tests have been removed; shared helper
+  tests live in `../shared/completion-delivery.test.ts`.
+- Verification: package-local `npm run check` and `npm test`; keep manager tests against
+  stub backends and completion scheduling/tool-consumption tests at the package root.
+
+### Completion scheduling regression strategy
+
+Shared helper tests and `../shared/completion-delivery.integration.test.mjs` exercise
+actual Pi `AgentSession` scheduling with a fake model. Fake-host/map-only tests cannot prove
+active-loop visibility or model-request counts. Keep coverage for:
+
+- Terminal and subagent completions during a tool turn → synchronous event-bus collection
+  into one shared `steer`, `triggerTurn: true` batch in the already-required next request,
+  with no per-source extra turns, including concurrent steering.
+- Successful tool-free `turn_end`, idle arrival, and `agent_settled` late fallback →
+  same shared steer-true batch; repeated/overlapping hooks do not duplicate it, and no
+  backlog waits for `agent_settled`.
+- Single-source custom types/renderers survive; mixed batches use `background-completions`.
+  Queued submission remains until token-matched custom `message_end`, never acknowledged
+  by context-only submission or a `context` event. Demonstrate steer-false appends to
+  session state without updating active-loop context.
+- Parent abort/error → no auto wake until `agent_start`; shutdown drops pending results
+  and ignores late callbacks. Cover acknowledgment and failed-submission orderings.
+- Full settled `subagent_check` preview consumes; running or truncated previews do not.
+  Successful `subagent_wait` consumes included outputs only; omitted sections remain
+  pending. Aborted/failed waits and cancellation interest alone never consume.
+- Mirror successful-return versus aborted-kill/status consumption cases in
+  background-terminals. Check combined output budgets and retrieval pointers.
+
+Validate real pi event ordering and request counts with completions during tool execution,
+after the final tool-free turn, and while idle; delegate interactive testing to a Codex
+subagent. These are verification requirements, not claims that this documentation edit
+ran the tests.
 
 ---
 
