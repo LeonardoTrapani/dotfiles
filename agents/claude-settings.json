@@ -1,18 +1,20 @@
 {
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "^(startup|resume|clear|compact|fork)$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash '/Users/LeonardoTrapani/.claude/hooks/herdr-agent-state.sh' session",
-            "timeout": 10
-          }
-        ]
-      }
+  "permissions": {
+    "deny": [
+      "Bash(glab mr merge:*)",
+      "Bash(glab mr approve:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh pr review --approve:*)",
+      "Bash(git push origin master:*)",
+      "Bash(git push origin HEAD:master:*)",
+      "Bash(git push --force origin master:*)",
+      "Bash(glab api -X POST:*)",
+      "Bash(glab api -X PUT:*)",
+      "Bash(glab api -X DELETE:*)",
+      "Bash(glab api --method:*)"
     ]
   },
+  "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark",
   "tui": "fullscreen"
