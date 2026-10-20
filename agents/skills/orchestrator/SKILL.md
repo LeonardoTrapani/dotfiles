@@ -11,7 +11,7 @@ Every write to the checkout stays with you. Work too big for one thread splits i
 
 1. Implement the change.
 
-2. Run the **review loop** before the first push: a subagent from another provider runs the `review` skill on the whole diff. Fix every hard violation and every Spec finding it raises.
+2. Run the **review loop** before the first push: a subagent from another provider runs the `code-review` skill on the whole diff. Fix every hard violation and every Spec finding it raises.
 
 3. Push, then follow the pipeline. Fix each failure and push again until the merge request is green and up to date with its target branch.
 

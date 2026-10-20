@@ -1,7 +1,8 @@
 ---
-name: review
-description: Use when reviewing a branch, a merge request or a diff since a fixed point, on Standards and Spec.
+name: code-review
+description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
 ---
+
 Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 - **Standards**: does the code conform to this repo's documented coding standards?
@@ -9,11 +10,13 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
 
+The issue tracker should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`.
+
 ## Process
 
 ### 1. Pin the fixed point
 
-Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). If they didn't specify one, use the merge-base with the branch's merge request target, or the default branch when there is no merge request.
+Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). If they didn't specify one, ask for it.
 
 Capture the diff command once: `git diff <fixed-point>...HEAD` (three-dot, so the comparison is against the merge-base). Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
 
@@ -23,16 +26,14 @@ Before going further, confirm the fixed point resolves (`git rev-parse <fixed-po
 
 Look for the originating spec, in this order:
 
-1. The ticket named in the branch or the commit messages (a Jira key such as `DOS-514`, read with `acli`; a GitHub or GitLab issue, read with `gh` or `glab`).
+1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched via the workflow in the tracker doc.
 2. A path the user passed as an argument.
-3. The description of the branch's merge request.
-4. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
-
-If nothing is found, the **Spec** sub-agent skips and reports "no spec available".
+3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
+4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
 
 ### 3. Identify the standards sources
 
-Anything in the repo that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
+Search the repo for every file that documents how code should be written. When `CODING_STANDARDS.md` or `CONTRIBUTING.md` exists, it must be on the list.
 
 On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below: a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
 
@@ -55,6 +56,8 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 - **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
 
 ### 4. Spawn both sub-agents in parallel
+
+Issue both sub-agent calls together, in the foreground, and aggregate the reports they return.
 
 **Standards sub-agent prompt** should include:
 
@@ -84,5 +87,3 @@ A change can pass one axis and fail the other:
 - Code that does exactly what the issue asked but breaks the project's conventions → **Spec pass, Standards fail.**
 
 Reporting them separately stops one axis from masking the other.
-
-Agent metadata: `agents/openai.yaml`
