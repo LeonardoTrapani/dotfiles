@@ -1,6 +1,6 @@
 ---
 name: environment
-description: Use before the first command of a session, and before a step that needs an account, a secret, a dashboard or an external service.
+description: Use before the first command of a session, a recording or proof video, and before a step that needs an account, a secret, a dashboard or an external service.
 ---
 
 This machine is one Mac running Claude Code and Codex. Before asking the user for access, check whether you already have it:
@@ -16,3 +16,8 @@ This machine is one Mac running Claude Code and Codex. Before asking the user fo
 - **A secret the user must type**: `request_secret`.
 
 For any other service, account or integration, search the **Executor** MCP first, then call `invoke` with the tool it returns.
+
+## Video
+
+Before a recording or proof video, read [references/video.md](references/video.md)
+for capture, storyboard, camera targets, composition and verification.
