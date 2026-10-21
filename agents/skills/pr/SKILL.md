@@ -5,12 +5,10 @@ description: Use when creating or updating a pull request or merge request, or w
 
 ## Repository conventions
 
-Read the repository's instructions and applicable PR or MR template before writing.
-On GitLab, look in `.gitlab/merge_request_templates/`, using `Default.md` unless
-the repository or user selects another template. On GitHub, look for the repository's
-pull request template. Preserve required sections and checklists; mark an item
-complete only when its requirement has been met. Without a template, choose headings
-that fit the change.
+Follow the repository's contribution instructions and requested PR or MR structure.
+Preserve required sections and checklists; mark an item complete only when its
+requirement has been met. Where no structure is prescribed, choose headings that
+fit the change.
 
 ## Title and body
 
@@ -36,10 +34,11 @@ failure paths when they matter. An HTML mock or animation of intended behavior d
 not prove the implementation works.
 
 Compare before and after on the same data when needed. For a recording or proof
-video, read the [video reference](../environment/references/video.md) for capture,
-composition and verification.
+video, read the [video reference](../environment/references/video.md) for delegating
+the capture and verifying its output.
 
-Inspect each capture and embed it under its claim. On GitHub, keep an uploaded video
+Upload each reviewed capture through the host's attachment flow and embed it under
+its claim. On GitHub, keep an uploaded video
 URL alone in its paragraph so it renders as a player. Command output supports,
 rather than replaces, feasible captures. For text-only changes, show the relevant
 document or checked example. If capture is unavailable or nothing runs, state the
