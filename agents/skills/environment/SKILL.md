@@ -19,5 +19,6 @@ For any other service, account or integration, search the **Executor** MCP first
 
 ## Video
 
-Before a recording or proof video, read [references/video.md](references/video.md)
-for delegating the capture to Codex and verifying its exported evidence.
+Before making any video, read [references/video.md](references/video.md): videos
+are made with Psychopomp, narrated with ElevenLabs, and real captures are delegated
+to Codex.
