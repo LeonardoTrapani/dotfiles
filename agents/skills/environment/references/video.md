@@ -8,12 +8,13 @@ recent Rust toolchain, the GPU, FFmpeg with `libx264` and Bun. `cargo` lives in
 
 ## Narration
 
-Voice narration with ElevenLabs. The key is the `credential` field of the
-"Elevenalbs personal API Credentials" item in the Personal vault of 1Password.
-Read it in the same command that uses it:
+Voice narration with ElevenLabs. Find the API key in 1Password: list the API
+credentials in the Personal vault, pick the ElevenLabs one, and read its
+`credential` field in the same command that uses it:
 
 ```sh
-ELEVENLABS_API_KEY="$(op read 'op://Personal/qmw6fkw67intohikok2b65u6yq/credential')" \
+op item list --categories "API Credential" --vault Personal
+ELEVENLABS_API_KEY="$(op read 'op://Personal/<item>/credential')" \
   bun scripts/narrate.ts scenes/<name>/narration/script.json
 ```
 

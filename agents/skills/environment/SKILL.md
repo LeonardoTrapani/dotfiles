@@ -10,7 +10,7 @@ This machine is one Mac running Claude Code and Codex. Before asking the user fo
 - **Jira**: `acli`, signed in.
 - **AWS**: `aws`. When the token has expired, run `aws sso login` and give the user the printed URL.
 - **1Password**: `op`. Each new shell waits for the user's approval in the app, so read a secret and use it in the same command.
-- **Voice**: generate speech with ElevenLabs. Read its key with `op read 'op://Personal/qmw6fkw67intohikok2b65u6yq/credential'` in the command that calls it.
+- **Voice**: generate speech with ElevenLabs. Find its API key in 1Password with `op item list --categories "API Credential" --vault Personal`, and read it in the command that calls ElevenLabs.
 - **Product analytics**: `posthog-cli`.
 - **Dual**: the `dual` MCP server.
 - **A dashboard behind the user's login**: a Codex subagent with computer use on the user's Chrome, read-only unless the user asked for a change.
