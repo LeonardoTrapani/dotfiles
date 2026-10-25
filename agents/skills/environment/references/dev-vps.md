@@ -27,6 +27,12 @@ The T3 server is the `t3code.service` user unit on `100.98.212.117:3773`. The Ma
 
 An OpenVPN split tunnel, the system unit `openvpn-client@datapizza`, routes only Datapizza services such as `git.datapizza.tech` through `tun0`. It signs in with the user's own Google SSO.
 
+dev-vps shares the tunnel with the tailnet as a subnet router: it advertises every `/32` route the VPN pushes on `tun0`, with IPv4 forwarding on (`/etc/sysctl.d/99-tailscale-subnet-router.conf`), so the Mac and the phone reach Datapizza services through it without their own VPN. When the VPN pushes different routes, advertise them again and ask the user to approve the new ones at https://login.tailscale.com/admin/machines:
+
+```bash
+sudo tailscale set --advertise-routes="$(ip -4 route show dev tun0 | awk '$1 !~ /^172\.31\.80\./ {r=$1; if (r !~ /\//) r=r"/32"; print r}' | paste -sd,)"
+```
+
 When `git.datapizza.tech` stops answering, run `vpn-login-url` (`/usr/local/bin`; it re-runs itself under sudo). It prints the unit's state and any pending login link; give the user that link right away, because it expires after about 3 minutes. With no link pending and the tunnel down, ask the user before `sudo systemctl restart openvpn-client@datapizza`, because the profile allows one session and the restart disconnects the Mac. Then run `vpn-login-url` again for the new link.
 
 ## Update

@@ -19,7 +19,7 @@ T3 tools reach only the threads of the machine you are on, and agents do not SSH
 Before asking the user for access, check whether you already have it.
 
 - **GitHub**: `gh`, signed in.
-- **GitLab** (`git.datapizza.tech`): `glab`, signed in. It answers only through the Datapizza VPN, and one VPN session is allowed at a time, so the Mac and `dev-vps` cannot both be connected. On the Mac, ask the user to reconnect; on `dev-vps`, follow [Datapizza VPN](references/dev-vps.md#datapizza-vpn). Carry on with everything else meanwhile.
+- **GitLab** (`git.datapizza.tech`): `glab`, signed in. It answers only through the Datapizza VPN, which runs on `dev-vps` and reaches the Mac through the tailnet; the Mac never connects its own VPN, because one session is allowed and it would drop `dev-vps`'s. When GitLab stops answering, follow [Datapizza VPN](references/dev-vps.md#datapizza-vpn) on `dev-vps`, or from the Mac ask the user to run `vpn-login-url` there. Carry on with everything else meanwhile.
 - **A secret the user must type**: `request_secret`.
 
 Only on the Mac; from `dev-vps`, ask the user to run the step there:
