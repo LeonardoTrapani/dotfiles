@@ -65,6 +65,7 @@ Neovim installs [vim-herdr-navigation](https://github.com/paulbkim-dev/vim-herdr
 - `macos/setup.sh` - macOS/Homebrew setup with safe conflict backups
 - `macos/verify.sh` - verify linked tools and GitHub SSH authentication
 - `scripts/setup-nvim.sh` - nvim dependencies
+- `preview` (in `bin`) - serve a worktree's dev server over tailnet HTTPS (Linux servers)
 - `scripts/setup-trezor.sh` - Trezor udev rules
 
 ## 1Password SSH
