@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Serve this worktree's dev server over tailnet HTTPS, one preview per worktree.
+#   preview '<command>'  start or restart it; <command> must listen on 127.0.0.1:$PORT
+#   preview url          print its URL
+#   preview log          print its output
+#   preview stop         stop it and remove its tailnet mapping
+set -euo pipefail
+
+command -v systemd-run >/dev/null || { echo "preview needs systemd (dev-vps)" >&2; exit 1; }
+
+root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+hash=$(printf %s "$root" | sha256sum | cut -c1-4)
+unit=preview-${root##*/}-$hash
+port=$((20000 + 0x$hash % 10000))
+log=${XDG_RUNTIME_DIR:-/tmp}/$unit.log
+# Serve itself listens on the tailnet address; any other listener owns the port.
+port_taken() { ss -ltnH "sport = :$port" | grep -qv tailscale0; }
+url() { echo "https://$(tailscale status --json | jq -r '.Self.DNSName | rtrimstr(".")'):$port"; }
+
+case "${1:-}" in
+  url) url; exit ;;
+  log) cat "$log"; exit ;;
+  stop)
+    # Leave the mapping alone when another worktree's server holds this port.
+    if systemctl --user is-active -q "$unit" || ! port_taken; then
+      systemctl --user stop "$unit" 2>/dev/null || true
+      tailscale serve --https="$port" off >/dev/null 2>&1 || true
+    fi
+    exit ;;
+  "" | -h | --help) sed -n '2,6s/^# //p' "$0"; exit 2 ;;
+esac
+
+systemctl --user stop "$unit" 2>/dev/null || true
+systemctl --user reset-failed "$unit" 2>/dev/null || true
+if port_taken; then
+  echo "Port $port is taken by another process; stop it or run from another path." >&2
+  exit 1
+fi
+systemd-run --user --quiet --collect --same-dir --unit "$unit" \
+  -p StandardOutput="truncate:$log" \
+  -E PATH="$PATH" -E HOST=127.0.0.1 -E PORT="$port" \
+  bash -c "$*"
+
+tailscale serve --bg --https="$port" "http://127.0.0.1:$port" >/dev/null \
+  || { systemctl --user stop "$unit"; exit 1; }
+
+url=$(url)
+deadline=$((SECONDS + 180))
+while ((SECONDS < deadline)); do
+  # Through the tailnet, so the first request also provisions the certificate.
+  # Serve answers 502 until the app listens; any other status means it is up.
+  code=$(curl -s -o /dev/null -w '%{http_code}' -m 20 "$url" || true)
+  # A unit that lost the port to another server has exited by now.
+  if [[ $code != 000 && $code != 502 ]] && systemctl --user is-active -q "$unit"; then
+    echo "$url"
+    exit
+  fi
+  systemctl --user is-active -q "$unit" || break
+  sleep 1
+done
+echo "Preview did not answer on port $port. Output:" >&2
+tail -n 30 "$log" >&2
+systemctl --user stop "$unit" 2>/dev/null || true
+port_taken || tailscale serve --https="$port" off >/dev/null 2>&1 || true
+exit 1
