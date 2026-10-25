@@ -37,7 +37,7 @@ stow -D <package> # uninstall
 
 | Package | Contents |
 |---------|----------|
-| `bash` | Shared cross-platform .bashrc with Linux/Omarchy and macOS branches |
+| `bash` | Shared .bashrc; hosts without Omarchy (macOS, Linux servers) get the portable Omarchy defaults |
 | `bash-macos` | macOS login, Readline, and login-banner configuration |
 | `git-macos` | macOS Git configuration |
 | `ghostty-macos` | Ghostty configured to launch Homebrew Bash |

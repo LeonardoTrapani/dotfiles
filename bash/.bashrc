@@ -3,13 +3,16 @@
 
 IS_MACOS=false
 [[ $(uname -s) == Darwin ]] && IS_MACOS=true
+OMARCHY_RC="$HOME/.local/share/omarchy/default/bash/rc"
+HAS_OMARCHY=false
+[[ -f "$OMARCHY_RC" ]] && HAS_OMARCHY=true
 
 # Private environment variables (not committed).
 [[ -f "$HOME/.bash_env" ]] && source "$HOME/.bash_env"
 
-# Omarchy provides these defaults on Linux. Reproduce the portable subset only
-# on macOS, where the Omarchy runtime is not installed.
-if "$IS_MACOS"; then
+# Omarchy provides these defaults. Reproduce the portable subset wherever the
+# Omarchy runtime is not installed (macOS, headless Linux servers).
+if ! "$HAS_OMARCHY"; then
   shopt -s histappend
   HISTCONTROL=ignoreboth
   HISTSIZE=32768
@@ -21,8 +24,7 @@ if "$IS_MACOS"; then
 fi
 
 # Load Omarchy defaults when this config is used on an Omarchy installation.
-[[ -f "$HOME/.local/share/omarchy/default/bash/rc" ]] \
-  && source "$HOME/.local/share/omarchy/default/bash/rc"
+"$HAS_OMARCHY" && source "$OMARCHY_RC"
 
 export EDITOR=nvim
 export VISUAL=nvim
@@ -63,9 +65,9 @@ alias ccc='claude --dangerously-skip-permissions --continue'
 alias cx='codex --dangerously-bypass-approvals-and-sandbox'
 alias h='herdr'
 
-# Omarchy-style file navigation and previews. Linux receives these from the
-# sourced Omarchy runtime; macOS uses the local equivalents below.
-if "$IS_MACOS"; then
+# Omarchy-style file navigation and previews. Omarchy installations receive
+# these from the sourced runtime; everywhere else uses the local equivalents.
+if ! "$HAS_OMARCHY"; then
   if command -v eza >/dev/null 2>&1; then
     alias ls='eza -lh --group-directories-first --icons=auto'
     alias lsa='ls -a'
@@ -126,7 +128,7 @@ export _ZO_DOCTOR=0
 
 command -v pyenv >/dev/null 2>&1 && eval "$(pyenv init - bash)"
 
-if "$IS_MACOS"; then
+if ! "$HAS_OMARCHY"; then
   if [[ ${TERM:-} != dumb ]] && command -v starship >/dev/null 2>&1; then
     eval "$(starship init bash)"
   fi
@@ -140,8 +142,10 @@ if command -v fzf >/dev/null 2>&1; then
   eval "$(fzf --bash)"
 fi
 
-if [[ -r /opt/homebrew/etc/profile.d/bash_completion.sh ]]; then
+if "$IS_MACOS" && [[ -r /opt/homebrew/etc/profile.d/bash_completion.sh ]]; then
   source /opt/homebrew/etc/profile.d/bash_completion.sh
+elif ! "$HAS_OMARCHY" && [[ -r /usr/share/bash-completion/bash_completion ]]; then
+  source /usr/share/bash-completion/bash_completion
 fi
 
 # Compile a LaTeX file, watch its directory, and clean generated artifacts.
