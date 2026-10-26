@@ -5,7 +5,7 @@ Contabo VPS on Ubuntu 24.04, reachable only through the tailnet (ufw drops every
 ## Toolchain
 
 - **System:** git, `gh`, tmux, jq, Node, build tools from apt; Tailscale; unattended upgrades.
-- **CLI tools** through mise (`~/.config/mise/config.toml`): neovim, ripgrep, fd, fzf, bat, eza, starship, zoxide, delta, git-lfs, herdr, uv, tmuxp.
+- **CLI tools** through mise (`~/.config/mise/config.toml`): neovim, ripgrep, fd, fzf, bat, eza, starship, zoxide, delta, git-lfs, herdr, uv, tmuxp, bun 1.4.2 (pinned to match `packageManager` in `dual`).
 - **GNU Stow** built into `~/.local`.
 - **npm globals** in `~/.npm-global`: Claude Code, Codex, `hunkdiff` (the `hunk` Git pager), `@posthog/cli`.
 - **Service CLIs:** `acli` and `glab` in `~/.local/bin`, the AWS CLI in `~/.local/aws-cli`, the 1Password CLI from its apt repository.
