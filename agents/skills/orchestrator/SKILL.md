@@ -17,4 +17,6 @@ Every write to the checkout stays with you. Work too big for one thread splits i
 
 4. Hand the pipeline to the host: call `watch_pull_request` on the request and end the turn with its URL. The host wakes the thread when checks finish, someone comments or the branch conflicts. On each wake, fix each failure, push again and update the PR text if a fix changes its claims, then watch again. When the request is green and up to date with its target branch, call `unwatch_pull_request` and report it. Without `watch_pull_request`, follow the pipeline inside the turn.
 
-Wait for subagents and long local commands inside the turn, and reply once per turn, with no progress updates before that reply.
+Reply once per turn, with no progress updates before that reply. Wait inside the turn for subagents and local commands that finish within about ten minutes; start a longer run in the background, end the turn with one line naming what is running, and let its notification wake you, so the user can steer in between.
+
+**Checkpoint** with the user when a finding changes the plan they agreed to: a blocker the plan did not foresee, a policy the change would alter, a limit it has to respect. End the turn with the finding and your recommendation before building on it.
