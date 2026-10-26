@@ -7,7 +7,10 @@ Contabo VPS on Ubuntu 24.04, reachable only through the tailnet (ufw drops every
 - **System:** git, `gh`, tmux, jq, Node, build tools from apt; Tailscale; unattended upgrades.
 - **CLI tools** through mise (`~/.config/mise/config.toml`): neovim, ripgrep, fd, fzf, bat, eza, starship, zoxide, delta, git-lfs, herdr, uv, tmuxp.
 - **GNU Stow** built into `~/.local`.
-- **npm globals** in `~/.npm-global`: Claude Code, Codex, `hunkdiff` (the `hunk` Git pager).
+- **npm globals** in `~/.npm-global`: Claude Code, Codex, `hunkdiff` (the `hunk` Git pager), `@posthog/cli`.
+- **Service CLIs:** `acli` and `glab` in `~/.local/bin`, the AWS CLI in `~/.local/aws-cli`, the 1Password CLI from its apt repository.
+- **1Password:** `~/.local/bin/op`, a machine-local wrapper outside the dotfiles, loads the service account token from `~/.config/op/service-account-token` (mode 0600) and runs `/usr/bin/op`.
+- **MCP servers:** `dual` and `executor`, registered in user scope for `claude-a` and `claude-b` and in `~/.codex/config.toml`, each signed in with OAuth.
 - **Agents:** Codex, and Claude Code as two accounts through the `claude-a` and `claude-b` wrappers (`CLAUDE_CONFIG_DIR` is `~/.claude-a` or `~/.claude-b`).
 - **PATH:** `~/.profile` puts `~/.local/bin`, `~/.npm-global/bin` and the mise shims on `PATH` before it sources `~/.bashrc`, so agent shells and the prompt both find the tools.
 
@@ -50,3 +53,4 @@ On a fresh Ubuntu with Tailscale and the `leo` user:
 5. `nvim --headless "+Lazy! sync" +qa`, then `herdr plugin link ~/.local/share/nvim/lazy/vim-herdr-navigation` and `git lfs install --skip-repo`.
 6. T3 as the `t3code.service` user unit, paired by IP. The VPN unit, its web-login hook and `vpn-login-url` live only on this machine, outside the dotfiles: copy them from a backup of `/etc/openvpn/client`, `/etc/systemd/system/openvpn-client@datapizza.service.d`, `/usr/local/sbin/openvpn-dpz-weblogin` and `/usr/local/bin/vpn-login-url`.
 7. Sign-ins, each link shown to the user: `gh auth login`, `glab auth login --hostname git.datapizza.tech`, `codex login --device-auth`, `claude-a auth login`, `claude-b auth login`.
+8. Service sign-ins. The user runs the interactive ones in a terminal: the service account token into `~/.config/op/service-account-token` with `read -rs` (recreate the `op` wrapper from [Toolchain](#toolchain) first: `[ -z "${OP_SERVICE_ACCOUNT_TOKEN:-}" ] && [ -r <token file> ] && export OP_SERVICE_ACCOUNT_TOKEN=$(cat <token file>); exec /usr/bin/op "$@"`), a Jira API token piped into `acli jira auth login --site datapizza.atlassian.net --email leonardo@datapizza.tech --token`, `posthog-cli login`, and `mcp login --no-browser dual` and `executor` for `claude-a`, `claude-b` and `codex` (register the servers first with `claude mcp add --transport http --scope user` and in `~/.codex/config.toml`). AWS needs the Mac's `~/.aws/config`, then `aws sso login --sso-session datapizza --use-device-code --no-browser`.
