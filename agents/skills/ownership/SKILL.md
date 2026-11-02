@@ -1,7 +1,6 @@
 ---
 name: ownership
-description: Own a change from the first edit until its merge request is green.
-disable-model-invocation: true
+description: Use only when the user says "own it", "have ownership", "take ownership" or types /ownership.
 ---
 
 Own the change until its PR or MR is green and up to date with its target branch; a passing local run, a push or an open request is not done. You make every edit to the checkout. Work too big for one thread splits into one thread per ticket, each in its own worktree.
@@ -9,8 +8,9 @@ Own the change until its PR or MR is green and up to date with its target branch
 1. **Draft.** An open, ready request on this branch goes back to draft before the first edit (`glab mr update <id> --draft`, `gh pr ready <id> --undo`). Only the user marks it ready.
 2. **Implement**, then run the checks that cover the change and fix what it breaks.
 3. **Review** the whole change with the loop below before the first push.
-4. **Publish** once verified, agreed in review and with no question waiting on the user: the `pr` skill, or the repository's instructions and template.
-5. **Watch.** `watch_pull_request`, then end the turn; the host wakes you on checks, comments and conflicts. Each wake: fix, push, update the PR text if its claims changed, watch again. Green and up to date: `unwatch_pull_request`. Without the tool, follow the pipeline inside the turn.
+4. **Prove it end to end** on the reviewed code: drive the real journey the change touches as its user or caller would, in the T3 browser, through the API, the CLI or the app's own interface, following the repository's instructions for running it (or the `run` skill). This is the user's request to use the browser on your own work. A fix that changes behaviour goes back through the review loop. The captures and output become the PR's Evidence; when no end-to-end run is possible, say why and what you proved instead.
+5. **Publish** once proved, agreed in review and with no question waiting on the user: the `pr` skill, or the repository's instructions and template.
+6. **Watch.** `watch_pull_request`, then end the turn; the host wakes you on checks, comments and conflicts. Each wake: fix, push, update the PR text if its claims changed, watch again. Green and up to date: `unwatch_pull_request`. Without the tool, follow the pipeline inside the turn.
 
 ## Review loop
 
