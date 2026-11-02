@@ -9,15 +9,19 @@ Every write to the checkout stays with you. Work too big for one thread splits i
 
 ## Steps
 
-1. Implement the change.
+1. If the branch already has an open PR or MR that is not a draft, mark it as draft before the first edit (`glab mr update <id> --draft`, `gh pr ready <id> --undo`) and say so in the final message. Never mark a request ready yourself, not even when it is green: the user does that.
 
-2. Before the first push, run the **review loop** below on the whole change.
+2. Implement the change.
 
-3. When the change is verified, the review loop has ended in agreement and no unresolved question needs the user's answer, use the `pr` skill when available to push the branch and create or update its PR or MR. Otherwise push and create or update the request following the repository's instructions and template.
+3. Before the first push, run the **review loop** below on the whole change.
 
-4. Hand the pipeline to the host: call `watch_pull_request` on the request and end the turn with its URL. The host wakes the thread when checks finish, someone comments or the branch conflicts. On each wake, fix each failure, push again and update the PR text if a fix changes its claims, then watch again. When the request is green and up to date with its target branch, call `unwatch_pull_request` and report it. Without `watch_pull_request`, follow the pipeline inside the turn.
+4. When the change is verified, the review loop has ended in agreement and no unresolved question needs the user's answer, use the `pr` skill when available to push the branch and create or update its PR or MR. Otherwise push and create or update the request following the repository's instructions and template.
 
-Wait for subagents and long local commands inside the turn, and reply once per turn, with no progress updates before that reply.
+5. Hand the pipeline to the host: call `watch_pull_request` on the request and end the turn with its URL. The host wakes the thread when checks finish, someone comments or the branch conflicts. On each wake, fix each failure, push again and update the PR text if a fix changes its claims, then watch again. When the request is green and up to date with its target branch, call `unwatch_pull_request` and report it. Without `watch_pull_request`, follow the pipeline inside the turn.
+
+## Final message
+
+Follow the global rule on the last message of a turn. When this change has a request, the last message also gives its URL, whether it is Draft or Ready, the pipeline result and what is left before merge, merge order included for stacked requests.
 
 ## Review loop
 
