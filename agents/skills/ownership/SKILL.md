@@ -1,6 +1,7 @@
 ---
-name: orchestrator
-description: Use when implementing a change, from the first edit until its merge request is green.
+name: ownership
+description: Own a change from the first edit until its merge request is green.
+disable-model-invocation: true
 ---
 
 Own the change until its PR or MR is green and up to date with its target branch; a passing local run, a push or an open request is not done. You make every edit to the checkout. Work too big for one thread splits into one thread per ticket, each in its own worktree.

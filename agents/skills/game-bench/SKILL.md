@@ -21,9 +21,9 @@ The user names the game when invoking the skill. Work in that game's repository 
 
 3. **Design.** Work the design tree below in the order given, deciding each branch from the rules and the siblings. Put to the user only the branches the siblings do not settle, each with your recommendation. Then show the design as an `html_render` page: the state machine of a game (highlight the states that wake a model), a keep / drop / new comparison against the closest sibling, the runtime, and one rendered wake message. Iterate until the user agrees.
 
-4. **Write `SPEC.md`** with the section skeleton below. It is the single source of truth and the handoff: a new thread on another machine starts from its implementation-method section. Run the review loop of the `orchestrator` skill on it with at most two rounds unless the user asks for more, then open the PR with the `pr` skill.
+4. **Write `SPEC.md`** with the section skeleton below. It is the single source of truth and the handoff: a new thread on another machine starts from its implementation-method section. Run the review loop of [`ownership`](../ownership/SKILL.md) on it with at most two rounds unless the user asks for more, then open the PR with the `pr` skill.
 
-5. **Implement by phases**, one branch and one PR per phase, each with the `orchestrator` skill: scaffold (toolchain copied from the closest sibling, or from scratch with the same choices: the implementer decides and says which in the PR) → engine → bots, sim and CLI with calibration → agent → worker → web → deploy. Update the spec's status table at the end of every phase.
+5. **Implement by phases**, one branch and one PR per phase, each following [`ownership`](../ownership/SKILL.md): scaffold (toolchain copied from the closest sibling, or from scratch with the same choices: the implementer decides and says which in the PR) → engine → bots, sim and CLI with calibration → agent → worker → web → deploy. Update the spec's status table at the end of every phase.
 
 ## Design tree
 
