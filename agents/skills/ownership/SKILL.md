@@ -8,7 +8,7 @@ Own the change until its PR or MR is green and up to date with its target branch
 1. **Draft.** An open, ready request on this branch goes back to draft before the first edit (`glab mr update <id> --draft`, `gh pr ready <id> --undo`). Only the user marks it ready.
 2. **Implement**, then run the checks that cover the change and fix what it breaks.
 3. **Review** the whole change with the loop below before the first push.
-4. **Prove it end to end** on the reviewed code: drive the real journey the change touches as its user or caller would, in the T3 browser, through the API, the CLI or the app's own interface, following the repository's instructions for running it (or the `run` skill). This is the user's request to use the browser on your own work. A fix that changes behaviour goes back through the review loop. The captures and output become the PR's Evidence; when no end-to-end run is possible, say why and what you proved instead.
+4. **Prove it end to end** on the reviewed code: run the real journey as its user or caller would (T3 browser, API, CLI or the app's own interface), the way the repository says to run it, or with the `run` skill. Run the same journey on the target branch for the Before. Green mocked tests are not proof. This request covers using the browser on your own work. A fix that changes behaviour goes back through the review loop. The captures become the PR's Evidence; if no end-to-end run is possible, say why and what you proved instead.
 5. **Publish** once proved, agreed in review and with no question waiting on the user: the `pr` skill, or the repository's instructions and template.
 6. **Watch.** `watch_pull_request`, then end the turn; the host wakes you on checks, comments and conflicts. Each wake: fix, push, update the PR text if its claims changed, watch again. Green and up to date: `unwatch_pull_request`. Without the tool, follow the pipeline inside the turn.
 
@@ -27,19 +27,15 @@ Report the rounds, the fixed and declined findings with reasons, and the change 
 
 ```text
 Review only. Do not edit, commit, push, comment on PRs, or start subagents.
-Repo: <absolute path>  Base: <sha>
-Intent: <1-2 sentences>  Out of scope: <what this change leaves alone>
-Checks: <results, including missing or already failing checks>
-Standards: <CODING_STANDARDS.md, CONTRIBUTING.md, AGENTS.md...>
-Diff: git diff <base>, plus the untracked files in git status --short.
-Read the surrounding code. Find bugs, broken callers, mismatches with the intent
-and breaches of the standards; flag code, tests or guards the intent does not
-need. Skip style unless it hides a bug or breaks a documented rule.
-blocker = the intended case is wrong.
-should = a real bug callers hit within the intent, or a breach of a documented standard.
-nit = everything else: other paths, rare cases, small costs, extra compatibility.
+Repo: <abs path>  Base: <sha>  Intent: <1-2 sentences>  Out of scope: <scope>
+Checks: <results, missing or already failing>  Standards: <CODING_STANDARDS.md, AGENTS.md...>
+See: git diff <base>; git status --short (read untracked files).
+Read surrounding code. Find bugs, broken callers, mismatches with the intent and
+breaches of the standards. Skip style unless it hides a bug or breaks a documented
+rule. Flag code, tests or guards the intent does not need.
+blocker = intended case wrong. should = real bug callers hit within the intent, or a
+standards breach. nit = the rest: other paths, rare cases, small costs, extra compat.
 Reply:
 VERDICT: APPROVE or CHANGES
-F1 [blocker|should|nit] <file>:<line> <claim>. Fix: <suggestion>
-Keep ids stable across rounds.
+F1 [blocker|should|nit] <file>:<line> <claim>. Fix: <suggestion> (stable ids)
 ```
