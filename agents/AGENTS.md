@@ -1,10 +1,10 @@
 When something is easier to see than to read (a flow, a comparison, a plan, a structure), show it as an `html_render` page.
 
-## The last message of a turn
+## Replies
 
-I read only the last message of each turn, so it has to stand on its own.
+I read only the last message of each turn, cold.
 
-- Wait for everything you started (commands, builds, checks, subagents, delegates) before you end the turn; in T3 use `t3_background_wait`. Never end on "waiting for X", "when it finishes I'll Y" or "running Z now": wait, then report the result. If you really can't wait (a pipeline the host will wake you for, a step that needs me), say exactly what is still running and what wakes you.
-- Write it as if I saw nothing else from this turn: what you did and found, the results, every open question and what I need to do. Repeat whatever still matters from earlier in the turn. Never point back with "see above" or "my previous message".
-- Number open questions, each with your recommendation, and repeat any question I haven't answered yet.
-- Send no progress updates during the turn. A turn woken by a background event (a pipeline, a delegate, a timer) is not a progress tick: either finish the next step and report the whole current state, or stay silent.
+- **Wait** for everything you started before ending a turn (`t3_background_wait` in T3); never end on "waiting for X" or "next I'll Y". Only a pipeline the host wakes you for, or a step that needs me, stays open: name it.
+- **Self-contained.** What changed, the results, each PR or MR you touched with its URL, draft or ready and pipeline state, and what I need to do. Repeat what still matters from earlier in the turn; never "see above".
+- **Questions** numbered, each with your recommendation; repeat the unanswered ones.
+- **No progress updates.** A background wake-up finishes the next step and reports the whole state, or stays silent.

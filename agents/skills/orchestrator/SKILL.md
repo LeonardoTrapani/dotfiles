@@ -3,78 +3,42 @@ name: orchestrator
 description: Use when implementing a change, from the first edit until its merge request is green.
 ---
 
-You own the change until it reaches the **finish line**: its merge request is green and up to date with its target branch. A passing local run, a pushed branch or an open merge request is not the finish line.
+Own the change until its PR or MR is green and up to date with its target branch; a passing local run, a push or an open request is not done. You make every edit to the checkout. Work too big for one thread splits into one thread per ticket, each in its own worktree.
 
-Every write to the checkout stays with you. Work too big for one thread splits into one thread per ticket, each in its own worktree.
-
-## Steps
-
-1. If the branch already has an open PR or MR that is not a draft, mark it as draft before the first edit (`glab mr update <id> --draft`, `gh pr ready <id> --undo`) and say so in the final message. Never mark a request ready yourself, not even when it is green: the user does that.
-
-2. Implement the change.
-
-3. Before the first push, run the **review loop** below on the whole change.
-
-4. When the change is verified, the review loop has ended in agreement and no unresolved question needs the user's answer, use the `pr` skill when available to push the branch and create or update its PR or MR. Otherwise push and create or update the request following the repository's instructions and template.
-
-5. Hand the pipeline to the host: call `watch_pull_request` on the request and end the turn with its URL. The host wakes the thread when checks finish, someone comments or the branch conflicts. On each wake, fix each failure, push again and update the PR text if a fix changes its claims, then watch again. When the request is green and up to date with its target branch, call `unwatch_pull_request` and report it. Without `watch_pull_request`, follow the pipeline inside the turn.
-
-## Final message
-
-Follow the global rule on the last message of a turn. When this change has a request, the last message also gives its URL, whether it is Draft or Ready, the pipeline result and what is left before merge, merge order included for stacked requests.
+1. **Draft.** An open, ready request on this branch goes back to draft before the first edit (`glab mr update <id> --draft`, `gh pr ready <id> --undo`). Only the user marks it ready.
+2. **Implement**, then run the checks that cover the change and fix what it breaks.
+3. **Review** the whole change with the loop below before the first push.
+4. **Publish** once verified, agreed in review and with no question waiting on the user: the `pr` skill, or the repository's instructions and template.
+5. **Watch.** `watch_pull_request`, then end the turn; the host wakes you on checks, comments and conflicts. Each wake: fix, push, update the PR text if its claims changed, watch again. Green and up to date: `unwatch_pull_request`. Without the tool, follow the pipeline inside the turn.
 
 ## Review loop
 
-One reviewer, the latest GPT Sol model, reviews the **change**: the diff from its merge-base with the target branch to the working tree, untracked files included. Keep the change as small as its intent allows: answer each finding with the smallest fix, and push back when a finding is wrong or out of scope.
+One reviewer, the latest GPT Sol model, reviews the diff from the merge-base with the target branch to the working tree, untracked files included. In T3 pick it from `orchestrator_capabilities` and start each round with a new `delegate_task` (`role: "review"`, new `clientRequestId`); elsewhere a native subagent on Sol. No Sol: report the blocker, never switch model.
 
-### Budget
+- **Budget.** 3 rounds; up to 5 only when the user asks, or for security, permissions, auth, data loss or concurrency with a blocker or should still open. Stop when a round returns only nits; declined nits and comment, doc or format fixes need no new round.
+- **Ledger.** Each finding's id, severity and outcome, carried across rounds.
+- **Hands off.** Leave the change untouched while a round runs. A timeout, error or empty reply is not approval: cancel and restart the round with the ledger.
+- **Findings.** Judge each one and its severity yourself: another path, a rare case or a small cost is a nit. Agree with the smallest fix, deleting or narrowing before adding a lock, cache, helper or option, plus one test that fails without it when the intent needs it. Disagree with evidence: file and line, test, output. Decline nits and out-of-scope items in one line as follow-ups. Then re-run the checks and `git diff --shortstat <base>`, and cut back what the review grew. Never agree just to end the loop.
+- **Later rounds** send the same brief, the ledger with each id `fixed`, `disagree` or `declined` plus evidence, and the code changed since; Sol marks each old id `resolved` or `still open: <reason>`. Another round only while the budget lasts and a blocker or should is open, or behaviour changed after Sol's last approval.
+- **End.** Agreed: no blocker or should open, no behaviour change since Sol's last round, no concern of yours. Stuck: a finding disputed after two replies, or the budget spent without approval; show both sides in two or three lines each and let the user decide.
 
-- Run at most 3 rounds. Go up to 5 only when the user asks, or for security, permissions, auth, data loss or concurrency while a blocker or should stays open with evidence.
-- Stop early when a round returns only nits. Declined nits and fixes to comments, docs or formatting need no new round.
-- Keep a **ledger** of each finding's id, severity and outcome.
-
-### Rounds
-
-Before round 1, run the checks that cover the change and fix what the change breaks. In T3, pick the latest Sol model from `orchestrator_capabilities` and start every round with a new `delegate_task` (`role: "review"`, a new `clientRequestId`); elsewhere use a native subagent running Sol. When nothing can run Sol, report the blocker instead of switching to another model.
-
-Leave the change untouched while a round runs. A timeout, an error or an empty reply is not approval: cancel the task and restart the round with the ledger.
-
-Round 1 brief:
+Report the rounds, the fixed and declined findings with reasons, and the change size before and after.
 
 ```text
 Review only. Do not edit, commit, push, comment on PRs, or start subagents.
 Repo: <absolute path>  Base: <sha>
 Intent: <1-2 sentences>  Out of scope: <what this change leaves alone>
 Checks: <results, including missing or already failing checks>
-Standards: <files documenting the repo's coding standards: CODING_STANDARDS.md, CONTRIBUTING.md, AGENTS.md...>
-Diff: git diff <base>; read the untracked files listed by git status --short.
+Standards: <CODING_STANDARDS.md, CONTRIBUTING.md, AGENTS.md...>
+Diff: git diff <base>, plus the untracked files in git status --short.
 Read the surrounding code. Find bugs, broken callers, mismatches with the intent
-and breaches of the standards. Skip style unless it hides a bug or breaks a
-documented rule. Flag code, tests or guards the intent does not need.
+and breaches of the standards; flag code, tests or guards the intent does not
+need. Skip style unless it hides a bug or breaks a documented rule.
 blocker = the intended case is wrong.
-should = a real bug callers will hit within the intent, or a breach of a documented standard.
-nit = everything else: other paths, rare cases, small performance costs, extra compatibility.
+should = a real bug callers hit within the intent, or a breach of a documented standard.
+nit = everything else: other paths, rare cases, small costs, extra compatibility.
 Reply:
 VERDICT: APPROVE or CHANGES
 F1 [blocker|should|nit] <file>:<line> <claim>. Fix: <suggestion>
 Keep ids stable across rounds.
 ```
-
-Later rounds send the same brief and diff command, the ledger with each id marked `fixed`, `disagree` or `declined` plus its evidence, and the code changed since the last round. Sol reviews only that code and the open ids, marking each old id `resolved` or `still open: <reason>`. Start another round only while the budget lasts and a blocker or should is still open, or behaviour changed after Sol's last approval.
-
-### Findings
-
-Check each finding and its severity yourself: another path, a rare case or a small cost is a nit, whatever its label.
-
-- **Agree**: make the smallest fix, deleting or narrowing code before adding a lock, cache, helper or option. Add one focused test that fails without the fix when the intent needs it.
-- **Disagree**: say why, with evidence: a file and line, a test, command output.
-- **Nit or out of scope**: decline in one line and list it as a follow-up.
-
-Then re-run the checks and `git diff --shortstat <base>`; if the review grew the change, cut it back first. Never agree just to end the loop.
-
-### End
-
-- **Agreed**: no blocker or should is open, behaviour has not changed since Sol's last round, and you have no concern of your own. A round with only nits counts as approval.
-- **Stuck**: a finding is still disputed after two replies, or the budget ran out without approval. Show both sides in two or three lines each and let the user decide.
-
-Report the rounds, the model, the fixed and declined findings with their reasons, and the size of the change before and after the review.
