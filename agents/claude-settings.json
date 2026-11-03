@@ -1,10 +1,6 @@
 {
   "permissions": {
     "deny": [
-      "Bash(glab mr merge:*)",
-      "Bash(glab mr approve:*)",
-      "Bash(gh pr merge:*)",
-      "Bash(gh pr review --approve:*)",
       "Bash(git push origin master:*)",
       "Bash(git push origin HEAD:master:*)",
       "Bash(git push --force origin master:*)",
@@ -14,8 +10,8 @@
       "Bash(glab api --method:*)"
     ]
   },
+  "tui": "fullscreen",
   "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
-  "theme": "dark",
-  "tui": "fullscreen"
+  "theme": "dark"
 }
