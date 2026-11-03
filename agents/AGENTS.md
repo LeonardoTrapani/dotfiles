@@ -8,3 +8,5 @@
 ## Subagents
 
 - **Codex** takes read-only work (search, research, review) and browser or computer use: in T3 a `delegate_task` to Codex, inside Codex your own subagent. Edits stay with you.
+
+When delegating to other agents or models, never use Claude Fable models. For Muse, use Muse Wonder, not Muse Spark.
