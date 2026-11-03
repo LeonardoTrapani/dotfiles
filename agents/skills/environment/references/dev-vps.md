@@ -40,6 +40,10 @@ sudo tailscale set --advertise-routes="$(ip -4 route show dev tun0 | awk '$1 !~ 
 
 When `git.datapizza.tech` stops answering, run `vpn-login-url` (`/usr/local/bin`; it re-runs itself under sudo). It prints the unit's state and any pending login link; give the user that link right away, because it expires after about 3 minutes. With no link pending and the tunnel down, ask the user before `sudo systemctl restart openvpn-client@datapizza`, because the profile allows one session and the restart disconnects the Mac. Then run `vpn-login-url` again for the new link.
 
+## Webhooks
+
+Webhooks need a public URL. Funnel publishes one port of 443, 8443 or 10000 on the internet, so expose only the webhook path: `tailscale funnel --bg --https=<port> --set-path <path> http://127.0.0.1:<app port><path>`. Remove it with `... --set-path <path> off` when done.
+
 ## Update
 
 `sudo apt-get update && sudo apt-get upgrade -y`, `mise up`, `npm update -g`, then `git -C ~/dotfiles pull`. Update T3 only with no run active.
