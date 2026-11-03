@@ -240,3 +240,5 @@ dip() {
 lip() {
   pgrep -af "ssh.*-L [0-9]+:localhost:[0-9]+" || echo "No active forwards"
 }
+
+export PATH="/home/leo/.local/bin:$PATH" # added by muse installer
