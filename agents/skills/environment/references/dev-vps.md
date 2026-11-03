@@ -5,11 +5,13 @@ Contabo VPS on Ubuntu 24.04, reachable only through the tailnet (ufw drops every
 ## Toolchain
 
 - **System:** git, `gh`, tmux, jq, Node, build tools from apt; Tailscale; unattended upgrades.
-- **CLI tools** through mise (`~/.config/mise/config.toml`): neovim, ripgrep, fd, fzf, bat, eza, starship, zoxide, delta, git-lfs, herdr, uv, tmuxp, bun 1.4.2 (pinned to match `packageManager` in `dual`).
+- **CLI tools** through mise (`~/.config/mise/config.toml`): neovim, ripgrep, fd, fzf, bat, eza, starship, zoxide, delta, git-lfs, herdr, uv, tmuxp, bun 1.4.2 (pinned to match `packageManager` in `dual`), node 26 (the `engines` floor in `dual`; apt's `/usr/bin/node` is older).
 - **GNU Stow** built into `~/.local`.
 - **npm globals** in `~/.npm-global`: Claude Code, Codex, `hunkdiff` (the `hunk` Git pager), `@posthog/cli`.
 - **Service CLIs:** `acli` and `glab` in `~/.local/bin`, the AWS CLI in `~/.local/aws-cli`, the 1Password CLI from its apt repository.
 - **1Password:** `~/.local/bin/op`, a machine-local wrapper outside the dotfiles, loads the service account token from `~/.config/op/service-account-token` (mode 0600) and runs `/usr/bin/op`.
+- **Project CLIs:** `~/.local/bin/vp`, a machine-local wrapper outside the dotfiles, runs the nearest `node_modules/.bin/vp` from the current directory up; `vpx`, `vpr` and `tsrs` are symlinks to it. So `vp test run <files>` works as `AGENTS.md` in `dual` writes it.
+- **Docker:** `leo` is in the `docker` group, and the drop-in `/etc/systemd/system/docker.socket.d/leo-acl.conf` also grants `leo` the socket by ACL, because T3's user manager keeps the groups it started with. Agents call `docker` directly, never through `sg docker`.
 - **MCP servers:** `dual` and `executor`, registered in user scope for `claude-a` and `claude-b` and in `~/.codex/config.toml`, each signed in with OAuth.
 - **Agents:** Codex, and Claude Code as two accounts through the `claude-a` and `claude-b` wrappers (`CLAUDE_CONFIG_DIR` is `~/.claude-a` or `~/.claude-b`).
 - **PATH:** `~/.profile` puts `~/.local/bin`, `~/.npm-global/bin` and the mise shims on `PATH` before it sources `~/.bashrc`, so agent shells and the prompt both find the tools.
@@ -47,7 +49,7 @@ When `git.datapizza.tech` stops answering, run `vpn-login-url` (`/usr/local/bin`
 On a fresh Ubuntu with Tailscale and the `leo` user:
 
 1. As root: `echo 'leo ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/99-leo-nopasswd && chmod 0440 /etc/sudoers.d/99-leo-nopasswd && visudo -c`, then `tailscale set --operator=leo` so `preview` and Funnel run without sudo, and `loginctl enable-linger leo`.
-2. `sudo apt-get install -y git gh tmux jq nodejs npm build-essential unzip stow`, then [glab](https://gitlab.com/gitlab-org/cli/-/releases) into `~/.local/bin`, `curl -fsSL https://mise.run | sh` and `mise use -g` with the tools above.
+2. `sudo apt-get install -y git gh tmux jq nodejs npm build-essential unzip stow`, then [glab](https://gitlab.com/gitlab-org/cli/-/releases) into `~/.local/bin`, `curl -fsSL https://mise.run | sh` and `mise use -g` with the tools above. Install Docker, `sudo usermod -aG docker leo`, `sudo apt-get install -y acl`, add the docker.socket drop-in from [Toolchain](#toolchain) and run `sudo systemctl daemon-reload`, then create the `vp` wrapper and its symlinks.
 3. `npm config set prefix ~/.npm-global`, `npm install -g @anthropic-ai/claude-code @openai/codex hunkdiff`, and the `claude-a` and `claude-b` wrappers in `~/.local/bin`: each sets `CLAUDE_CONFIG_DIR` and execs `~/.npm-global/bin/claude`.
 4. Clone `~/dotfiles`, back up the conflicting files, stow the packages above, run `agents/setup.sh`, and order `~/.profile` as in [Toolchain](#toolchain).
 5. `nvim --headless "+Lazy! sync" +qa`, then `herdr plugin link ~/.local/share/nvim/lazy/vim-herdr-navigation` and `git lfs install --skip-repo`.
