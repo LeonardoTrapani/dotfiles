@@ -7,3 +7,7 @@ I read only the last message of each turn, cold.
 - **Questions** numbered, each with your recommendation; repeat the unanswered ones.
 - **No progress updates.** A background wake-up finishes the next step and reports the whole state, or stays silent.
 - **Show** what is easier to see than to read (a flow, a comparison, a plan, a structure) as an `html_render` page.
+
+## Subagents
+
+- **Codex** takes read-only work (search, research, review) and browser or computer use: in T3 a `delegate_task` to Codex, inside Codex your own subagent. Edits stay with you.
