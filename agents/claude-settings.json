@@ -4,14 +4,25 @@
       "Bash(git push origin master:*)",
       "Bash(git push origin HEAD:master:*)",
       "Bash(git push --force origin master:*)",
-      "Bash(glab api -X POST:*)",
       "Bash(glab api -X PUT:*)",
-      "Bash(glab api -X DELETE:*)",
-      "Bash(glab api --method:*)"
+      "Bash(glab api -X DELETE:*)"
     ]
   },
   "tui": "fullscreen",
   "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
-  "theme": "dark"
+  "theme": "dark",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/sh -c 'rex __internal session-start --agent claude --feature-session-naming=false 2>/dev/null || true'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
 }
