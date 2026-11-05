@@ -2,10 +2,9 @@
 
 ## Destination and authorization
 
-Use Computer Use when the user asks to prepare the message in their open Discord
-app. Follow the current environment's browser/native-app routing and tool
-documentation. In this session the destination was **Datapizza Space →
-📢┊releases**; verify the current requested destination before writing.
+For the Codex subagent that prepares the message with computer use in the open
+Discord app. The default destination is **Datapizza Space → 📢┊releases**; verify
+the requested destination before writing.
 
 "Prepara il messaggio" means populate an unsent composer and stage the requested
 attachments. Sending requires an instruction to send. Preserve existing user
