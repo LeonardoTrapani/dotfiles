@@ -3,8 +3,8 @@ name: sync-project
 description: >-
   Syncs a project after a release: prepares the Italian release announcement in
   Leonardo's style starting from the last Discord announcement, and brings Jira
-  in line with the MRs (open and ready → To Review, merged but not deployed →
-  To Deploy, deployed → Done). Use for "sync project", "prepara il messaggio di
+  in line with the MRs (open and ready → PR Review, merged but not deployed →
+  To deploy, deployed → Done). Use for "sync project", "prepara il messaggio di
   release", "cosa è uscito?" or "sistema Jira". Does not merge, deploy, or send
   the Discord message unless requested.
 disable-model-invocation: true
@@ -70,14 +70,17 @@ and every file edit stay with you.
 1. **Collect the MRs.** Open MRs, MRs merged since the oldest non-Done issue
    they reference, and the deployed state: the commit running in production
    from the deployment evidence (GitLab environments/deployments, the deploy
-   pipeline, or project guidance). An MR is deployed only when its merge commit
-   is an ancestor of that commit; merged is not deployed.
+   pipeline, or project guidance; in Dual, the newest `dual-release-0.0.<n>`
+   tag). An MR is deployed only when its merge commit is an ancestor of that
+   commit; merged is not deployed. For Dual's DOS board, the `dos-triage`
+   skill's `scripts/audit-jira.py` already computes this.
 2. **Map MRs to issues** through the issue key in branch, title, description or
    commits. Also search the board's non-Done issues with `acli jira workitem
    search --jql` to catch issues whose MR moved on.
-3. **Compute the expected status** of each issue from its least advanced MR:
-   - open and not draft → **To Review**
-   - merged, not deployed → **To Deploy**
+3. **Compute the expected status** of each issue from its least advanced MR,
+   using the board's own status names (DOS: `PR Review`, `To deploy`, `Done`):
+   - open and not draft → **PR Review**
+   - merged, not deployed → **To deploy**
    - deployed → **Done**
    Draft MRs and issues without MRs keep their status.
 4. **Apply forward moves** with `acli jira workitem transition --key ... --status
