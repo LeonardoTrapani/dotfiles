@@ -9,6 +9,7 @@ onboarding = false
 # Follow the terminal palette, like the tmux status theme does.
 name = "terminal"
 
+auto_switch = false
 [theme.custom]
 accent = "blue"
 blue = "blue"
