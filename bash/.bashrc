@@ -49,6 +49,7 @@ path_prepend "/opt/homebrew/bin"
 path_prepend "$PYENV_ROOT/bin"
 path_prepend "$PNPM_HOME"
 path_prepend "$BUN_INSTALL/bin"
+path_prepend "$HOME/.resend/bin"
 path_prepend "$HOME/go/bin"
 path_prepend "$HOME/bin"
 path_prepend "$HOME/.local/bin"
@@ -148,6 +149,10 @@ elif ! "$HAS_OMARCHY" && [[ -r /usr/share/bash-completion/bash_completion ]]; th
   source /usr/share/bash-completion/bash_completion
 fi
 
+if command -v resend >/dev/null 2>&1; then
+  source <(resend completion bash)
+fi
+
 # Compile a LaTeX file, watch its directory, and clean generated artifacts.
 # On macOS, install fswatch; on Linux this continues to use inotifywait.
 latcompile() {
@@ -241,4 +246,9 @@ lip() {
   pgrep -af "ssh.*-L [0-9]+:localhost:[0-9]+" || echo "No active forwards"
 }
 
+[ -f "$HOME/.config/dual/env" ] && source "$HOME/.config/dual/env"
+
+
+# Added by Antigravity CLI installer
+export PATH="/Users/LeonardoTrapani/.local/bin:$PATH"
 export PATH="/home/leo/.local/bin:$PATH" # added by muse installer
