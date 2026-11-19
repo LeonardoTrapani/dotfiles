@@ -1,0 +1,301 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script>
+/* PROTOTYPE DATA. Copy this file to scratch, Read it with limit 36, edit only this script, check the copy
+   with html_preview, then html_render it by path. Never read past this script.
+   DECISIONS    one section each, numbered in order from FIRST: a Today tile and one tile per variant, lettered a, b, c. Play
+                runs `task` in every tile in sync; a clicked tile opens large and plays alone.
+   variants     letter: {parts, path}. parts: words naming what the variant is made of, which view() reads as
+                has.<word>; Today gets has.today. A mix is one more variant listing parts of others. Without
+                variants the decision is a journey: one large tile playing `today`, like a PR video.
+   path, today  target ids in click order; `|` marks the still the tile rests on, else start. Clicks are counted.
+   start        the state every path begins from.
+   FIRST        the number of the first decision: the thread's next free number, so its count never restarts.
+   SIZE, PHONE  the app's desktop (16:9) and phone sizes in real px; tiles only scale down. Phone sets #stage.ph.
+   THEME        the codebase's shadcn tokens, its :root and .dark declarations; empty strings keep T3's.
+   view(s, has) the app's HTML for state s: only the screens the decisions touch, with the app's real labels and data;
+                Today as the current code behaves. The example below is a placeholder to replace whole.
+   k(id, patch, html, class, typed)  a click target merging patch into s, typing `typed` first; a falsy id is inert.
+   Kit          .side .org .nav | main .row .m | .inp .sel .chip .btn .on | .pop .sheet (inline position, width)
+                .scrim > .dlg | .it .f .ft. Use the repository's layout rules, not a page title or toast.
+   A path id with no target on screen logs a console error naming the tile and step. */
+const FIRST = 1, SIZE = [800, 450], PHONE = [390, 760];
+const THEME = { light: '', dark: '' };
+const DECISIONS = [
+  { name: 'Rename', task: 'Rename Project to Atlas', start: {},
+    today: 'menu | settings name save',
+    variants: { a: { parts: 'inline', path: 'title | save' }, b: { parts: 'menu', path: 'menu | rename save' } } }
+];
+function view(s, has) {
+  const name = s.name || 'Project', done = { name: 'Atlas', edit: 0, dlg: 0 };
+  const title = s.edit ? k('save', done, name, 'inp', 'Atlas') : has.inline ? k('title', { edit: 1 }, name) : name;
+  const menu = has.inline ? '' : k('menu', { menu: 1 }, '⋯', 'chip');
+  const item = has.menu ? k('rename', { menu: 0, edit: 1 }, 'Rename', 'it') : k('settings', { menu: 0, dlg: 1 }, 'Settings', 'it');
+  const pop = s.menu ? `<div class=pop style="right:16px;top:40px;width:140px">${item}<span class=it>Archive</span></div>` : '';
+  const dlg = s.dlg ? `<div class=scrim><div class=dlg><div class=f><span class=m>Name</span>${k('name', { draft: 1 }, s.draft ? 'Atlas' : name, 'inp', 'Atlas')}</div><div class=ft>${k('save', done, 'Save', 'btn')}</div></div></div>` : '';
+  return `<div class=side><span class=org><b>A</b>Acme</span><span class="nav on">Projects</span><span class=nav>Members</span></div><main><div class=row>${title}${menu}</div><div class=row><span class=m>Owner</span>You</div>${pop}</main>${dlg}`;
+}
+</script>
+<!-- ENGINE -->
+<style>
+body{margin:0}
+#stage{--p-ring:var(--primary);--on:color-mix(in srgb,var(--foreground) 9%,transparent);display:grid;gap:22px;font:12px/1.35 var(--font-sans);color:var(--foreground);user-select:none}
+#stage *{box-sizing:border-box}
+button{all:unset;padding:0 8px;line-height:20px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;color:var(--muted-foreground)}
+button:hover,[aria-pressed=true]{color:var(--foreground)}[aria-pressed=true]{background:var(--on)}
+.p-top{display:flex;gap:4px}
+.p-hd{display:flex;flex-wrap:wrap;align-items:center;gap:0 8px;margin-bottom:4px;font-size:13px;line-height:22px}
+.p-name{font-weight:500}.p-task{color:var(--muted-foreground);margin-right:auto}
+.p-tl{display:flex;min-width:0;align-items:center;gap:2px}
+.p-beats{display:flex;min-width:0}
+.p-beats i{width:16px;min-width:6px;flex:0 1 16px;height:22px;padding:0 1px;display:grid;align-items:center;cursor:pointer}
+.p-beats span{height:3px;border-radius:2px;overflow:hidden;background:color-mix(in srgb,var(--foreground) 18%,transparent)}
+.p-beats span::after{content:'';display:block;width:0;height:3px;background:var(--foreground)}
+.p-beats .past span::after{width:100%}
+.p-beats .now span::after{animation:p-fill var(--beat) linear forwards}
+.paused .p-beats .now span::after{animation:none;width:100%;background:var(--primary)}
+.p-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(max(min(300px,100%),calc(50% - 4px)),1fr));gap:8px}
+.p-tile{min-width:0;cursor:zoom-in}
+.p-tile.fo .p-fr{border-color:var(--p-ring);outline:1px solid var(--p-ring)}
+.p-view{margin:0 auto 8px;cursor:zoom-out}
+.zm .p-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.zm .p-grid :is(.p-parts,.p-cap,.p-n span){display:none}
+.solo .p-grid{grid-template-columns:1fr}.solo .p-tile{margin:auto;width:100%;cursor:pointer}.solo .p-th{display:none}
+.p-th{display:flex;align-items:center;gap:6px;height:24px;white-space:nowrap}
+.p-id{font:500 12px/16px var(--font-mono);padding:0 5px;border:1px solid var(--input);border-radius:5px}
+.p-parts,.p-n{color:var(--muted-foreground)}.p-n{margin-left:auto}
+.p-cap{position:absolute;left:8px;bottom:8px;z-index:10;padding:2px 8px;border-radius:99px;background:var(--foreground);color:var(--background)}.p-cap:empty{display:none}
+.done .p-n{color:var(--foreground)}
+.p-fr{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:var(--radius)}
+.p-cam{position:absolute;top:0;transform-origin:0 0}
+.p-cur{position:absolute;left:0;top:0;width:13px;height:19px;transform-origin:0 0;scale:var(--k);opacity:0;z-index:9;pointer-events:none;transition:translate .46s cubic-bezier(.4,0,.2,1),opacity .2s}
+.p-rip{position:absolute;left:-14px;top:-14px;width:28px;height:28px;border-radius:50%;border:2px solid var(--primary);opacity:0;z-index:8;pointer-events:none}
+@keyframes p-fill{to{width:100%}}
+@keyframes p-pop{from{opacity:0;scale:.96}}
+@keyframes p-slide{from{translate:100% 0}}
+@keyframes p-fade{from{opacity:0}}
+.app{position:absolute;inset:0;display:flex;overflow:hidden;font:13px/1.4 var(--font-sans);background:var(--background);color:var(--foreground);
+  .side{background:var(--sidebar,var(--background));width:132px;flex:none;padding:8px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:1px}
+  .org{display:flex;gap:6px;align-items:center;padding:4px 6px;margin-bottom:6px;font-weight:500}
+  .org b{width:18px;height:18px;border-radius:4px;display:grid;place-items:center;font-size:10px;background:var(--foreground);color:var(--background)}
+  .nav{padding:4px 8px;border-radius:6px;color:var(--muted-foreground)}
+  main{position:relative;flex:1;min-width:0;padding:12px 16px}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:34px;padding:5px 4px;border-bottom:1px solid var(--border)}
+  .m{color:var(--muted-foreground)}
+  .sel,.inp{border:1px solid var(--input);border-radius:6px;padding:3px 8px}
+  .chip{border:1px solid var(--input);border-radius:99px;padding:1px 8px;font-size:11px;font-weight:400}
+  .btn{padding:4px 12px;border-radius:6px;background:var(--primary);color:var(--primary-foreground)}
+  .on{background:var(--on);color:var(--foreground)}
+  .pop,.dlg,.sheet{background:var(--popover);color:var(--popover-foreground);border:1px solid var(--input)}
+  .pop{position:absolute;z-index:4;padding:4px;border-radius:var(--radius);animation:p-pop .2s ease-out}
+  .sheet{position:absolute;z-index:4;top:0;right:0;bottom:0;padding:12px;border-width:0 0 0 1px;animation:p-slide .28s cubic-bezier(.2,.8,.2,1)}
+  .scrim{position:absolute;inset:0;z-index:3;display:grid;place-items:center;background:color-mix(in srgb,var(--background) 65%,transparent);animation:p-fade .2s}
+  .dlg{width:280px;padding:14px;border-radius:var(--radius);animation:p-pop .2s ease-out}
+  .it{display:flex;justify-content:space-between;gap:8px;padding:4px 8px;border-radius:6px}
+  .f{display:grid;gap:4px;margin-bottom:10px}
+  .ft{display:flex;justify-content:flex-end;gap:10px}
+  .ring{outline:calc(2px*var(--k)) solid var(--p-ring);outline-offset:calc(1px*var(--k))}
+  .ring[data-y]::after{content:'';display:inline-block;width:1px;height:1em;margin-left:1px;vertical-align:-2px;background:currentColor}
+  [data-still]{animation:none}
+}
+#stage.ph .app{flex-direction:column}
+#stage.ph .side{width:auto;flex-direction:row;align-items:center;border-right:0;border-bottom:1px solid var(--border)}
+#stage.ph .org{margin:0 auto 0 0}
+#stage.ph .p-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+@media (max-width:599px){.p-parts{display:none}}
+@media (prefers-reduced-motion:reduce){.p-cur{transition:none}.app *{animation:none!important}}
+</style></head><body><div id="stage"></div><script>
+let [AW, AH] = SIZE, dark;
+const BEAT = 900, HOLD = 2400, PRESS = 520, OVERLAYS = '.pop,.dlg,.sheet,.scrim';
+const CURSOR = '<svg class="p-cur" viewBox="0 0 13 19"><path d="M1 1v14.2l3.7-3.5 2.5 5.9 2.3-1-2.5-5.8H12z" fill="var(--foreground)" stroke="var(--background)" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+const words = (s) => s.trim().split(/\s+/).filter(Boolean);
+const text = (e) => e.textContent.replace(/\s+/g, ' ').trim();
+const node = (html) => { const t = document.createElement('template'); t.innerHTML = html; return t.content.firstChild; };
+const stage = document.getElementById('stage');
+stage.style.setProperty('--beat', BEAT + 'ms');
+// T3's mode, read from the frame's background.
+{ const p = document.body.appendChild(document.createElement('i')), c = document.createElement('canvas').getContext('2d');
+  p.style.color = 'var(--background)'; c.fillStyle = getComputedStyle(p).color; c.fillRect(0, 0, 1, 1); p.remove();
+  const [r, g, b] = c.getImageData(0, 0, 1, 1).data; dark = r + g + b < 384; }
+const themeCss = document.head.appendChild(document.createElement('style'));
+const theme = () => { themeCss.textContent = `.app{${THEME[dark ? 'dark' : 'light']}}`; };
+theme();
+
+function k(id, patch, html, cls = '', typed) {
+  const target = id ? ` data-t="${id}" data-p="${esc(JSON.stringify(patch || {}))}"${typed ? ` data-y="${esc(typed)}"` : ''}` : '';
+  return `<span class="${cls}"${target}>${html}</span>`;
+}
+
+// Replays one path against view(): the state before each step, and each step's label.
+function trace(name, ids, start, has) {
+  const S = [start], T = [], box = document.createElement('div');
+  for (const id of ids) {
+    box.innerHTML = view(S[S.length - 1], has);
+    const e = box.querySelector(`[data-t="${id}"]`);
+    if (!e) { console.error(`${name}: no target "${id}" on screen after ${T.length} steps`); break; }
+    const typed = e.dataset.y;
+    T.push({ id, typed, label: typed ? `Type “${typed}”` : ([...e.childNodes].map(text).find((x) => x.length > 1) || text(e)).slice(0, 32) });
+    S.push({ ...S[S.length - 1], ...JSON.parse(e.dataset.p) });
+  }
+  return { S, T, len: T.length };
+}
+
+const later = (sec, ms, fn) => { const gen = sec.gen; setTimeout(() => gen == sec.gen && fn(), ms); };
+const all = (sec) => (sec.view ? [...sec.tiles, sec.view] : sec.tiles);
+const live = (sec) => (sec.view ? [sec.view] : sec.tiles);
+const last = (sec) => Math.max(...live(sec).map((t) => t.len));
+
+function paint(t, i, still) {
+  if (t.i !== i || still) {
+    const old = new Set([...t.app.querySelectorAll(OVERLAYS)].map((e) => e.className));
+    t.app.innerHTML = view(t.S[i], t.has);
+    for (const e of t.app.querySelectorAll(OVERLAYS)) if (still || old.has(e.className)) e.dataset.still = '';
+    t.i = i;
+  }
+  t.el.classList.toggle('done', i >= t.len);
+}
+
+function spot(t, step) {
+  const e = step && t.app.querySelector(`[data-t="${step.id}"]`);
+  if (!e) return null;
+  let x = 0, y = 0;
+  for (let n = e; n && n != t.app; n = n.offsetParent) { x += n.offsetLeft; y += n.offsetTop; }
+  return { e, x: x + Math.min(e.offsetWidth / 2, 60), y: y + e.offsetHeight * 0.6 };
+}
+
+// Tiles fit their column at real scale or below; on a phone, a tile too small to read plays at full size and follows
+// the cursor, except the row under an open tile.
+function fit(sec) {
+  for (const t of all(sec)) {
+    if (t == sec.view || sec.solo) t.el.style.maxWidth = AW + 2 + 'px';
+    t.w = t.fr.clientWidth;
+    t.follow = (!sec.view || t == sec.view) && innerWidth < 600 && t.w / AW < 0.8;
+    t.z = t.follow ? 1 : Math.min(1, t.w / AW);
+    t.k = Math.min(1 / t.z, 2.2);
+    Object.assign(t.cam.style, { width: AW + 'px', height: AH + 'px', left: t.follow ? 0 : (t.w - AW * t.z) / 2 + 'px', scale: t.z });
+    t.cam.style.setProperty('--k', t.k);
+    t.fr.style.height = AH * t.z + 2 + 'px';
+    pan(t, t.fx);
+  }
+}
+
+function pan(t, x) {
+  t.fx = x;
+  t.cam.style.translate = t.follow && x != null ? `${Math.max(t.w - AW, Math.min(0, t.w / 2 - x))}px 0` : '0 0';
+}
+
+function bar(sec) {
+  const now = sec.b == null ? -1 : Math.min(sec.b, sec.max);
+  [...sec.beats.children].forEach((e, j) => { e.className = j < now ? 'past' : j == now ? 'now' : ''; });
+  sec.el.classList.toggle('paused', !sec.playing);
+  sec.pp.textContent = sec.playing ? 'Pause' : sec.b == null ? 'Play' : 'Replay';
+}
+
+// At rest: every tile on its still, or a live one on beat b after a pause or seek, with the next target ringed.
+function pose(sec) {
+  const on = live(sec);
+  for (const t of all(sec)) {
+    paint(t, sec.b == null || !on.includes(t) ? t.still : Math.min(sec.b, t.len), true);
+    const p = spot(t, t.T[t.i]);
+    if (p) { p.e.classList.add('ring'); pan(t, p.x); }
+    t.cap.textContent = '';
+    t.cur.style.opacity = 0;
+  }
+  bar(sec);
+}
+
+function aim(sec, t) {
+  const step = t.T[t.i], p = spot(t, step);
+  t.cap.textContent = p ? step.label : '';
+  t.cur.style.opacity = p ? 1 : 0;
+  if (!p) return;
+  pan(t, p.x);
+  t.cur.style.translate = t.rip.style.translate = `${p.x}px ${p.y}px`;
+  later(sec, PRESS, () => {
+    p.e.classList.add('ring');
+    t.cur.animate([{ scale: t.k * 0.8 }, { scale: t.k }], 240);
+    t.rip.animate([{ scale: t.k * 0.2, opacity: 1 }, { scale: t.k, opacity: 0 }], { duration: 460, easing: 'ease-out' });
+    if (!step.typed) return;
+    p.e.textContent = '';
+    [...step.typed].forEach((_, j) => later(sec, 70 + j * 110, () => { p.e.textContent = step.typed.slice(0, j + 1); }));
+  });
+}
+
+function beat(sec) {
+  sec.gen++;
+  for (const t of live(sec)) { paint(t, Math.min(sec.b, t.len)); aim(sec, t); }
+  const end = sec.b >= last(sec);
+  if (end) sec.playing = false;
+  bar(sec);
+  later(sec, end ? HOLD : BEAT, () => { if (end) return pose(sec); sec.b++; beat(sec); });
+}
+
+function play(sec) {
+  sec.playing = true;
+  if (sec.b == null || sec.b >= last(sec)) sec.b = 0;
+  beat(sec);
+}
+
+function pause(sec) {
+  sec.playing = false;
+  sec.gen++;
+  pose(sec);
+}
+
+function mount(t, cls) {
+  const clicks = t.T.filter((s) => !s.typed).length;
+  t.el = node(`<div class="p-tile ${cls}"><div class="p-th"><span class="p-id">${t.id}</span><span class="p-parts">${words(t.parts).join(' + ')}</span><span class="p-n">${clicks}<span> click${clicks == 1 ? '' : 's'}</span></span></div><div class="p-fr"><div class="p-cam"><div class="app"></div>${CURSOR}<i class="p-rip"></i></div><span class="p-cap"></span></div></div>`);
+  for (const key of ['app', 'cam', 'fr', 'cap', 'cur', 'rip']) t[key] = t.el.querySelector(key == 'app' ? '.app' : '.p-' + key);
+  t.cur.style.translate = `${AW * 0.6}px ${AH * 0.85}px`;
+  return t;
+}
+
+// Opens a tile large above the row, where every tile keeps its place and the open one is outlined; it plays alone
+// after a short delay. Clicking it, large or in the row, closes it.
+function open(sec, t) {
+  sec.view?.el.remove();
+  sec.fo = sec.fo == t ? null : t;
+  sec.view = sec.fo && mount({ ...t, i: -1, fx: null }, 'p-view');
+  if (sec.view) sec.grid.before(sec.view.el);
+  sec.el.classList.toggle('zm', !!sec.fo);
+  for (const x of sec.tiles) x.el.classList.toggle('fo', x == sec.fo);
+  fit(sec);
+  sec.b = null; pause(sec);
+  if (sec.fo) later(sec, 700, () => play(sec));
+}
+
+const secs = DECISIONS.map((d, si) => {
+  const solo = !d.variants;
+  const tiles = [['Today', '', d.today], ...Object.entries(d.variants || {}).map(([id, v]) => [id, v.parts, v.path])].map(([id, parts, path], ti) => {
+    const tokens = words(path), has = Object.fromEntries(words(parts).map((p) => [p, true]));
+    if (!ti) has.today = true;
+    const t = { id, parts, has, ...trace(id, tokens.filter((x) => x != '|'), d.start, has) };
+    t.still = Math.min(Math.max(tokens.indexOf('|'), 0), t.len);
+    return mount(t, '');
+  });
+  const max = Math.max(...tiles.map((t) => t.len));
+  const el = node(`<section class="paused${solo ? ' solo' : ''}"><div class="p-hd"><span class="p-id">${si + FIRST}</span><span class="p-name">${d.name}</span><span class="p-task">${d.task}</span><span class="p-tl"><button></button><span class="p-beats">${'<i><span></span></i>'.repeat(max + 1)}</span></span></div><div class="p-grid"></div></section>`);
+  const sec = { el, tiles, max, b: null, gen: 0, playing: false, fo: null, solo, grid: el.querySelector('.p-grid'), beats: el.querySelector('.p-beats'), pp: el.querySelector('button') };
+  for (const t of tiles) sec.grid.append(t.el);
+  el.addEventListener('click', (e) => {
+    const b = e.target.closest('.p-beats i'), tile = e.target.closest('.p-tile');
+    if (e.target == sec.pp || (solo && tile)) sec.playing ? pause(sec) : play(sec);
+    else if (b) { sec.b = [...sec.beats.children].indexOf(b); pause(sec); }
+    else if (tile) open(sec, tiles.find((t) => t.el == tile) || sec.fo);
+  });
+  stage.append(el);
+  fit(sec);
+  pose(sec);
+  return sec;
+});
+addEventListener('resize', () => secs.forEach(fit));
+
+const tbar = node(`<div class="p-top"><button>Phone</button>${THEME.dark ? '<button>Dark</button>' : ''}</div>`);
+const [phone, darkBtn] = tbar.children;
+const sync = () => { phone.ariaPressed = stage.classList.contains('ph'); if (darkBtn) darkBtn.ariaPressed = dark; };
+tbar.addEventListener('click', (e) => {
+  if (e.target == darkBtn) { dark = !dark; theme(); }
+  if (e.target == phone) { [AW, AH] = stage.classList.toggle('ph') ? PHONE : SIZE; for (const sec of secs) { fit(sec); pose(sec); } }
+  sync();
+});
+stage.prepend(tbar); sync();
+</script></body></html>

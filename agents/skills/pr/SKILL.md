@@ -120,11 +120,14 @@ props, states and boundaries needed to make the point.
 Show that the change works on its real input, before and after on the same data.
 This applies to backend, API, CLI and infrastructure changes too.
 
-- **Screenshots** prove states and outcomes. Any visible change gets before and after screenshots.
+- **Screenshots** prove states and outcomes. Any visible change gets before and after screenshots,
+  taken once the state's own text or element shows, never after a timer. Run
+  [page-audit.js](references/page-audit.js) through `preview_evaluate` on each captured
+  state and fix the duplicates, clipping, overflow, false loading, empty and error
+  states it reports before using the capture.
 - **Recordings** prove sequences. When the change is an interaction, a flow across
   pages, streaming, timing or anything a still image cannot show, add a proof
-  video. Read the [video reference](../environment/references/video.md) to delegate
-  the capture and check it.
+  video. Record it by the [video reference](../environment/references/video.md).
 - **Execution** backs up captures and is the evidence when nothing is visible:
   requests and responses, terminal output, traces. For a test, show in pseudocode
   what it checks and how it failed before the fix.
